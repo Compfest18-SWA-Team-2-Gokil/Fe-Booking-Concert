@@ -1,15 +1,15 @@
 import { Link } from 'react-router-dom';
-import logoSvg from '../../assets/logo.svg';
-import bcaLogo from '../../assets/payments/bca.svg';
-import bniLogo from '../../assets/payments/bni.svg';
-import briLogo from '../../assets/payments/bri.svg';
-import bsiLogo from '../../assets/payments/bsi.svg';
-import cimbLogo from '../../assets/payments/cimb.svg';
-import jagoLogo from '../../assets/payments/jago.svg';
-import jeniusLogo from '../../assets/payments/jenius.svg';
-import seabankLogo from '../../assets/payments/seabank.svg';
-import alloLogo from '../../assets/payments/allo.svg';
-import superbankLogo from '../../assets/payments/superbank.svg';
+import logoSvg from '../../../assets/logo.svg';
+import bcaLogo from '../../../assets/payments/bca.svg';
+import bniLogo from '../../../assets/payments/bni.svg';
+import briLogo from '../../../assets/payments/bri.svg';
+import bsiLogo from '../../../assets/payments/bsi.svg';
+import cimbLogo from '../../../assets/payments/cimb.svg';
+import jagoLogo from '../../../assets/payments/jago.svg';
+import jeniusLogo from '../../../assets/payments/jenius.svg';
+import seabankLogo from '../../../assets/payments/seabank.svg';
+import alloLogo from '../../../assets/payments/allo.svg';
+import superbankLogo from '../../../assets/payments/superbank.svg';
 
 const PAYMENTS = [
   { name: 'BCA', logo: bcaLogo },

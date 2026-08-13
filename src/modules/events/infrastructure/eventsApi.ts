@@ -1,5 +1,5 @@
 import axiosInstance from '../../../core/api/axiosInstance';
-import type { Event } from '../domain/Event';
+import type { Event } from '../domain/models/Event';
 import type { TicketType } from '../../inventory/domain/Ticket';
 
 export const eventsApi = {

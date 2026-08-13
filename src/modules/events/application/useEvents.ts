@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { eventsApi } from '../infrastructure/eventsApi';
-import type { Event } from '../domain/Event';
+import type { Event } from '../domain/models/Event';
 
 export function useEvents() {
   return useQuery<Event[]>({
