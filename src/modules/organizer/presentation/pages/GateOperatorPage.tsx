@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { ArrowLeft, Users, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Users } from 'lucide-react';
 import { useEvents } from '../../../events/application/useEvents';
 import axiosInstance from '../../../../core/api/axiosInstance';
 import { showAlert } from '../../../../shared/utils/alert';
@@ -13,7 +13,6 @@ export function GateOperatorPage() {
   const event = events?.find((e) => e.id === eventId);
 
   const [userId, setUserId] = useState('');
-  const [success, setSuccess] = useState(false);
 
   const assign = useMutation({
     mutationFn: (uid: string) =>
@@ -21,7 +20,6 @@ export function GateOperatorPage() {
         .post<{ status: string }>(`/api/v1/events/${eventId}/gate-operators`, { user_id: uid })
         .then((r) => r.data),
     onSuccess: () => {
-      setSuccess(true);
       setUserId('');
       showAlert.success(
         'Operator Ditambahkan',
@@ -39,7 +37,6 @@ export function GateOperatorPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!userId.trim()) return;
-    setSuccess(false);
     assign.mutate(userId.trim());
   }
 
@@ -89,24 +86,10 @@ export function GateOperatorPage() {
               </p>
             </div>
 
-            {success && (
-              <div className="flex items-center gap-2 bg-green-50 border border-green-100 text-green-700 text-sm font-semibold px-4 py-3 rounded-xl">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                Gate operator berhasil ditambahkan ke event ini.
-              </div>
-            )}
-
-            {assign.isError && (
-              <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-700 text-sm font-semibold px-4 py-3 rounded-xl">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                Gagal assign. Pastikan User ID valid dan role-nya GATE_OPERATOR.
-              </div>
-            )}
-
             <button
               type="submit"
               disabled={assign.isPending || !userId.trim()}
-              className="w-full bg-[#0064D2] hover:bg-[#0052B0] text-white py-3.5 rounded-xl font-extrabold shadow-md transition-colors disabled:opacity-60"
+              className="w-full bg-[#0064D2] hover:bg-[#0052B0] text-white py-3.5 rounded-xl font-extrabold shadow-md transition-colors disabled:opacity-60 cursor-pointer"
             >
               {assign.isPending ? 'Menyimpan...' : 'Assign Gate Operator'}
             </button>

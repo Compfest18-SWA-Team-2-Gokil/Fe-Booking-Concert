@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Plus, BarChart3, Calendar, MapPin, Users, Ticket, TrendingUp, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Plus, BarChart3, Calendar, MapPin, TrendingUp } from 'lucide-react';
 import { useEvents } from '../../../events/application/useEvents';
 import { useAuth } from '../../../auth/application/useAuth';
 import axiosInstance from '../../../../core/api/axiosInstance';
 import { formatDate } from '../../../../core/utils/formatDate';
 import { approveRefund } from '../../../../modules/orders/infrastructure/ordersApi';
+import { showAlert } from '../../../../shared/utils/alert';
 
 interface TicketTypeMetrics {
   ticket_type_id: string;
@@ -70,20 +71,27 @@ function MetricsCard({ eventId }: { eventId: string }) {
 
 function ApproveRefundCard() {
   const [orderId, setOrderId] = useState('');
-  const [successId, setSuccessId] = useState('');
 
   const approve = useMutation({
     mutationFn: (id: string) => approveRefund(id),
     onSuccess: (_, id) => {
-      setSuccessId(id);
       setOrderId('');
+      showAlert.success(
+        'Refund Disetujui',
+        `Permintaan refund untuk order ${id} berhasil disetujui.`
+      );
+    },
+    onError: () => {
+      showAlert.error(
+        'Gagal Menyetujui Refund',
+        'Pastikan Order ID valid dan pesanan memiliki status REFUND_REQUESTED.'
+      );
     },
   });
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!orderId.trim()) return;
-    setSuccessId('');
     approve.mutate(orderId.trim());
   }
 
@@ -102,21 +110,11 @@ function ApproveRefundCard() {
         <button
           type="submit"
           disabled={approve.isPending || !orderId.trim()}
-          className="bg-[#0064D2] text-white font-bold px-4 py-2.5 rounded-xl hover:bg-[#0052B0] disabled:opacity-50 transition-colors text-sm"
+          className="bg-[#0064D2] text-white font-bold px-4 py-2.5 rounded-xl hover:bg-[#0052B0] disabled:opacity-50 transition-colors text-sm cursor-pointer"
         >
           {approve.isPending ? 'Memproses...' : 'Approve'}
         </button>
       </form>
-      {successId && (
-        <div className="flex items-center gap-2 mt-3 bg-green-50 border border-green-100 text-green-700 text-xs font-semibold px-3 py-2 rounded-xl">
-          <CheckCircle2 className="w-3.5 h-3.5" /> Refund untuk order <span className="font-mono">{successId}</span> berhasil disetujui.
-        </div>
-      )}
-      {approve.isError && (
-        <div className="flex items-center gap-2 mt-3 bg-red-50 border border-red-100 text-red-700 text-xs font-semibold px-3 py-2 rounded-xl">
-          <AlertCircle className="w-3.5 h-3.5" /> Gagal approve. Pastikan Order ID valid dan statusnya REFUND_REQUESTED.
-        </div>
-      )}
     </div>
   );
 }

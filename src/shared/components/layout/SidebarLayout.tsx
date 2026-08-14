@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   X, LogOut, Ticket, Plus, QrCode,
-  Shield, Music, Calendar, MapPin, Users, PanelLeftClose, PanelLeft,
+  Shield, Music, Calendar, PanelLeftClose, PanelLeft,
 } from 'lucide-react';
 import { useAuth } from '../../../modules/auth/application/useAuth';
 import { Footer } from './Footer';

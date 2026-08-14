@@ -1,15 +1,22 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Calendar, MapPin, Music, CheckCircle2, Upload, Image } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, CheckCircle2, Upload, Image, AlignLeft, Tag } from 'lucide-react';
+import { eventsApi } from '../../../events/infrastructure/eventsApi';
+import type { Event, EventCategory } from '../../../events/domain/models/Event';
+import { CATEGORY_LABELS } from '../../../events/domain/models/Event';
 import axiosInstance from '../../../../core/api/axiosInstance';
-import type { Event } from '../../../events/domain/models/Event';
 import { showAlert, showToast } from '../../../../shared/utils/alert';
+
+const CATEGORIES: EventCategory[] = ['music', 'olahraga', 'seni', 'workshop'];
 
 function CreateEventPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState<EventCategory>('music');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('19:00');
   const [location, setLocation] = useState('');
@@ -18,8 +25,8 @@ function CreateEventPage() {
   const [imageUploaded, setImageUploaded] = useState(false);
 
   const createEvent = useMutation({
-    mutationFn: (payload: { name: string; date: string; location: string }) =>
-      axiosInstance.post<Event>('/api/v1/events', payload).then((r) => r.data),
+    mutationFn: (payload: { name: string; description: string; category: EventCategory; date: string; location: string }) =>
+      eventsApi.createEvent(payload).then((r) => r.data),
     onSuccess: (event) => {
       qc.invalidateQueries({ queryKey: ['events'] });
       showToast.success('Event berhasil dibuat!');
@@ -56,7 +63,7 @@ function CreateEventPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const isoDate = `${date}T${time}:00+07:00`;
-    createEvent.mutate({ name, date: isoDate, location });
+    createEvent.mutate({ name, description, category, date: isoDate, location });
   }
 
   function handleImageUpload() {
@@ -76,7 +83,6 @@ function CreateEventPage() {
             <strong className="text-gray-900">{done.name}</strong> sudah tersimpan.
           </p>
 
-          {/* Image Upload */}
           {!imageUploaded ? (
             <div className="bg-gray-50 rounded-2xl p-5 mb-6 text-left">
               <div className="flex items-center gap-2 mb-3">
@@ -89,9 +95,6 @@ function CreateEventPage() {
                 onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
                 className="w-full text-sm text-gray-600 mb-3 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-[#0064D2] hover:file:bg-blue-100"
               />
-              {uploadImage.isError && (
-                <p className="text-red-500 text-xs mb-2">Gagal upload. Pastikan file &lt; 5MB (JPG/PNG/WebP).</p>
-              )}
               <div className="flex gap-2">
                 <button
                   onClick={handleImageUpload}
@@ -154,7 +157,7 @@ function CreateEventPage() {
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
-              <Music className="w-6 h-6 text-[#0064D2]" />
+              <Tag className="w-6 h-6 text-[#0064D2]" />
             </div>
             <div>
               <h1 className="text-2xl font-black text-gray-900">Buat Event</h1>
@@ -166,13 +169,43 @@ function CreateEventPage() {
             <div>
               <label className="block text-sm font-bold text-gray-900 mb-1.5">Nama Event</label>
               <input
-                type="text"
-                required
-                value={name}
+                type="text" required value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="cth. Konser Dewa 19 Reunion Tour 2026"
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0064D2] focus:border-transparent text-sm"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-1.5">
+                <span className="flex items-center gap-1.5"><AlignLeft className="w-4 h-4 text-[#0064D2]" />Deskripsi Event</span>
+              </label>
+              <textarea
+                rows={3} value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Ceritakan detail acara, artis yang tampil, fasilitas, dll."
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0064D2] focus:border-transparent text-sm resize-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-1.5">
+                <span className="flex items-center gap-1.5"><Tag className="w-4 h-4 text-[#0064D2]" />Kategori Event</span>
+              </label>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat} type="button" onClick={() => setCategory(cat)}
+                    className={`py-2.5 rounded-xl text-sm font-bold border-2 transition-colors ${
+                      category === cat
+                        ? 'border-[#0064D2] bg-blue-50 text-[#0064D2]'
+                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                    }`}
+                  >
+                    {CATEGORY_LABELS[cat]}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -181,9 +214,7 @@ function CreateEventPage() {
                   <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-[#0064D2]" />Tanggal</span>
                 </label>
                 <input
-                  type="date"
-                  required
-                  value={date}
+                  type="date" required value={date}
                   min={new Date().toISOString().split('T')[0]}
                   onChange={(e) => setDate(e.target.value)}
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0064D2] focus:border-transparent text-sm"
@@ -192,9 +223,7 @@ function CreateEventPage() {
               <div>
                 <label className="block text-sm font-bold text-gray-900 mb-1.5">Jam Mulai (WIB)</label>
                 <input
-                  type="time"
-                  required
-                  value={time}
+                  type="time" required value={time}
                   onChange={(e) => setTime(e.target.value)}
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0064D2] focus:border-transparent text-sm"
                 />
@@ -206,25 +235,16 @@ function CreateEventPage() {
                 <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-[#0064D2]" />Lokasi / Venue</span>
               </label>
               <input
-                type="text"
-                required
-                value={location}
+                type="text" required value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="cth. Gelora Bung Karno, Jakarta"
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0064D2] focus:border-transparent text-sm"
               />
             </div>
 
-            {createEvent.isError && (
-              <p className="text-red-600 text-sm bg-red-50 p-3 rounded-xl">
-                Gagal membuat event. Pastikan tanggal di masa depan dan semua field terisi.
-              </p>
-            )}
-
             <button
-              type="submit"
-              disabled={createEvent.isPending}
-              className="w-full bg-[#0064D2] hover:bg-[#0052B0] text-white py-3.5 rounded-xl font-extrabold shadow-md transition-colors disabled:opacity-60"
+              type="submit" disabled={createEvent.isPending}
+              className="w-full bg-[#0064D2] hover:bg-[#0052B0] text-white py-3.5 rounded-xl font-extrabold shadow-md transition-colors disabled:opacity-60 cursor-pointer"
             >
               {createEvent.isPending ? 'Membuat Event...' : 'Buat Event'}
             </button>
