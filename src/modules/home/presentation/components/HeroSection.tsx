@@ -1,4 +1,4 @@
-import { MapPin, Users, Calendar, Play } from 'lucide-react';
+import { MapPin, Users } from 'lucide-react';
 import landingBg from '../../../../assets/landing.jpg';
 
 interface HeroSectionProps {
@@ -23,30 +23,23 @@ export function HeroSection({ searchQuery, onSearchChange, selectedCity, onCityC
           Temukan Events Impian Favoritmu
         </h1>
 
-        <p className="text-white/95 !text-white/95 text-base sm:text-lg mb-8 max-w-2xl mx-auto font-normal leading-relaxed drop-shadow-md text-center" style={{ color: 'rgba(255, 255, 255, 0.95)' }}>
-          Pesan tiket konser artis lokal & internasional dengan sistem antrian adil, transaksi aman, dan konfirmasi instan.
+        <p className="text-white/95 !text-white/95 text-base sm:text-lg mb-12 max-w-2xl mx-auto font-normal leading-relaxed drop-shadow-md text-center" style={{ color: 'rgba(255, 255, 255, 0.95)' }}>
+          Pesan tiket konser artis lokal &amp; internasional dengan sistem antrian adil, transaksi aman, dan konfirmasi instan.
         </p>
 
-        <div className="inline-flex items-center gap-3 bg-white/25 backdrop-blur-md border border-white/40 rounded-full px-6 py-2.5 mb-12 shadow-xl hover:bg-white/35 transition-all cursor-pointer group">
-          <div className="w-8 h-8 rounded-full bg-white text-[#0064D2] flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-            <Play className="w-4 h-4 fill-[#0064D2] ml-0.5" />
-          </div>
-          <span className="text-white font-bold text-sm drop-shadow-sm">Watch Video</span>
-        </div>
-
-        <div className="w-full max-w-6xl mx-auto bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-2xl border border-white/60 text-left">
+        <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-2xl border border-white/60 text-left">
           <form onSubmit={onSearch} className="flex flex-col md:flex-row items-center gap-2 md:gap-0">
             <div className="w-full md:flex-1 px-4 py-3.5 flex items-center gap-3 hover:bg-gray-50/80 rounded-xl transition-colors">
               <MapPin className="w-5 h-5 text-[#0064D2] shrink-0" />
               <div className="flex-1">
                 <label className="block text-[11px] font-bold text-gray-800 uppercase tracking-wider">
-                  Location / Konser
+                  Cari Event
                 </label>
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
-                  placeholder="Search For A Destination..."
+                  placeholder="Nama event atau artis..."
                   className="w-full bg-transparent text-sm text-gray-600 outline-none placeholder-gray-400 font-medium mt-0.5"
                 />
               </div>
@@ -58,7 +51,7 @@ export function HeroSection({ searchQuery, onSearchChange, selectedCity, onCityC
               <Users className="w-5 h-5 text-[#0064D2] shrink-0" />
               <div className="flex-1">
                 <label className="block text-[11px] font-bold text-gray-800 uppercase tracking-wider">
-                  Lokasi Kota
+                  Lokasi
                 </label>
                 <select
                   value={selectedCity}
@@ -72,20 +65,6 @@ export function HeroSection({ searchQuery, onSearchChange, selectedCity, onCityC
                   <option value="Bali">Bali</option>
                   <option value="Yogyakarta">Yogyakarta</option>
                 </select>
-              </div>
-            </div>
-
-            <div className="hidden md:block w-px h-10 bg-gray-200" />
-
-            <div className="w-full md:flex-1 px-4 py-3.5 flex items-center gap-3 hover:bg-gray-50/80 rounded-xl transition-colors">
-              <Calendar className="w-5 h-5 text-[#0064D2] shrink-0" />
-              <div className="flex-1">
-                <label className="block text-[11px] font-bold text-gray-800 uppercase tracking-wider">
-                  Date
-                </label>
-                <span className="block text-sm text-gray-400 font-medium mt-0.5">
-                  Pick a date
-                </span>
               </div>
             </div>
 
