@@ -115,12 +115,6 @@ export function RegisterForm() {
         </div>
       </div>
 
-      {register.error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-3.5 py-2.5 rounded-xl text-xs font-semibold">
-          ⚠️ Pendaftaran gagal. Email mungkin sudah terdaftar.
-        </div>
-      )}
-
       <button
         type="submit"
         disabled={register.isPending}

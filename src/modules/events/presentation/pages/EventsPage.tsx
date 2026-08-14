@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { AlertTriangle, Calendar, MapPin, Music } from 'lucide-react';
+import { AlertTriangle, Calendar, MapPin } from 'lucide-react';
 import { useEvents } from '../../application/useEvents';
 import { useHomeFilter } from '../../../home/application/useHomeFilter';
 import { HeroSection } from '../../../home/presentation/components/HeroSection';
@@ -7,20 +8,24 @@ import { EventGrid } from '../components/EventGrid';
 import { EventSkeleton } from '../components/EventSkeleton';
 import { useAuth } from '../../../auth/application/useAuth';
 import { formatDate } from '../../../../core/utils/formatDate';
-import drawkit10 from '../../../../assets/illustrator/DrawKit10.png';
+import { CATEGORY_LABELS } from '../../domain/models/Event';
+import type { EventCategory } from '../../domain/models/Event';
 import type { Event } from '../../domain/models/Event';
+import drawkit10 from '../../../../assets/illustrator/DrawKit10.png';
 
 function EventListItem({ event }: { event: Event }) {
+  const categoryLabel = event.category ? CATEGORY_LABELS[event.category] ?? event.category : 'Event';
   return (
     <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
-      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-        <Music className="w-5 h-5 text-[#0064D2]" />
+      <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0064D2] flex items-center justify-center shrink-0">
+        <Calendar className="w-5 h-5" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-bold text-gray-900 truncate">{event.name}</p>
         <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500">
           <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(event.date)}</span>
           <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{event.location}</span>
+          <span className="bg-blue-50 text-[#0064D2] font-bold px-2 py-0.5 rounded-full">{categoryLabel}</span>
         </div>
       </div>
     </div>
@@ -33,47 +38,33 @@ export function EventsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = searchParams.get('q') || '';
   const cityParam = searchParams.get('city') || '';
+  const categoryParam = (searchParams.get('category') as EventCategory) || '';
 
   const { data: events, isLoading, error } = useEvents();
 
   const {
-    searchQuery,
-    setSearchQuery,
-    selectedCity,
-    setSelectedCity,
-    filteredEvents,
-    applyFilters,
-    resetFilters,
+    searchQuery, setSearchQuery,
+    selectedCity, setSelectedCity,
+    selectedCategory, setSelectedCategory,
+    filteredEvents, applyFilters, resetFilters,
   } = useHomeFilter(events);
 
-  // Sync initial query params if present
+  // Inisialisasi dari URL params jika ada
+  useState(() => {
+    if (queryParam) setSearchQuery(queryParam);
+    if (cityParam) setSelectedCity(cityParam);
+    if (categoryParam) setSelectedCategory(categoryParam);
+  });
+
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     applyFilters();
-    if (searchQuery) {
-      setSearchParams((prev) => {
-        prev.set('q', searchQuery);
-        return prev;
-      });
-    } else {
-      setSearchParams((prev) => {
-        prev.delete('q');
-        return prev;
-      });
-    }
-
-    if (selectedCity) {
-      setSearchParams((prev) => {
-        prev.set('city', selectedCity);
-        return prev;
-      });
-    } else {
-      setSearchParams((prev) => {
-        prev.delete('city');
-        return prev;
-      });
-    }
-
+    setSearchParams((p) => {
+      if (searchQuery) p.set('q', searchQuery); else p.delete('q');
+      if (selectedCity) p.set('city', selectedCity); else p.delete('city');
+      if (selectedCategory) p.set('category', selectedCategory); else p.delete('category');
+      return p;
+    });
     document.getElementById('events-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -84,24 +75,24 @@ export function EventsPage() {
 
   return (
     <div className="w-full bg-white pb-16">
-      {/* Hero Section matching the base homepage */}
       <HeroSection
-        searchQuery={searchQuery || queryParam}
+        searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        selectedCity={selectedCity || cityParam}
+        selectedCity={selectedCity}
         onCityChange={setSelectedCity}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
         onSearch={handleSearch}
       />
 
-      {/* Main Events Section */}
       <section id="events-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-16 scroll-mt-24">
         <div className="flex items-end justify-between mb-8">
           <div>
             <h2 className="text-2xl sm:text-4xl font-black text-gray-900 tracking-tight">
-              Event Mendatang Populer
+              Event Mendatang
             </h2>
             <p className="text-gray-500 text-sm mt-1">
-              Amankan tiket konser artis favoritmu sebelum kuota kehabisan!
+              Amankan tiket sebelum kuota kehabisan!
             </p>
           </div>
           {filteredEvents && filteredEvents.length > 0 && (
@@ -111,16 +102,12 @@ export function EventsPage() {
           )}
         </div>
 
-        {/* Loading State */}
         {isLoading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <EventSkeleton key={i} />
-            ))}
+            {Array.from({ length: 6 }).map((_, i) => <EventSkeleton key={i} />)}
           </div>
         )}
 
-        {/* Error State */}
         {error && (
           <div className="text-center py-16 bg-white rounded-3xl shadow-sm border border-red-100 p-8">
             <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-3" />
@@ -129,19 +116,12 @@ export function EventsPage() {
           </div>
         )}
 
-        {/* Empty State */}
         {!isLoading && !error && filteredEvents && filteredEvents.length === 0 && (
           <div className="text-center py-16 px-6 bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
-            <img
-              src={drawkit10}
-              alt="Tidak ada event"
-              className="w-56 sm:w-64 max-h-60 object-contain mb-4 drop-shadow-sm"
-            />
-            <h4 className="text-xl font-bold text-gray-900 mb-1">
-              Belum ada event konser yang sesuai pencarian
-            </h4>
+            <img src={drawkit10} alt="Tidak ada event" className="w-56 sm:w-64 max-h-60 object-contain mb-4 drop-shadow-sm" />
+            <h4 className="text-xl font-bold text-gray-900 mb-1">Belum ada event yang sesuai</h4>
             <p className="text-gray-500 text-sm max-w-sm mb-6">
-              Coba ubah kata kunci pencarian atau reset filter untuk melihat semua event yang tersedia.
+              Coba ubah kategori atau reset filter untuk melihat semua event.
             </p>
             <button
               onClick={handleReset}
@@ -152,7 +132,6 @@ export function EventsPage() {
           </div>
         )}
 
-        {/* Event Grid / List */}
         {!isLoading && !error && filteredEvents && filteredEvents.length > 0 && (
           isBuyer
             ? <EventGrid events={filteredEvents} />
@@ -162,4 +141,3 @@ export function EventsPage() {
     </div>
   );
 }
-

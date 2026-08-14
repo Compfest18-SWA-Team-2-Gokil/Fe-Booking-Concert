@@ -1,4 +1,6 @@
-import { MapPin, Users } from 'lucide-react';
+import { MapPin, Search as SearchIcon, Tag } from 'lucide-react';
+import type { EventCategory } from '../../../events/domain/models/Event';
+import { CATEGORY_LABELS } from '../../../events/domain/models/Event';
 import landingBg from '../../../../assets/landing.jpg';
 
 interface HeroSectionProps {
@@ -6,10 +8,20 @@ interface HeroSectionProps {
   onSearchChange: (v: string) => void;
   selectedCity: string;
   onCityChange: (v: string) => void;
+  selectedCategory?: EventCategory | '';
+  onCategoryChange?: (v: EventCategory | '') => void;
   onSearch: (e: React.FormEvent) => void;
 }
 
-export function HeroSection({ searchQuery, onSearchChange, selectedCity, onCityChange, onSearch }: HeroSectionProps) {
+export function HeroSection({
+  searchQuery,
+  onSearchChange,
+  selectedCity,
+  onCityChange,
+  selectedCategory = '',
+  onCategoryChange,
+  onSearch,
+}: HeroSectionProps) {
   return (
     <section className="relative min-h-[600px] lg:min-h-[660px] flex items-center justify-center overflow-hidden bg-slate-900">
       <div
@@ -29,8 +41,9 @@ export function HeroSection({ searchQuery, onSearchChange, selectedCity, onCityC
 
         <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-2xl border border-white/60 text-left">
           <form onSubmit={onSearch} className="flex flex-col md:flex-row items-center gap-2 md:gap-0">
+            {/* 1. Cari Event */}
             <div className="w-full md:flex-1 px-4 py-3.5 flex items-center gap-3 hover:bg-gray-50/80 rounded-xl transition-colors">
-              <MapPin className="w-5 h-5 text-[#0064D2] shrink-0" />
+              <SearchIcon className="w-5 h-5 text-[#0064D2] shrink-0" />
               <div className="flex-1">
                 <label className="block text-[11px] font-bold text-gray-800 uppercase tracking-wider">
                   Cari Event
@@ -47,8 +60,37 @@ export function HeroSection({ searchQuery, onSearchChange, selectedCity, onCityC
 
             <div className="hidden md:block w-px h-10 bg-gray-200" />
 
+            {/* 2. Kategori Dropdown */}
+            {onCategoryChange && (
+              <>
+                <div className="w-full md:flex-1 px-4 py-3.5 flex items-center gap-3 hover:bg-gray-50/80 rounded-xl transition-colors">
+                  <Tag className="w-5 h-5 text-[#0064D2] shrink-0" />
+                  <div className="flex-1">
+                    <label className="block text-[11px] font-bold text-gray-800 uppercase tracking-wider">
+                      Kategori
+                    </label>
+                    <select
+                      value={selectedCategory}
+                      onChange={(e) => onCategoryChange(e.target.value as EventCategory | '')}
+                      className="w-full bg-transparent text-sm text-gray-600 outline-none cursor-pointer font-medium mt-0.5"
+                    >
+                      <option value="">Semua Kategori</option>
+                      {(Object.keys(CATEGORY_LABELS) as EventCategory[]).map((cat) => (
+                        <option key={cat} value={cat}>
+                          {CATEGORY_LABELS[cat]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="hidden md:block w-px h-10 bg-gray-200" />
+              </>
+            )}
+
+            {/* 3. Lokasi Dropdown */}
             <div className="w-full md:flex-1 px-4 py-3.5 flex items-center gap-3 hover:bg-gray-50/80 rounded-xl transition-colors">
-              <Users className="w-5 h-5 text-[#0064D2] shrink-0" />
+              <MapPin className="w-5 h-5 text-[#0064D2] shrink-0" />
               <div className="flex-1">
                 <label className="block text-[11px] font-bold text-gray-800 uppercase tracking-wider">
                   Lokasi
@@ -68,10 +110,11 @@ export function HeroSection({ searchQuery, onSearchChange, selectedCity, onCityC
               </div>
             </div>
 
+            {/* Submit Button */}
             <div className="w-full md:w-auto p-1">
               <button
                 type="submit"
-                className="w-full md:w-auto bg-[#0064D2] hover:bg-[#0052B0] text-white font-bold text-base px-9 py-3.5 rounded-xl md:rounded-2xl shadow-lg shadow-blue-500/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
+                className="w-full md:w-auto bg-[#0064D2] hover:bg-[#0052B0] text-white font-bold text-base px-9 py-3.5 rounded-xl md:rounded-2xl shadow-lg shadow-blue-500/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Search</span>
               </button>
@@ -82,3 +125,4 @@ export function HeroSection({ searchQuery, onSearchChange, selectedCity, onCityC
     </section>
   );
 }
+

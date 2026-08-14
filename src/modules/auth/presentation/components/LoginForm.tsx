@@ -40,11 +40,7 @@ export function LoginForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className={`w-full border rounded-xl px-3.5 py-2.5 text-[#1A1A1A] text-sm transition-all focus:outline-none focus:ring-2 ${
-            login.error
-              ? 'border-red-400 bg-red-50/30 focus:ring-red-400'
-              : 'border-[#E5E7EB] focus:ring-[#0064D2]'
-          }`}
+          className="w-full border border-[#E5E7EB] rounded-xl px-3.5 py-2.5 text-[#1A1A1A] text-sm transition-all focus:outline-none focus:ring-2 focus:ring-[#0064D2]"
           placeholder="email@example.com"
         />
       </div>
@@ -55,20 +51,10 @@ export function LoginForm() {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className={`w-full border rounded-xl px-3.5 py-2.5 text-[#1A1A1A] text-sm transition-all focus:outline-none focus:ring-2 ${
-            login.error
-              ? 'border-red-400 bg-red-50/30 focus:ring-red-400'
-              : 'border-[#E5E7EB] focus:ring-[#0064D2]'
-          }`}
+          className="w-full border border-[#E5E7EB] rounded-xl px-3.5 py-2.5 text-[#1A1A1A] text-sm transition-all focus:outline-none focus:ring-2 focus:ring-[#0064D2]"
           placeholder="••••••••"
         />
       </div>
-
-      {login.error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2">
-          <span>⚠️ Email atau password salah. Silakan periksa kembali.</span>
-        </div>
-      )}
 
       <button
         type="submit"

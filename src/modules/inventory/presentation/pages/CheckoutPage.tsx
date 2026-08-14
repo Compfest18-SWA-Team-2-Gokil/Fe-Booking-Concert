@@ -11,6 +11,7 @@ import { HoldModal } from '../components/HoldModal';
 import { QueueWaitingRoom } from '../components/QueueWaitingRoom';
 import { formatCurrency } from '../../../../core/utils/formatCurrency';
 import type { HoldResponse } from '../../domain/Ticket';
+import { showAlert } from '../../../../shared/utils/alert';
 
 export function CheckoutPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,7 +22,7 @@ export function CheckoutPage() {
   const { data: ticketTypes, isLoading } = useTicketTypes(id ?? '');
   const event = events?.find((e) => e.id === id);
 
-  const { step, position, joinQueue, isJoining, joinError } = useQueue(
+  const { step, position, joinQueue, isJoining } = useQueue(
     id ?? '',
     user?.id ?? ''
   );
@@ -45,6 +46,14 @@ export function CheckoutPage() {
 
     holdTicket.mutate(items, {
       onSuccess: (data) => setHoldData(data),
+      onError: (err: unknown) => {
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (status === 409) {
+          showAlert.error('Kuota Habis', 'Maaf, kuota tiket untuk kategori yang kamu pilih sudah habis atau sedang dipesan orang lain.');
+        } else {
+          showAlert.error('Gagal Mereservasi Tiket', 'Terjadi kesalahan saat memproses reservasi tiketmu. Silakan coba kembali.');
+        }
+      },
     });
   }
 
@@ -73,12 +82,6 @@ export function CheckoutPage() {
           <p className="text-gray-500 text-sm mb-8 leading-relaxed">
             Klik tombol di bawah ini untuk mengamankan tempatmu di antrian virtual reservasi tiket.
           </p>
-
-          {joinError && (
-            <div className="bg-red-50 border border-red-200 text-red-700 p-3.5 rounded-2xl text-xs font-semibold mb-4">
-              ⚠️ Gagal bergabung antrian. Coba lagi beberapa saat lagi.
-            </div>
-          )}
 
           <button
             onClick={() => {
@@ -167,18 +170,10 @@ export function CheckoutPage() {
           </div>
         </div>
 
-        {holdTicket.error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl text-sm font-semibold mb-4">
-            {(holdTicket.error as { response?: { status?: number } })?.response?.status === 409
-              ? 'Tiket tidak tersedia. Kuota sudah habis.'
-              : 'Gagal mereservasi tiket. Coba lagi.'}
-          </div>
-        )}
-
         <button
           onClick={handleHold}
           disabled={!hasSelection || holdTicket.isPending}
-          className="w-full bg-gradient-to-r from-[#FF6100] to-orange-600 hover:from-[#E55500] hover:to-orange-700 text-white py-4 rounded-2xl font-extrabold text-lg shadow-xl shadow-orange-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-[#FF6100] to-orange-600 hover:from-[#E55500] hover:to-orange-700 text-white py-4 rounded-2xl font-extrabold text-lg shadow-xl shadow-orange-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
         >
           <span>{holdTicket.isPending ? 'Mereservasi Tiket...' : 'Reservasi Tiket Sekarang'}</span>
           <Ticket className="w-5 h-5" />

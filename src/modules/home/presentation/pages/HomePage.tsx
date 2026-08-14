@@ -15,6 +15,8 @@ export function HomePage() {
     setSearchQuery,
     selectedCity,
     setSelectedCity,
+    selectedCategory,
+    setSelectedCategory,
     filteredEvents,
     applyFilters,
     resetFilters,
@@ -34,6 +36,8 @@ export function HomePage() {
         onSearchChange={setSearchQuery}
         selectedCity={selectedCity}
         onCityChange={setSelectedCity}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
         onSearch={handleSearch}
       />
       <UpcomingEvents

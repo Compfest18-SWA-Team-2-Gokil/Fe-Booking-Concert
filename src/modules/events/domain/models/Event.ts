@@ -1,9 +1,21 @@
+export type EventCategory = 'music' | 'olahraga' | 'seni' | 'workshop';
+
+export const CATEGORY_LABELS: Record<EventCategory, string> = {
+  music: 'Musik',
+  olahraga: 'Olahraga',
+  seni: 'Seni',
+  workshop: 'Workshop',
+};
+
 export interface Event {
   id: string;
   organizer_id: string;
   name: string;
+  description: string;
+  category: EventCategory;
   date: string; // ISO8601
   location: string;
+  image_url?: string;
 }
 
 export interface TicketType {

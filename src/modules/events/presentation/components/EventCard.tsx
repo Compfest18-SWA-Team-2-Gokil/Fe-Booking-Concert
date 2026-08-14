@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { Calendar, MapPin, Music } from 'lucide-react';
+import { Calendar, MapPin } from 'lucide-react';
 import type { Event } from '../../domain/models/Event';
+import { CATEGORY_LABELS } from '../../domain/models/Event';
 import type { TicketType } from '../../../inventory/domain/Ticket';
 import { formatDate } from '../../../../core/utils/formatDate';
 import { formatCurrency } from '../../../../core/utils/formatCurrency';
 
-// Rich vibrant gradients for event covers
 const GRADIENTS = [
   'from-violet-600 via-purple-600 to-indigo-700',
   'from-rose-500 via-pink-600 to-purple-600',
@@ -32,6 +32,10 @@ export function EventCard({ event, ticketTypes }: EventCardProps) {
     ? Math.min(...ticketTypes.map((t) => t.price))
     : null;
 
+  const categoryLabel = event.category
+    ? CATEGORY_LABELS[event.category] ?? event.category
+    : 'Event';
+
   return (
     <div
       onClick={() => navigate(`/checkout/${event.id}`)}
@@ -39,23 +43,29 @@ export function EventCard({ event, ticketTypes }: EventCardProps) {
     >
       {/* Cover Image / Gradient */}
       <div
-        className={`relative h-48 bg-gradient-to-br ${gradientFor(
-          event.id
-        )} flex items-center justify-center overflow-hidden shrink-0`}
+        className={`relative h-48 flex items-center justify-center overflow-hidden shrink-0 ${
+          event.image_url ? '' : `bg-gradient-to-br ${gradientFor(event.id)}`
+        }`}
       >
-        {/* Subtle decorative circles */}
-        <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
-        <div className="absolute -left-8 -bottom-8 w-32 h-32 rounded-full bg-black/10 blur-xl pointer-events-none" />
+        {event.image_url ? (
+          <img
+            src={event.image_url}
+            alt={event.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <>
+            <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
+            <div className="absolute -left-8 -bottom-8 w-32 h-32 rounded-full bg-black/10 blur-xl pointer-events-none" />
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white transform group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <Calendar className="w-8 h-8" />
+            </div>
+          </>
+        )}
 
-        {/* Lucide Music Icon */}
-        <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white transform group-hover:scale-110 transition-transform duration-300 shadow-lg">
-          <Music className="w-8 h-8" />
-        </div>
-
-        {/* Top Badges */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
           <span className="bg-white/90 backdrop-blur-md text-gray-900 text-[11px] font-bold px-3 py-1 rounded-full shadow-sm">
-            Konser Musik
+            {categoryLabel}
           </span>
           <span className="bg-black/40 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-1 rounded-full border border-white/20">
             Official
@@ -69,6 +79,10 @@ export function EventCard({ event, ticketTypes }: EventCardProps) {
           <h3 className="font-bold text-gray-900 text-lg leading-snug mb-3 group-hover:text-[#0064D2] transition-colors line-clamp-2">
             {event.name}
           </h3>
+
+          {event.description && (
+            <p className="text-xs text-gray-500 mb-3 line-clamp-2">{event.description}</p>
+          )}
 
           <div className="space-y-2 text-sm text-gray-500 mb-5">
             <div className="flex items-center gap-2">
@@ -87,7 +101,6 @@ export function EventCard({ event, ticketTypes }: EventCardProps) {
           </div>
         </div>
 
-        {/* Footer info & CTA */}
         <div className="pt-3 border-t border-gray-100 flex items-center justify-between mt-auto">
           <div>
             <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Mulai dari</p>
