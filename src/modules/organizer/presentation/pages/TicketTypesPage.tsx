@@ -172,17 +172,14 @@ export function TicketTypesPage() {
                   </div>
                 </div>
               </div>
-              {createType.isError && (
-                <p className="text-red-600 text-sm">Gagal membuat ticket type. Coba lagi.</p>
-              )}
               <div className="flex gap-3">
                 <button type="submit" disabled={createType.isPending}
-                  className="flex-1 bg-[#0064D2] text-white font-bold py-2.5 rounded-xl hover:bg-[#0052B0] disabled:opacity-60 transition-colors text-sm"
+                  className="flex-1 bg-[#0064D2] text-white font-bold py-2.5 rounded-xl hover:bg-[#0052B0] disabled:opacity-60 transition-colors text-sm cursor-pointer"
                 >
                   {createType.isPending ? 'Menyimpan...' : 'Simpan Ticket Type'}
                 </button>
                 <button type="button" onClick={() => setShowForm(false)}
-                  className="px-5 bg-gray-100 text-gray-700 font-bold py-2.5 rounded-xl hover:bg-gray-200 transition-colors text-sm"
+                  className="px-5 bg-gray-100 text-gray-700 font-bold py-2.5 rounded-xl hover:bg-gray-200 transition-colors text-sm cursor-pointer"
                 >
                   Batal
                 </button>

@@ -15,6 +15,7 @@ import { CreateEventPage } from '../../modules/organizer/presentation/pages/Crea
 import { TicketTypesPage } from '../../modules/organizer/presentation/pages/TicketTypesPage';
 import { GateOperatorPage } from '../../modules/organizer/presentation/pages/GateOperatorPage';
 import { MyOrganizerEventsPage } from '../../modules/organizer/presentation/pages/MyOrganizerEventsPage';
+import { EditEventPage } from '../../modules/organizer/presentation/pages/EditEventPage';
 // Buyer
 import { MyTicketsPage } from '../../modules/buyer/presentation/pages/MyTicketsPage';
 // Admin
@@ -118,6 +119,7 @@ export const router = createBrowserRouter([
               { path: '/organizer/my-events', element: <MyOrganizerEventsPage /> },
               { path: '/organizer/events', element: <MyOrganizerEventsPage /> },
               { path: '/organizer/events/create', element: <CreateEventPage /> },
+              { path: '/organizer/events/:eventId/edit', element: <EditEventPage /> },
               { path: '/organizer/events/:eventId/ticket-types', element: <TicketTypesPage /> },
               { path: '/organizer/events/:eventId/gate-operators', element: <GateOperatorPage /> },
             ],
