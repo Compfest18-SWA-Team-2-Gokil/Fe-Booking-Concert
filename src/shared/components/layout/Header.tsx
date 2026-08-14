@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Ticket, LogOut, Menu, X, ChevronDown, LayoutDashboard, QrCode, Shield, ShoppingBag } from 'lucide-react';
 import { useAuth } from '../../../modules/auth/application/useAuth';
+import { showAlert, showToast } from '../../utils/alert';
 import logoSvg from '../../../assets/logo.svg';
 
 const ROLE_LABEL: Record<string, string> = {
@@ -25,19 +26,22 @@ function getNavLinks(role?: string): NavLink[] {
     case 'BUYER':
       return [
         { to: '/events', label: 'Semua Events' },
-        { to: '/my-tickets', label: 'Tiket Saya' },
+        { to: '/my-tickets', label: 'Tiket Saya', matchPrefix: '/my-tickets' },
       ];
     case 'ORGANIZER':
       return [
         { to: '/events', label: 'Semua Events' },
-        { to: '/organizer/dashboard', label: 'Dashboard', matchPrefix: '/organizer' },
+        { to: '/organizer/dashboard', label: 'Dashboard', matchPrefix: '/organizer/dashboard' },
+        { to: '/organizer/my-events', label: 'Event Saya', matchPrefix: '/organizer/my-events' },
       ];
     case 'ADMIN':
       return [
+        { to: '/events', label: 'Semua Events' },
         { to: '/admin/dashboard', label: 'Admin Panel', matchPrefix: '/admin' },
       ];
     case 'GATE_OPERATOR':
       return [
+        { to: '/events', label: 'Semua Events' },
         { to: '/gate/scan', label: 'Scan QR', matchPrefix: '/gate' },
       ];
     default:
@@ -54,20 +58,24 @@ function getDropdownItems(role?: string): DropdownItem[] {
   switch (role) {
     case 'BUYER':
       return [
+        { to: '/events', label: 'Semua Events', icon: ShoppingBag },
         { to: '/my-tickets', label: 'Tiket Saya', icon: Ticket },
-        { to: '/events', label: 'Cari Events', icon: ShoppingBag },
       ];
     case 'ORGANIZER':
       return [
+        { to: '/events', label: 'Semua Events', icon: ShoppingBag },
         { to: '/organizer/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        { to: '/organizer/my-events', label: 'Event Saya', icon: ShoppingBag },
         { to: '/organizer/events/create', label: 'Buat Event Baru', icon: ShoppingBag },
       ];
     case 'ADMIN':
       return [
+        { to: '/events', label: 'Semua Events', icon: ShoppingBag },
         { to: '/admin/dashboard', label: 'Admin Panel', icon: Shield },
       ];
     case 'GATE_OPERATOR':
       return [
+        { to: '/events', label: 'Semua Events', icon: ShoppingBag },
         { to: '/gate/scan', label: 'Scanner QR', icon: QrCode },
       ];
     default:
@@ -82,11 +90,23 @@ export function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  function handleLogout() {
-    logout();
-    setDropdownOpen(false);
-    setMobileMenuOpen(false);
-    navigate('/');
+  async function handleLogout() {
+    const isConfirmed = await showAlert.confirm({
+      title: 'Keluar dari Akun?',
+      text: 'Kamu harus masuk kembali untuk membeli atau melihat tiketmu.',
+      confirmText: 'Ya, Keluar',
+      cancelText: 'Batal',
+      icon: 'warning',
+      isDanger: true,
+    });
+
+    if (isConfirmed) {
+      logout();
+      showToast.info('Kamu telah keluar dari akun');
+      setDropdownOpen(false);
+      setMobileMenuOpen(false);
+      navigate('/');
+    }
   }
 
   const isActive = (link: NavLink) => {

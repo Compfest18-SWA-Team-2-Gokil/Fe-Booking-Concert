@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../modules/auth/application/useAuth';
 import { Header } from '../../shared/components/layout/Header';
 import { Footer } from '../../shared/components/layout/Footer';
+import { SidebarLayout } from '../../shared/components/layout/SidebarLayout';
 import { LoginPage } from '../../modules/auth/presentation/pages/LoginPage';
 import { RegisterPage } from '../../modules/auth/presentation/pages/RegisterPage';
 import { HomePage } from '../../modules/home/presentation/pages/HomePage';
@@ -12,6 +13,8 @@ import { CheckoutPage } from '../../modules/inventory/presentation/pages/Checkou
 import { OrganizerDashboardPage } from '../../modules/organizer/presentation/pages/OrganizerDashboardPage';
 import { CreateEventPage } from '../../modules/organizer/presentation/pages/CreateEventPage';
 import { TicketTypesPage } from '../../modules/organizer/presentation/pages/TicketTypesPage';
+import { GateOperatorPage } from '../../modules/organizer/presentation/pages/GateOperatorPage';
+import { MyOrganizerEventsPage } from '../../modules/organizer/presentation/pages/MyOrganizerEventsPage';
 // Buyer
 import { MyTicketsPage } from '../../modules/buyer/presentation/pages/MyTicketsPage';
 // Admin
@@ -23,7 +26,7 @@ import { ScanQRPage } from '../../modules/gate-operator/presentation/pages/ScanQ
 function roleHome(role?: string): string {
   switch (role) {
     case 'ORGANIZER':
-      return '/organizer/dashboard';
+      return '/organizer/my-events';
     case 'ADMIN':
       return '/admin/dashboard';
     case 'GATE_OPERATOR':
@@ -72,10 +75,10 @@ function PublicAuthRoute() {
 }
 
 export const router = createBrowserRouter([
+  // Public layout (Header + Footer, no sidebar)
   {
     element: <Layout />,
     children: [
-      // Public routes
       { path: '/', element: <PublicHomeRoute /> },
       {
         element: <PublicAuthRoute />,
@@ -84,48 +87,57 @@ export const router = createBrowserRouter([
           { path: '/register', element: <RegisterPage /> },
         ],
       },
+    ],
+  },
 
-      // All authenticated users
+  // Authenticated layout (sidebar, no header/footer)
+  {
+    element: <ProtectedRoute />,
+    children: [
       {
-        element: <ProtectedRoute />,
+        element: <SidebarLayout />,
         children: [
+          // All authenticated users
           { path: '/events', element: <EventsPage /> },
           { path: '/events/:id', element: <EventDetailPage /> },
-          { path: '/checkout/:id', element: <CheckoutPage /> },
-        ],
-      },
 
-      // BUYER only
-      {
-        element: <RequireRole roles={['BUYER']} />,
-        children: [
-          { path: '/my-tickets', element: <MyTicketsPage /> },
-        ],
-      },
+          // BUYER only
+          {
+            element: <RequireRole roles={['BUYER']} />,
+            children: [
+              { path: '/checkout/:id', element: <CheckoutPage /> },
+              { path: '/my-tickets', element: <MyTicketsPage /> },
+            ],
+          },
 
-      // ORGANIZER only
-      {
-        element: <RequireRole roles={['ORGANIZER']} />,
-        children: [
-          { path: '/organizer/dashboard', element: <OrganizerDashboardPage /> },
-          { path: '/organizer/events/create', element: <CreateEventPage /> },
-          { path: '/organizer/events/:eventId/ticket-types', element: <TicketTypesPage /> },
-        ],
-      },
+          // ORGANIZER
+          {
+            element: <RequireRole roles={['ORGANIZER']} />,
+            children: [
+              { path: '/organizer/dashboard', element: <OrganizerDashboardPage /> },
+              { path: '/organizer/my-events', element: <MyOrganizerEventsPage /> },
+              { path: '/organizer/events', element: <MyOrganizerEventsPage /> },
+              { path: '/organizer/events/create', element: <CreateEventPage /> },
+              { path: '/organizer/events/:eventId/ticket-types', element: <TicketTypesPage /> },
+              { path: '/organizer/events/:eventId/gate-operators', element: <GateOperatorPage /> },
+            ],
+          },
 
-      // ADMIN only
-      {
-        element: <RequireRole roles={['ADMIN']} />,
-        children: [
-          { path: '/admin/dashboard', element: <AdminDashboardPage /> },
-        ],
-      },
+          // ADMIN
+          {
+            element: <RequireRole roles={['ADMIN']} />,
+            children: [
+              { path: '/admin/dashboard', element: <AdminDashboardPage /> },
+            ],
+          },
 
-      // GATE_OPERATOR only
-      {
-        element: <RequireRole roles={['GATE_OPERATOR']} />,
-        children: [
-          { path: '/gate/scan', element: <ScanQRPage /> },
+          // GATE_OPERATOR
+          {
+            element: <RequireRole roles={['GATE_OPERATOR']} />,
+            children: [
+              { path: '/gate/scan', element: <ScanQRPage /> },
+            ],
+          },
         ],
       },
     ],
