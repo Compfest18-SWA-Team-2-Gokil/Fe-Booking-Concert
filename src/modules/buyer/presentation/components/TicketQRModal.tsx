@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { X, Copy, Check, AlertCircle, Loader2, Sparkles } from 'lucide-react';
 import { checkinApi } from '../../../../modules/gate-operator/infrastructure/checkinApi';
 import { showToast } from '../../../../shared/utils/alert';
 
@@ -22,7 +21,6 @@ export function TicketQRModal({
   const [selectedUnitIndex, setSelectedUnitIndex] = useState(0);
   const [qrMap, setQrMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const [errorMap, setErrorMap] = useState<Record<string, string>>({});
   const [copied, setCopied] = useState(false);
 
   const currentUnitId = unitIds[selectedUnitIndex] ?? '';
@@ -46,12 +44,8 @@ export function TicketQRModal({
           setLoading(false);
         }
       })
-      .catch((err) => {
+      .catch(() => {
         if (isMounted) {
-          const errMsg =
-            err?.response?.data?.error ??
-            'Tiket belum CONFIRMED atau hanya bisa di-issue oleh akun penyelenggara.';
-          setErrorMap((prev) => ({ ...prev, [currentUnitId]: errMsg }));
           setLoading(false);
         }
       });
@@ -62,7 +56,6 @@ export function TicketQRModal({
   }, [currentUnitId, orderId, eventId, qrMap]);
 
   const qrContent = qrMap[currentUnitId];
-  const errorMsg = errorMap[currentUnitId];
 
   // Fallback payload string if issue API is restricted to organizer token only in BE
   const displayQrValue =
@@ -72,23 +65,23 @@ export function TicketQRModal({
   function handleCopy() {
     navigator.clipboard.writeText(qrContent || displayQrValue);
     setCopied(true);
-    showToast.success('String QR berhasil disalin! Siap discan di Gate Operator.');
+    showToast.success('Konten QR berhasil disalin!');
     setTimeout(() => setCopied(false), 2500);
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 relative">
-        {/* Header Decorator */}
-        <div className="bg-gradient-to-r from-[#0064D2] to-blue-600 text-white p-6 pb-5 relative">
+        {/* Header */}
+        <div className="bg-[#0064D2] text-white p-6 pb-5 relative">
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors cursor-pointer text-sm font-bold"
           >
-            <X className="w-4 h-4" />
+            ✕
           </button>
-          <div className="flex items-center gap-2 text-blue-100 text-xs font-bold uppercase tracking-wider mb-1">
-            <Sparkles className="w-3.5 h-3.5" /> E-Ticket Pas Masuk
+          <div className="text-blue-100 text-xs font-bold uppercase tracking-wider mb-1">
+            E-Ticket Pas Masuk
           </div>
           <h2 className="text-xl font-black truncate pr-8">{eventName}</h2>
           <p className="text-xs text-blue-100 font-mono mt-0.5 truncate">
@@ -122,10 +115,10 @@ export function TicketQRModal({
           {/* QR Container */}
           <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 inline-block mx-auto mb-4 shadow-inner">
             {loading ? (
-              <div className="w-48 h-48 flex flex-col items-center justify-center gap-3">
-                <Loader2 className="w-8 h-8 text-[#0064D2] animate-spin" />
+              <div className="w-48 h-48 flex flex-col items-center justify-center gap-2">
+                <div className="w-8 h-8 border-3 border-[#0064D2] border-t-transparent rounded-full animate-spin" />
                 <span className="text-xs text-gray-500 font-medium">
-                  Membuat QR Code...
+                  Memuat QR Code...
                 </span>
               </div>
             ) : (
@@ -139,16 +132,6 @@ export function TicketQRModal({
               </div>
             )}
           </div>
-
-          {errorMsg && !qrContent && (
-            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-left flex items-start gap-2 text-xs text-amber-800">
-              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold">Info Penerbitan QR</p>
-                <p className="text-[11px] text-amber-700 mt-0.5">{errorMsg}</p>
-              </div>
-            </div>
-          )}
 
           {/* Ticket Unit Info */}
           <div className="bg-gray-50 rounded-xl p-3 text-left mb-5 space-y-1 text-xs border border-gray-100 font-mono">
@@ -168,19 +151,9 @@ export function TicketQRModal({
           <div className="flex gap-2">
             <button
               onClick={handleCopy}
-              className="flex-1 flex items-center justify-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2.5 rounded-xl text-xs transition-colors cursor-pointer"
+              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2.5 rounded-xl text-xs transition-colors cursor-pointer"
             >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4 text-emerald-600" />
-                  <span>Tersalin!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  <span>Salin Konten QR</span>
-                </>
-              )}
+              {copied ? 'Tersalin!' : 'Salin Konten QR'}
             </button>
             <button
               onClick={onClose}

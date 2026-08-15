@@ -14,7 +14,13 @@ import {
 import { showAlert, showToast } from '../../../../shared/utils/alert';
 import { TicketQRModal } from '../components/TicketQRModal';
 
-const STATUS_CONFIG: Record<OrderStatus, { label: string; style: string; dot: string }> = {
+const DEFAULT_STATUS_CONFIG = {
+  label: 'Menunggu Bayar',
+  style: 'bg-amber-50 text-amber-700 border border-amber-200',
+  dot: 'bg-amber-500',
+};
+
+const STATUS_CONFIG: Record<string, { label: string; style: string; dot: string }> = {
   PENDING: {
     label: 'Menunggu Bayar',
     style: 'bg-amber-50 text-amber-700 border border-amber-200',
@@ -46,6 +52,11 @@ const STATUS_CONFIG: Record<OrderStatus, { label: string; style: string; dot: st
     dot: 'bg-gray-400',
   },
 };
+
+function getStatusConfig(status?: string) {
+  if (!status) return DEFAULT_STATUS_CONFIG;
+  return STATUS_CONFIG[status.toUpperCase()] || DEFAULT_STATUS_CONFIG;
+}
 
 export function MyTicketsPage() {
   const { user } = useAuth();
@@ -187,16 +198,14 @@ export function MyTicketsPage() {
             const status = order?.status ?? 'PENDING';
             const isRefunded = refundedIds.has(stored.orderId);
             const effectiveStatus: OrderStatus = isRefunded ? 'REFUND_REQUESTED' : status;
-            const effectiveSt = STATUS_CONFIG[effectiveStatus];
+            const effectiveSt = getStatusConfig(effectiveStatus);
 
             return (
               <div
                 key={stored.orderId}
-                className={`bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md ${
-                  status === 'CANCELLED' || status === 'REFUNDED' ? 'opacity-60' : ''
-                }`}
+                className={`bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md ${status === 'CANCELLED' || status === 'REFUNDED' ? 'opacity-60' : ''
+                  }`}
               >
-                <div className="h-1.5 bg-gradient-to-r from-[#0064D2] to-blue-400" />
                 <div className="p-5 sm:p-6">
                   {isLoading ? (
                     <div className="h-16 bg-gray-100 rounded-xl animate-pulse" />
