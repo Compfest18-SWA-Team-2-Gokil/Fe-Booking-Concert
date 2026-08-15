@@ -26,6 +26,8 @@ export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose }
   const [invoiceUrl, setInvoiceUrl] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
+  const [createdOrderId, setCreatedOrderId] = useState('');
+
   useEffect(() => {
     if (paymentStep !== 'hold') return;
     const interval = setInterval(() => {
@@ -56,6 +58,7 @@ export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose }
     setPaymentStep('processing');
     try {
       const order = await createOrder(eventId, holdData.unit_ids);
+      setCreatedOrderId(order.id);
       const payment = await initiatePayment(order.id);
       storeOrder({
         orderId: order.id,
@@ -89,7 +92,7 @@ export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose }
           </div>
           <h2 className="text-2xl font-black text-gray-900 mb-2">Halaman Pembayaran Dibuka</h2>
           <p className="text-gray-500 text-sm mb-6">
-            Selesaikan pembayaran di tab baru. Tiketmu akan dikonfirmasi otomatis setelah pembayaran berhasil.
+            Selesaikan pembayaran di tab baru. Setelah selesai membayar, klik tombol di bawah untuk melihat tiketmu.
           </p>
           <div className="space-y-3">
             <a
@@ -102,16 +105,16 @@ export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose }
               Buka Halaman Pembayaran
             </a>
             <button
-              onClick={() => navigate('/my-tickets')}
-              className="w-full bg-[#0064D2] hover:bg-[#0052B0] text-white py-3 rounded-xl font-bold transition-colors text-sm"
+              onClick={() => navigate(`/payment/callback?order_id=${createdOrderId}`)}
+              className="w-full bg-[#0064D2] hover:bg-[#0052B0] text-white py-3 rounded-xl font-bold transition-colors text-sm shadow-md"
             >
-              Cek Status Tiket Saya
+              Saya Sudah Bayar / Cek Status
             </button>
             <button
-              onClick={() => navigate('/events')}
+              onClick={() => navigate('/my-tickets')}
               className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm"
             >
-              Kembali ke Semua Event
+              Ke Tiket Saya
             </button>
           </div>
         </div>
