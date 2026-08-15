@@ -59,26 +59,34 @@ function EventMetricsModal({ eventId, onClose }: { eventId: string; onClose: () 
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-3 py-6">
-            {[...Array(4)].map((_, i) => <div key={i} className="h-20 bg-gray-100 rounded-2xl animate-pulse" />)}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 py-6">
+            {[...Array(6)].map((_, i) => <div key={i} className="h-20 bg-gray-100 rounded-2xl animate-pulse" />)}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            <div className="bg-green-50 border border-green-100 rounded-2xl p-4 text-center">
-              <span className="text-xs font-bold text-green-700 uppercase tracking-wider">Tersedia</span>
-              <p className="text-3xl font-black text-green-700 mt-1">{totals.available}</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-center">
+              <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Total Kuota</span>
+              <p className="text-2xl font-black text-slate-800 mt-0.5">{totals.total}</p>
             </div>
-            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-center">
-              <span className="text-xs font-bold text-[#0064D2] uppercase tracking-wider">Terjual</span>
-              <p className="text-3xl font-black text-[#0064D2] mt-1">{totals.sold}</p>
+            <div className="bg-green-50 border border-green-100 rounded-2xl p-3.5 text-center">
+              <span className="text-[11px] font-bold text-green-700 uppercase tracking-wider">Tersedia</span>
+              <p className="text-2xl font-black text-green-700 mt-0.5">{totals.available}</p>
             </div>
-            <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-center">
-              <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">Sedang Di-Hold</span>
-              <p className="text-3xl font-black text-amber-700 mt-1">{totals.held}</p>
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-3.5 text-center">
+              <span className="text-[11px] font-bold text-[#0064D2] uppercase tracking-wider">Terjual</span>
+              <p className="text-2xl font-black text-[#0064D2] mt-0.5">{totals.sold}</p>
             </div>
-            <div className="bg-purple-50 border border-purple-100 rounded-2xl p-4 text-center">
-              <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">Admitted</span>
-              <p className="text-3xl font-black text-purple-700 mt-1">{totals.admitted}</p>
+            <div className="bg-amber-50 border border-amber-100 rounded-2xl p-3.5 text-center">
+              <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Sedang Hold</span>
+              <p className="text-2xl font-black text-amber-700 mt-0.5">{totals.held}</p>
+            </div>
+            <div className="bg-purple-50 border border-purple-100 rounded-2xl p-3.5 text-center">
+              <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider">Admitted</span>
+              <p className="text-2xl font-black text-purple-700 mt-0.5">{totals.admitted}</p>
+            </div>
+            <div className="bg-red-50 border border-red-100 rounded-2xl p-3.5 text-center">
+              <span className="text-[11px] font-bold text-red-700 uppercase tracking-wider">Refunded</span>
+              <p className="text-2xl font-black text-red-700 mt-0.5">{totals.refunded}</p>
             </div>
           </div>
         )}

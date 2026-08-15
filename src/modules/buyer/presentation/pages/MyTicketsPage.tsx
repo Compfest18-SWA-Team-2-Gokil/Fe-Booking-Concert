@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Ticket, Calendar, MapPin, ArrowRight, RefreshCw, ExternalLink } from 'lucide-react';
+import { Ticket, Calendar, MapPin, ArrowRight, RefreshCw, ExternalLink, QrCode, CreditCard } from 'lucide-react';
 import { useQueries, useMutation } from '@tanstack/react-query';
 import { useAuth } from '../../../auth/application/useAuth';
 import {
   getStoredOrders,
   getOrder,
   requestRefund,
+  initiatePayment,
   type OrderStatus,
+  type StoredOrder,
 } from '../../../orders/infrastructure/ordersApi';
-import { showAlert } from '../../../../shared/utils/alert';
+import { showAlert, showToast } from '../../../../shared/utils/alert';
+import { TicketQRModal } from '../components/TicketQRModal';
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string; style: string; dot: string }> = {
   PENDING: {
@@ -49,6 +52,8 @@ export function MyTicketsPage() {
   const storedOrders = getStoredOrders();
   const [refundingId, setRefundingId] = useState<string | null>(null);
   const [refundedIds, setRefundedIds] = useState<Set<string>>(new Set());
+  const [qrModalOrder, setQrModalOrder] = useState<StoredOrder | null>(null);
+  const [payingId, setPayingId] = useState<string | null>(null);
 
   const orderQueries = useQueries({
     queries: storedOrders.map((o) => ({
@@ -90,6 +95,22 @@ export function MyTicketsPage() {
     if (isConfirmed) {
       setRefundingId(orderId);
       refund.mutate(orderId);
+    }
+  }
+
+  async function handlePayClick(orderId: string) {
+    setPayingId(orderId);
+    try {
+      const res = await initiatePayment(orderId);
+      window.open(res.invoice_url, '_blank');
+      showToast.success('Halaman pembayaran dibuka di tab baru!');
+    } catch {
+      showAlert.error(
+        'Gagal Membuka Pembayaran',
+        'Tidak dapat membuat invoice pembayaran untuk order ini.'
+      );
+    } finally {
+      setPayingId(null);
     }
   }
 
@@ -205,15 +226,34 @@ export function MyTicketsPage() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex flex-col gap-2 shrink-0">
-                        {(status === 'PENDING' || status === 'PAYMENT_PENDING') && (
-                          <a
-                            href="/my-tickets"
-                            onClick={(e) => { e.preventDefault(); window.location.reload(); }}
-                            className="flex items-center gap-1.5 text-xs font-semibold text-[#0064D2] hover:underline"
+                      <div className="flex flex-wrap sm:flex-col gap-2 shrink-0 items-end">
+                        {status === 'PAID' && (
+                          <button
+                            onClick={() => setQrModalOrder(stored)}
+                            className="flex items-center gap-1.5 text-xs font-bold text-white bg-[#0064D2] hover:bg-[#0052B0] px-3.5 py-2 rounded-xl transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
                           >
-                            <RefreshCw className="w-3.5 h-3.5" /> Cek Status
-                          </a>
+                            <QrCode className="w-4 h-4" />
+                            <span>Lihat E-Ticket (QR)</span>
+                          </button>
+                        )}
+                        {(status === 'PENDING' || status === 'PAYMENT_PENDING') && (
+                          <>
+                            <button
+                              onClick={() => handlePayClick(stored.orderId)}
+                              disabled={payingId === stored.orderId}
+                              className="flex items-center gap-1.5 text-xs font-bold text-white bg-[#FF6100] hover:bg-[#E55500] px-3.5 py-2 rounded-xl transition-all shadow-sm shadow-orange-500/20 cursor-pointer disabled:opacity-50"
+                            >
+                              <CreditCard className="w-4 h-4" />
+                              <span>{payingId === stored.orderId ? 'Membuka...' : 'Bayar Sekarang'}</span>
+                            </button>
+                            <a
+                              href="/my-tickets"
+                              onClick={(e) => { e.preventDefault(); window.location.reload(); }}
+                              className="flex items-center gap-1.5 text-xs font-semibold text-[#0064D2] hover:underline"
+                            >
+                              <RefreshCw className="w-3.5 h-3.5" /> Cek Status
+                            </a>
+                          </>
                         )}
                         {status === 'PAID' && !isRefunded && (
                           <button
@@ -248,6 +288,16 @@ export function MyTicketsPage() {
           </Link>
         </div>
       </div>
+
+      {qrModalOrder && (
+        <TicketQRModal
+          orderId={qrModalOrder.orderId}
+          eventId={qrModalOrder.eventId}
+          eventName={qrModalOrder.eventName}
+          unitIds={qrModalOrder.unitIds}
+          onClose={() => setQrModalOrder(null)}
+        />
+      )}
     </div>
   );
 }

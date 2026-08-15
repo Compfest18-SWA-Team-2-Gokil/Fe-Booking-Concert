@@ -24,10 +24,10 @@ export function RegisterForm() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !email.trim() || password.length < 6) {
+    if (!name.trim() || !email.trim() || password.length < 8) {
       showAlert.warning(
         'Format Belum Sesuai',
-        'Pastikan nama, email terisi dan password minimal 6 karakter.'
+        'Pastikan nama, email terisi dan password minimal 8 karakter.'
       );
       return;
     }
@@ -82,11 +82,11 @@ export function RegisterForm() {
         <input
           type="password"
           required
-          minLength={6}
+          minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="w-full border border-[#E5E7EB] rounded-xl px-3.5 py-2.5 text-[#1A1A1A] text-sm focus:outline-none focus:ring-2 focus:ring-[#0064D2]"
-          placeholder="Minimal 6 karakter"
+          placeholder="Minimal 8 karakter"
         />
       </div>
       <div>

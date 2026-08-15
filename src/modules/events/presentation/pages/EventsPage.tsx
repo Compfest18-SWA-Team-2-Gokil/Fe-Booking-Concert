@@ -133,7 +133,7 @@ export function EventsPage() {
         )}
 
         {!isLoading && !error && filteredEvents && filteredEvents.length > 0 && (
-          isBuyer
+          !user || isBuyer
             ? <EventGrid events={filteredEvents} />
             : <div className="space-y-3">{filteredEvents.map((e) => <EventListItem key={e.id} event={e} />)}</div>
         )}
