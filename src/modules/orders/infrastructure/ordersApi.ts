@@ -44,11 +44,7 @@ export function storeOrder(order: StoredOrder): void {
 
 export function createOrder(eventId: string, unitIds: string[]): Promise<Order> {
   return axiosInstance
-    .post<Order>(
-      '/api/v1/orders',
-      { event_id: eventId, unit_ids: unitIds },
-      { headers: { 'Idempotency-Key': crypto.randomUUID() } }
-    )
+    .post<Order>('/api/v1/orders', { event_id: eventId, unit_ids: unitIds })
     .then((r) => r.data);
 }
 
@@ -58,11 +54,7 @@ export function getOrder(orderId: string): Promise<Order> {
 
 export function initiatePayment(orderId: string): Promise<{ payment_id: string; invoice_url: string }> {
   return axiosInstance
-    .post<{ payment_id: string; invoice_url: string }>(
-      `/api/v1/orders/${orderId}/pay`,
-      null,
-      { headers: { 'Idempotency-Key': crypto.randomUUID() } }
-    )
+    .post<{ payment_id: string; invoice_url: string }>(`/api/v1/orders/${orderId}/pay`)
     .then((r) => r.data);
 }
 

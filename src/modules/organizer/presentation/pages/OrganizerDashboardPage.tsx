@@ -27,10 +27,16 @@ function MetricsCard({ eventId }: { eventId: string }) {
     refetchInterval: 10_000,
   });
 
+  const { data: ticketTypes } = useQuery<{ ticket_types: { id: string; name: string; kind: string; price: number }[] }>({
+    queryKey: ['ticket-types', eventId],
+    queryFn: () =>
+      axiosInstance.get(`/api/v1/events/${eventId}/ticket-types`).then((r) => r.data),
+  });
+
   if (isLoading) {
     return (
-      <div className="grid grid-cols-4 gap-3 mt-4">
-        {[...Array(4)].map((_, i) => (
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mt-4">
+        {[...Array(6)].map((_, i) => (
           <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />
         ))}
       </div>
@@ -39,32 +45,85 @@ function MetricsCard({ eventId }: { eventId: string }) {
 
   const totals = data?.metrics.reduce(
     (acc, m) => ({
-      available: acc.available + m.available,
-      held: acc.held + m.held,
-      sold: acc.sold + m.sold,
-      admitted: acc.admitted + m.admitted,
+      available: acc.available + (m.available || 0),
+      held: acc.held + (m.held || 0),
+      sold: acc.sold + (m.sold || 0),
+      admitted: acc.admitted + (m.admitted || 0),
+      refunded: acc.refunded + (m.refunded || 0),
+      total: acc.total + (m.total || 0),
     }),
-    { available: 0, held: 0, sold: 0, admitted: 0 }
-  ) ?? { available: 0, held: 0, sold: 0, admitted: 0 };
+    { available: 0, held: 0, sold: 0, admitted: 0, refunded: 0, total: 0 }
+  ) ?? { available: 0, held: 0, sold: 0, admitted: 0, refunded: 0, total: 0 };
+
+  const ttMap = new Map(ticketTypes?.ticket_types?.map((t) => [t.id, t]) ?? []);
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-      <div className="bg-green-50 border border-green-100 rounded-xl p-3 text-center">
-        <p className="text-xs font-bold text-green-600 uppercase tracking-wider">Available</p>
-        <p className="text-2xl font-black text-green-700 mt-0.5">{totals.available}</p>
+    <div className="mt-4 space-y-4">
+      {/* 6 Metric Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+          <p className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Total Kuota</p>
+          <p className="text-xl font-black text-slate-800 mt-0.5">{totals.total}</p>
+        </div>
+        <div className="bg-green-50 border border-green-100 rounded-xl p-3 text-center">
+          <p className="text-[11px] font-bold text-green-600 uppercase tracking-wider">Available</p>
+          <p className="text-xl font-black text-green-700 mt-0.5">{totals.available}</p>
+        </div>
+        <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-3 text-center">
+          <p className="text-[11px] font-bold text-yellow-600 uppercase tracking-wider">Held</p>
+          <p className="text-xl font-black text-yellow-700 mt-0.5">{totals.held}</p>
+        </div>
+        <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-center">
+          <p className="text-[11px] font-bold text-[#0064D2] uppercase tracking-wider">Terjual</p>
+          <p className="text-xl font-black text-[#0064D2] mt-0.5">{totals.sold}</p>
+        </div>
+        <div className="bg-purple-50 border border-purple-100 rounded-xl p-3 text-center">
+          <p className="text-[11px] font-bold text-purple-600 uppercase tracking-wider">Admitted</p>
+          <p className="text-xl font-black text-purple-700 mt-0.5">{totals.admitted}</p>
+        </div>
+        <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-center">
+          <p className="text-[11px] font-bold text-red-600 uppercase tracking-wider">Refunded</p>
+          <p className="text-xl font-black text-red-700 mt-0.5">{totals.refunded}</p>
+        </div>
       </div>
-      <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-3 text-center">
-        <p className="text-xs font-bold text-yellow-600 uppercase tracking-wider">Held</p>
-        <p className="text-2xl font-black text-yellow-700 mt-0.5">{totals.held}</p>
-      </div>
-      <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-center">
-        <p className="text-xs font-bold text-[#0064D2] uppercase tracking-wider">Terjual</p>
-        <p className="text-2xl font-black text-[#0064D2] mt-0.5">{totals.sold}</p>
-      </div>
-      <div className="bg-purple-50 border border-purple-100 rounded-xl p-3 text-center">
-        <p className="text-xs font-bold text-purple-600 uppercase tracking-wider">Admitted</p>
-        <p className="text-2xl font-black text-purple-700 mt-0.5">{totals.admitted}</p>
-      </div>
+
+      {/* Per Ticket Type Breakdown Table */}
+      {data?.metrics && data.metrics.length > 0 && (
+        <div className="overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-gray-50 text-gray-500 uppercase font-bold border-b border-gray-100">
+              <tr>
+                <th className="px-4 py-2.5">Kategori Tiket</th>
+                <th className="px-3 py-2.5 text-center text-slate-700">Total</th>
+                <th className="px-3 py-2.5 text-center text-green-700">Available</th>
+                <th className="px-3 py-2.5 text-center text-yellow-700">Held</th>
+                <th className="px-3 py-2.5 text-center text-blue-700">Terjual</th>
+                <th className="px-3 py-2.5 text-center text-purple-700">Admitted</th>
+                <th className="px-3 py-2.5 text-center text-red-700">Refunded</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {data.metrics.map((m) => {
+                const ttInfo = ttMap.get(m.ticket_type_id);
+                return (
+                  <tr key={m.ticket_type_id} className="hover:bg-gray-50/70 font-medium">
+                    <td className="px-4 py-2.5">
+                      <p className="font-bold text-gray-900">{ttInfo?.name ?? 'Tipe Tiket'}</p>
+                      <p className="text-[10px] text-gray-400 font-mono truncate max-w-[150px]">{m.ticket_type_id}</p>
+                    </td>
+                    <td className="px-3 py-2.5 text-center font-bold text-gray-800">{m.total}</td>
+                    <td className="px-3 py-2.5 text-center font-bold text-green-600">{m.available}</td>
+                    <td className="px-3 py-2.5 text-center font-bold text-yellow-600">{m.held}</td>
+                    <td className="px-3 py-2.5 text-center font-bold text-[#0064D2]">{m.sold}</td>
+                    <td className="px-3 py-2.5 text-center font-bold text-purple-600">{m.admitted}</td>
+                    <td className="px-3 py-2.5 text-center font-bold text-red-600">{m.refunded}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

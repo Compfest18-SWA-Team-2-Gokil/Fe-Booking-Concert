@@ -75,6 +75,12 @@ function PublicAuthRoute() {
   return <Outlet />;
 }
 
+/** Adaptive layout for events: SidebarLayout when logged in, Header/Footer Layout when guest */
+function EventsLayoutWrapper() {
+  const { user } = useAuth();
+  return user ? <SidebarLayout /> : <Layout />;
+}
+
 export const router = createBrowserRouter([
   // Public layout (Header + Footer, no sidebar)
   {
@@ -91,6 +97,15 @@ export const router = createBrowserRouter([
     ],
   },
 
+  // Events browsing (accessible to both guests and authenticated users)
+  {
+    element: <EventsLayoutWrapper />,
+    children: [
+      { path: '/events', element: <EventsPage /> },
+      { path: '/events/:id', element: <EventDetailPage /> },
+    ],
+  },
+
   // Authenticated layout (sidebar, no header/footer)
   {
     element: <ProtectedRoute />,
@@ -98,10 +113,6 @@ export const router = createBrowserRouter([
       {
         element: <SidebarLayout />,
         children: [
-          // All authenticated users
-          { path: '/events', element: <EventsPage /> },
-          { path: '/events/:id', element: <EventDetailPage /> },
-
           // BUYER only
           {
             element: <RequireRole roles={['BUYER']} />,

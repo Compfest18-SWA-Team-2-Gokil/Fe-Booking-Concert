@@ -27,4 +27,11 @@ export const ticketApi = {
       `/api/v1/events/${eventId}/queue/status`,
       { params: { user_id: userId } }
     ),
+
+  validateQueueToken: (queueToken: string) =>
+    axiosInstance.post<{ user_id: string; event_id: string }>(
+      '/api/v1/queue/token/validate',
+      null,
+      { headers: { 'X-Queue-Token': queueToken } }
+    ),
 };
