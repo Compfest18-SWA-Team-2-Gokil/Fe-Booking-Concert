@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { QrCode, CheckCircle2, XCircle, Clock, Wifi, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../../auth/application/useAuth';
-import axiosInstance from '../../../../core/api/axiosInstance';
+import { checkinApi } from '../../infrastructure/checkinApi';
 import { showToast } from '../../../../shared/utils/alert';
 
 interface ScanResult {
@@ -39,12 +39,9 @@ export function ScanQRPage() {
     setIsScanning(true);
     const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     try {
-      const res = await axiosInstance.post<{ ticket_unit_id: string; event_id: string }>(
-        '/api/v1/checkin/scan',
-        { qr_content: content }
-      );
+      const res = await checkinApi.scanTicketQR({ qr_content: content });
       setScanResults((prev) => [
-        { time, result: 'admitted', ticketUnitId: res.data.ticket_unit_id, eventId: res.data.event_id },
+        { time, result: 'admitted', ticketUnitId: res.ticket_unit_id, eventId: res.event_id },
         ...prev,
       ]);
       showToast.success('✅ Tiket Valid - Admitted');
