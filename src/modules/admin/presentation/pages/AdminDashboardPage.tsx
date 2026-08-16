@@ -8,14 +8,13 @@ import { AdminDisputesTab } from '../components/AdminDisputesTab';
 import { AdminAuditLogsTab } from '../components/AdminAuditLogsTab';
 import { OverrideStatusModal } from '../components/OverrideStatusModal';
 import { ReassignTicketModal } from '../components/ReassignTicketModal';
-import type { Order } from '../../../orders/infrastructure/ordersApi';
-import type { OverrideOrderPayload } from '../../infrastructure/adminApi';
+import type { DisputeOrder, OverrideOrderPayload } from '../../infrastructure/adminApi';
 
 type AdminTab = 'metrics' | 'disputes' | 'audit_logs';
 
 export function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>('metrics');
-  const [selectedDispute, setSelectedDispute] = useState<Order | null>(null);
+  const [selectedDispute, setSelectedDispute] = useState<DisputeOrder | null>(null);
   const [reassignModalOpen, setReassignModalOpen] = useState(false);
 
   // Application Hooks
@@ -47,7 +46,8 @@ export function AdminDashboardPage() {
 
   async function handleOverrideSubmit(payload: OverrideOrderPayload) {
     if (!selectedDispute) return;
-    await overrideStatus({ orderId: selectedDispute.id, payload });
+    const orderId = selectedDispute.order_id || selectedDispute.id || '';
+    await overrideStatus({ orderId, payload });
     setSelectedDispute(null);
   }
 
@@ -147,7 +147,7 @@ export function AdminDashboardPage() {
       {/* Modals */}
       {selectedDispute && (
         <OverrideStatusModal
-          orderId={selectedDispute.id}
+          orderId={selectedDispute.order_id || selectedDispute.id || ''}
           initialStatus={selectedDispute.status === 'REFUND_REQUESTED' ? 'REFUNDED' : 'PAID'}
           isSubmitting={isOverriding}
           onClose={() => setSelectedDispute(null)}

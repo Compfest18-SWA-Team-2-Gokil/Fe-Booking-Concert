@@ -207,15 +207,16 @@ export function SidebarLayout() {
               <PanelLeft className="w-6 h-6" />
             </button>
 
-            {/* Brand Logo when desktop sidebar is collapsed or on mobile */}
-            {(!sidebarOpen || true) && (
-              <Link to="/" className="flex items-center gap-2">
-                <img src={logoSvg} alt="Logo" className="w-7 h-7 object-contain" />
-                <span className="font-extrabold text-base text-gray-900">
-                  Tiketin<span className="text-[#0064D2]">Aja</span>
-                </span>
-              </Link>
-            )}
+            {/* Brand Logo only when desktop sidebar is collapsed or on mobile */}
+            <Link
+              to="/"
+              className={`flex items-center gap-2 ${sidebarOpen ? 'lg:hidden' : 'flex'}`}
+            >
+              <img src={logoSvg} alt="Logo" className="w-7 h-7 object-contain" />
+              <span className="font-extrabold text-base text-gray-900">
+                Tiketin<span className="text-[#0064D2]">Aja</span>
+              </span>
+            </Link>
           </div>
 
           {/* User Quick Info in Top Bar */}
