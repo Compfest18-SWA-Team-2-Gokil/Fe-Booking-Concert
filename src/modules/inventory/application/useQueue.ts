@@ -43,6 +43,11 @@ export function useQueue(eventId: string, userId: string) {
     setQueueToken(statusQuery.data.queue_token);
   }
 
+  const validateTokenMutation = useMutation({
+    mutationFn: (token: string) =>
+      ticketApi.validateQueueToken(token).then((r) => r.data),
+  });
+
   return {
     step,
     queueToken,
@@ -53,5 +58,8 @@ export function useQueue(eventId: string, userId: string) {
     joinQueue: joinMutation.mutate,
     isJoining: joinMutation.isPending,
     joinError: joinMutation.error,
+    validateToken: validateTokenMutation.mutateAsync,
+    isValidatingToken: validateTokenMutation.isPending,
   };
 }
+

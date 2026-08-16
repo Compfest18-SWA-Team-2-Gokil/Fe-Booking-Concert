@@ -1,83 +1,167 @@
-import { Shield, Users, AlertTriangle, FileText, BarChart3, Activity, ChevronRight } from 'lucide-react';
-import { useAuth } from '../../../auth/application/useAuth';
+import { useState } from 'react';
+import { ShieldCheck, Layers, AlertOctagon, FileText } from 'lucide-react';
+import { useAdminMetrics } from '../../application/useAdminMetrics';
+import { useAdminDisputes } from '../../application/useAdminDisputes';
+import { useAdminAuditLogs } from '../../application/useAdminAuditLogs';
+import { AdminMetricsTab } from '../components/AdminMetricsTab';
+import { AdminDisputesTab } from '../components/AdminDisputesTab';
+import { AdminAuditLogsTab } from '../components/AdminAuditLogsTab';
+import { OverrideStatusModal } from '../components/OverrideStatusModal';
+import { ReassignTicketModal } from '../components/ReassignTicketModal';
+import type { DisputeOrder, OverrideOrderPayload } from '../../infrastructure/adminApi';
 
-const ADMIN_MENU = [
-  {
-    icon: Users,
-    title: 'Manajemen User',
-    desc: 'Lihat, suspend, dan kelola semua akun pengguna platform.',
-    color: 'bg-blue-50 text-[#0064D2]',
-    border: 'border-blue-100',
-  },
-  {
-    icon: AlertTriangle,
-    title: 'Dispute Dashboard',
-    desc: 'Panel pelacakan otomatis pesanan Payment Discrepancy & sengketa aktif.',
-    color: 'bg-amber-50 text-amber-600',
-    border: 'border-amber-100',
-  },
-  {
-    icon: FileText,
-    title: 'Audit Log',
-    desc: 'Riwayat immutable setiap transisi status tiket (Append-only, PRD-11).',
-    color: 'bg-slate-50 text-slate-600',
-    border: 'border-slate-100',
-  },
-  {
-    icon: BarChart3,
-    title: 'Override & Reassignment',
-    desc: 'Hak prerogatif Admin untuk membatalkan tiket atau memindah kepemilikan kursi.',
-    color: 'bg-red-50 text-red-600',
-    border: 'border-red-100',
-  },
-];
+type AdminTab = 'metrics' | 'disputes' | 'audit_logs';
 
 export function AdminDashboardPage() {
-  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<AdminTab>('metrics');
+  const [selectedDispute, setSelectedDispute] = useState<DisputeOrder | null>(null);
+  const [reassignModalOpen, setReassignModalOpen] = useState(false);
+
+  // Application Hooks
+  const {
+    events,
+    eventsLoading,
+    metricQueries,
+    platformStats,
+    search,
+    setSearch,
+    filteredEvents,
+  } = useAdminMetrics();
+
+  const {
+    disputes,
+    total: disputesTotal,
+    isLoading: disputesLoading,
+    overrideStatus,
+    isOverriding,
+    reassignTicket,
+    isReassigning,
+  } = useAdminDisputes();
+
+  const {
+    auditLogs,
+    total: auditLogsTotal,
+    isLoading: auditLogsLoading,
+  } = useAdminAuditLogs();
+
+  async function handleOverrideSubmit(payload: OverrideOrderPayload) {
+    if (!selectedDispute) return;
+    const orderId = selectedDispute.order_id || selectedDispute.id || '';
+    await overrideStatus({ orderId, payload });
+    setSelectedDispute(null);
+  }
+
+  async function handleReassignSubmit(unitId: string, payload: Parameters<typeof reassignTicket>[0]['payload']) {
+    await reassignTicket({ unitId, payload });
+    setReassignModalOpen(false);
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-red-600 flex items-center justify-center shadow-lg shadow-red-200">
-            <Shield className="w-6 h-6 text-white" />
-          </div>
+    <div className="min-h-screen bg-[#F8FAFC] py-10 px-4 sm:px-6 lg:px-8 pb-20">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black text-gray-900">Admin Dashboard</h1>
-            <p className="text-sm text-gray-500">
-              Platform Admin · {user?.name} ·{' '}
-              <span className="text-red-600 font-semibold">Full Access</span>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-[#0064D2]">
+                <ShieldCheck className="w-3.5 h-3.5" /> Platform Administrator Hub
+              </span>
+            </div>
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+              Pusat Kontrol & Audit Admin
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Monitoring penjualan, audit trail transaksi, serta resolusi sengketa order.
             </p>
           </div>
-          <div className="ml-auto flex items-center gap-2 bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1.5 rounded-full border border-emerald-200">
-            <Activity className="w-3.5 h-3.5" />
-            System Online
+
+          {/* Tab Navigation */}
+          <div className="flex bg-white p-1.5 rounded-2xl border border-gray-200 shadow-xs">
+            <button
+              onClick={() => setActiveTab('metrics')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'metrics'
+                  ? 'bg-[#0064D2] text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span>Metrik & Event</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('disputes')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'disputes'
+                  ? 'bg-[#0064D2] text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              <AlertOctagon className="w-4 h-4" />
+              <span>Sengketa ({disputesTotal})</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('audit_logs')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'audit_logs'
+                  ? 'bg-[#0064D2] text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              <span>Audit Trail Logs</span>
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {ADMIN_MENU.map((m) => (
-            <button
-              key={m.title}
-              className={`bg-white rounded-2xl p-5 border ${m.border} shadow-sm hover:shadow-md transition-all text-left group flex items-start gap-4 opacity-60 cursor-not-allowed`}
-              disabled
-            >
-              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${m.color}`}>
-                <m.icon className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-gray-900 text-sm">{m.title}</h3>
-                <p className="text-xs text-gray-500 mt-1 leading-relaxed">{m.desc}</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-gray-300 shrink-0 mt-0.5" />
-            </button>
-          ))}
-        </div>
+        {/* Tab Contents */}
+        {activeTab === 'metrics' && (
+          <AdminMetricsTab
+            events={events}
+            eventsLoading={eventsLoading}
+            filteredEvents={filteredEvents}
+            platformStats={platformStats}
+            metricQueries={metricQueries}
+            search={search}
+            onSearchChange={setSearch}
+          />
+        )}
 
-        <p className="text-center text-xs text-gray-400 mt-8">
-          Fitur-fitur admin akan terhubung ke API saat backend PRD-10 &amp; PRD-11 siap.
-        </p>
+        {activeTab === 'disputes' && (
+          <AdminDisputesTab
+            disputes={disputes}
+            isLoading={disputesLoading}
+            onOpenOverride={(order) => setSelectedDispute(order)}
+            onOpenReassign={() => setReassignModalOpen(true)}
+          />
+        )}
+
+        {activeTab === 'audit_logs' && (
+          <AdminAuditLogsTab
+            auditLogs={auditLogs}
+            total={auditLogsTotal}
+            isLoading={auditLogsLoading}
+          />
+        )}
       </div>
+
+      {/* Modals */}
+      {selectedDispute && (
+        <OverrideStatusModal
+          orderId={selectedDispute.order_id || selectedDispute.id || ''}
+          initialStatus={selectedDispute.status === 'REFUND_REQUESTED' ? 'REFUNDED' : 'PAID'}
+          isSubmitting={isOverriding}
+          onClose={() => setSelectedDispute(null)}
+          onSubmit={handleOverrideSubmit}
+        />
+      )}
+
+      {reassignModalOpen && (
+        <ReassignTicketModal
+          isSubmitting={isReassigning}
+          onClose={() => setReassignModalOpen(false)}
+          onSubmit={(unitId, payload) => handleReassignSubmit(unitId, payload)}
+        />
+      )}
     </div>
   );
 }

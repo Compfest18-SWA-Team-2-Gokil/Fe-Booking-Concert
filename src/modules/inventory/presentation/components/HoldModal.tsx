@@ -1,10 +1,8 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, Ticket, AlertCircle, CheckCircle2, Loader2, ExternalLink } from 'lucide-react';
 import type { HoldResponse } from '../../domain/Ticket';
 import { formatCurrency } from '../../../../core/utils/formatCurrency';
-import { createOrder, initiatePayment, storeOrder } from '../../../../modules/orders/infrastructure/ordersApi';
-import { showAlert, showToast } from '../../../../shared/utils/alert';
+import { useHoldCountdown } from '../../application/useHoldCountdown';
 
 interface HoldModalProps {
   holdData: HoldResponse;
@@ -14,71 +12,24 @@ interface HoldModalProps {
   onClose: () => void;
 }
 
-type PaymentStep = 'hold' | 'processing' | 'redirect' | 'error';
-
 export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose }: HoldModalProps) {
   const navigate = useNavigate();
-  const heldUntil = new Date(holdData.held_until).getTime();
-  const [secondsLeft, setSecondsLeft] = useState(() =>
-    Math.max(0, Math.floor((heldUntil - Date.now()) / 1000))
-  );
-  const [paymentStep, setPaymentStep] = useState<PaymentStep>('hold');
-  const [invoiceUrl, setInvoiceUrl] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-
-  useEffect(() => {
-    if (paymentStep !== 'hold') return;
-    const interval = setInterval(() => {
-      const remaining = Math.max(0, Math.floor((heldUntil - Date.now()) / 1000));
-      setSecondsLeft(remaining);
-      if (remaining === 0) {
-        clearInterval(interval);
-        showAlert.warning(
-          'Waktu Reservasi Habis',
-          'Sesi reservasi tiketmu telah kedaluwarsa. Silakan lakukan reservasi ulang.'
-        );
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [heldUntil, paymentStep]);
-
-  async function handlePay() {
-    const confirm = await showAlert.confirm({
-      title: 'Lanjutkan ke Pembayaran?',
-      text: `Total tagihan: ${formatCurrency(totalAmount)} untuk ${holdData.unit_ids.length} tiket.`,
-      confirmText: 'Ya, Bayar Sekarang',
-      cancelText: 'Cek Kembali',
-      icon: 'question',
-    });
-
-    if (!confirm) return;
-
-    setPaymentStep('processing');
-    try {
-      const order = await createOrder(eventId, holdData.unit_ids);
-      const payment = await initiatePayment(order.id);
-      storeOrder({
-        orderId: order.id,
-        eventId,
-        eventName,
-        unitIds: holdData.unit_ids,
-        totalAmount: order.total_amount,
-        createdAt: order.created_at,
-      });
-      setInvoiceUrl(payment.invoice_url);
-      window.open(payment.invoice_url, '_blank');
-      showToast.success('Halaman pembayaran dibuka di tab baru!');
-      setPaymentStep('redirect');
-    } catch {
-      setErrorMsg('Gagal membuat pesanan tiket. Silakan coba lagi.');
-      showAlert.error('Gagal Membuat Pesanan', 'Terjadi kendala saat menghubungi gateway pembayaran.');
-      setPaymentStep('error');
-    }
-  }
-
-  const minutes = Math.floor(secondsLeft / 60);
-  const seconds = secondsLeft % 60;
-  const isExpired = secondsLeft === 0 && paymentStep === 'hold';
+  const {
+    minutes,
+    seconds,
+    isExpired,
+    paymentStep,
+    invoiceUrl,
+    createdOrderId,
+    errorMsg,
+    setPaymentStep,
+    handlePay,
+  } = useHoldCountdown({
+    holdData,
+    totalAmount,
+    eventId,
+    eventName,
+  });
 
   if (paymentStep === 'redirect') {
     return (
@@ -89,7 +40,7 @@ export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose }
           </div>
           <h2 className="text-2xl font-black text-gray-900 mb-2">Halaman Pembayaran Dibuka</h2>
           <p className="text-gray-500 text-sm mb-6">
-            Selesaikan pembayaran di tab baru. Tiketmu akan dikonfirmasi otomatis setelah pembayaran berhasil.
+            Selesaikan pembayaran di tab baru. Setelah selesai membayar, klik tombol di bawah untuk melihat tiketmu.
           </p>
           <div className="space-y-3">
             <a
@@ -102,16 +53,16 @@ export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose }
               Buka Halaman Pembayaran
             </a>
             <button
-              onClick={() => navigate('/my-tickets')}
-              className="w-full bg-[#0064D2] hover:bg-[#0052B0] text-white py-3 rounded-xl font-bold transition-colors text-sm"
+              onClick={() => navigate(`/payment/callback?order_id=${createdOrderId}`)}
+              className="w-full bg-[#0064D2] hover:bg-[#0052B0] text-white py-3 rounded-xl font-bold transition-colors text-sm shadow-md"
             >
-              Cek Status Tiket Saya
+              Saya Sudah Bayar / Cek Status
             </button>
             <button
-              onClick={() => navigate('/events')}
+              onClick={() => navigate('/my-tickets')}
               className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm"
             >
-              Kembali ke Semua Event
+              Ke Tiket Saya
             </button>
           </div>
         </div>
@@ -147,7 +98,10 @@ export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose }
             >
               Coba Lagi
             </button>
-            <button onClick={onClose} className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm">
+            <button
+              onClick={onClose}
+              className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm"
+            >
               Batal
             </button>
           </div>
@@ -166,7 +120,9 @@ export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose }
                 <AlertCircle className="w-8 h-8 text-red-500" />
               </div>
               <h2 className="text-2xl font-black text-red-600">Waktu Habis!</h2>
-              <p className="text-gray-500 mt-2 text-sm">Reservasi tiketmu sudah kedaluwarsa. Silakan coba lagi.</p>
+              <p className="text-gray-500 mt-2 text-sm">
+                Reservasi tiketmu sudah kedaluwarsa. Silakan coba lagi.
+              </p>
             </>
           ) : (
             <>
@@ -179,12 +135,20 @@ export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose }
           )}
         </div>
 
-        <div className={`text-center mb-6 p-5 rounded-2xl border ${isExpired ? 'bg-red-50 border-red-100' : 'bg-blue-50/70 border-blue-100'}`}>
+        <div
+          className={`text-center mb-6 p-5 rounded-2xl border ${
+            isExpired ? 'bg-red-50 border-red-100' : 'bg-blue-50/70 border-blue-100'
+          }`}
+        >
           <div className="flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
             <Clock className="w-4 h-4 text-[#0064D2]" />
             <span>Waktu Tersisa Hold</span>
           </div>
-          <div className={`text-4xl font-black font-mono tracking-tight ${isExpired ? 'text-red-600' : 'text-[#0064D2]'}`}>
+          <div
+            className={`text-4xl font-black font-mono tracking-tight ${
+              isExpired ? 'text-red-600' : 'text-[#0064D2]'
+            }`}
+          >
             {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
           </div>
         </div>
@@ -203,7 +167,9 @@ export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose }
           </div>
           <div className="flex justify-between pt-2 border-t border-gray-200/60">
             <span className="font-bold text-gray-900">Total Pembayaran</span>
-            <span className="font-black text-[#0064D2] text-lg">{formatCurrency(totalAmount)}</span>
+            <span className="font-black text-[#0064D2] text-lg">
+              {formatCurrency(totalAmount)}
+            </span>
           </div>
         </div>
 

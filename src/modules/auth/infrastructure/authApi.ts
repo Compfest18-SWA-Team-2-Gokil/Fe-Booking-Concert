@@ -26,4 +26,6 @@ export const authApi = {
     axiosInstance.post<LoginResponse>('/api/v1/auth/login', payload),
 
   me: () => axiosInstance.get<User>('/api/v1/auth/me'),
+
+  logout: () => axiosInstance.post<{ message: string }>('/api/v1/auth/logout'),
 };

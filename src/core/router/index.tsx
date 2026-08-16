@@ -75,6 +75,14 @@ function PublicAuthRoute() {
   return <Outlet />;
 }
 
+import { PaymentCallbackPage } from '../../modules/orders/presentation/pages/PaymentCallbackPage';
+
+/** Adaptive layout for events: SidebarLayout when logged in, Header/Footer Layout when guest */
+function EventsLayoutWrapper() {
+  const { user } = useAuth();
+  return user ? <SidebarLayout /> : <Layout />;
+}
+
 export const router = createBrowserRouter([
   // Public layout (Header + Footer, no sidebar)
   {
@@ -91,6 +99,20 @@ export const router = createBrowserRouter([
     ],
   },
 
+  // Events browsing & Payment Callback (accessible to both guests and authenticated users)
+  {
+    element: <EventsLayoutWrapper />,
+    children: [
+      { path: '/events', element: <EventsPage /> },
+      { path: '/events/:id', element: <EventDetailPage /> },
+      { path: '/payment/callback', element: <PaymentCallbackPage /> },
+      { path: '/payment/success', element: <PaymentCallbackPage /> },
+      { path: '/payment/finish', element: <PaymentCallbackPage /> },
+      { path: '/payment/result', element: <PaymentCallbackPage /> },
+      { path: '/orders/:orderId/status', element: <PaymentCallbackPage /> },
+    ],
+  },
+
   // Authenticated layout (sidebar, no header/footer)
   {
     element: <ProtectedRoute />,
@@ -98,10 +120,6 @@ export const router = createBrowserRouter([
       {
         element: <SidebarLayout />,
         children: [
-          // All authenticated users
-          { path: '/events', element: <EventsPage /> },
-          { path: '/events/:id', element: <EventDetailPage /> },
-
           // BUYER only
           {
             element: <RequireRole roles={['BUYER']} />,
