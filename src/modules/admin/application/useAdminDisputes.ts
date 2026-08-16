@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   adminApi,
@@ -8,11 +9,14 @@ import { showAlert, showToast } from '../../../shared/utils/alert';
 
 export function useAdminDisputes() {
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   const disputesQuery = useQuery({
-    queryKey: ['admin-disputes'],
-    queryFn: () => adminApi.getDisputes(),
+    queryKey: ['admin-disputes', page, limit],
+    queryFn: () => adminApi.getDisputes(page, limit),
     refetchInterval: 10_000,
+    placeholderData: (prev) => prev,
   });
 
   const overrideMutation = useMutation({
@@ -50,6 +54,9 @@ export function useAdminDisputes() {
   });
 
   return {
+    page,
+    setPage,
+    pagination: disputesQuery.data?.pagination,
     disputes: disputesQuery.data?.disputes ?? [],
     total: disputesQuery.data?.total ?? 0,
     isLoading: disputesQuery.isLoading,

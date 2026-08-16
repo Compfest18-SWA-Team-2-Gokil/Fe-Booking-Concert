@@ -1,14 +1,22 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '../infrastructure/adminApi';
 
-export function useAdminAuditLogs(limit = 100) {
+export function useAdminAuditLogs() {
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
   const query = useQuery({
-    queryKey: ['admin-audit-logs', limit],
-    queryFn: () => adminApi.getAuditLogs(limit),
+    queryKey: ['admin-audit-logs', page, limit],
+    queryFn: () => adminApi.getAuditLogs(page, limit),
     refetchInterval: 15_000,
+    placeholderData: (prev) => prev,
   });
 
   return {
+    page,
+    setPage,
+    pagination: query.data?.pagination,
     auditLogs: query.data?.audit_logs ?? [],
     total: query.data?.total ?? 0,
     isLoading: query.isLoading,

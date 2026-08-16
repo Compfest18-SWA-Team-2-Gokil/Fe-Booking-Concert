@@ -30,6 +30,8 @@ export function AdminDashboardPage() {
 
   const {
     disputes,
+    pagination: disputesPagination,
+    setPage: setDisputesPage,
     total: disputesTotal,
     isLoading: disputesLoading,
     overrideStatus,
@@ -40,6 +42,8 @@ export function AdminDashboardPage() {
 
   const {
     auditLogs,
+    pagination: auditLogsPagination,
+    setPage: setAuditLogsPage,
     total: auditLogsTotal,
     isLoading: auditLogsLoading,
   } = useAdminAuditLogs();
@@ -139,6 +143,8 @@ export function AdminDashboardPage() {
         {activeTab === 'disputes' && (
           <AdminDisputesTab
             disputes={disputes}
+            pagination={disputesPagination}
+            onPageChange={setDisputesPage}
             isLoading={disputesLoading}
             onOpenOverride={(order) => setSelectedDispute(order)}
             onOpenReassign={() => setReassignModalOpen(true)}
@@ -148,7 +154,8 @@ export function AdminDashboardPage() {
         {activeTab === 'audit_logs' && (
           <AdminAuditLogsTab
             auditLogs={auditLogs}
-            total={auditLogsTotal}
+            pagination={auditLogsPagination}
+            onPageChange={setAuditLogsPage}
             isLoading={auditLogsLoading}
           />
         )}

@@ -20,21 +20,26 @@ export interface TicketItem {
 export function useMyTickets() {
   const { token } = useAuth();
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
   const [refundingId, setRefundingId] = useState<string | null>(null);
   const [refundedIds, setRefundedIds] = useState<Set<string>>(new Set());
   const [payingId, setPayingId] = useState<string | null>(null);
   const [qrModalOrder, setQrModalOrder] = useState<StoredOrder | null>(null);
 
-  // Primary source of truth: fetch langsung semua order dari backend
+  // Primary source of truth: fetch langsung order dari backend dengan pagination
   const { data: serverResponse, isLoading: serverLoading, isError } = useQuery({
-    queryKey: ['my-orders'],
-    queryFn: () => getMyOrders(),
+    queryKey: ['my-orders', page, limit],
+    queryFn: () => getMyOrders(page, limit),
     enabled: !!token,
     staleTime: 10_000,
     refetchOnWindowFocus: true,
+    placeholderData: (prev) => prev,
   });
 
   const serverOrders = serverResponse?.orders ?? [];
+  const pagination = serverResponse?.pagination;
 
   // Fallback cache di localStorage jika ada
   const localOrders = getStoredOrders();
@@ -128,6 +133,9 @@ export function useMyTickets() {
   return {
     storedOrders: localOrders,
     tickets,
+    pagination,
+    page,
+    setPage,
     activeCount,
     pendingCount,
     refundingId,

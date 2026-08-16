@@ -1,9 +1,13 @@
 import { CheckCircle2, Sliders, AlertTriangle } from 'lucide-react';
 import type { DisputeOrder } from '../../infrastructure/adminApi';
+import type { PaginationMeta } from '../../../../shared/components/ui/Pagination';
+import { Pagination } from '../../../../shared/components/ui/Pagination';
 import { formatCurrency } from '../../../../core/utils/formatCurrency';
 
 interface AdminDisputesTabProps {
   disputes: DisputeOrder[];
+  pagination?: PaginationMeta;
+  onPageChange?: (newPage: number) => void;
   isLoading: boolean;
   onOpenOverride: (order: DisputeOrder) => void;
   onOpenReassign: () => void;
@@ -11,6 +15,8 @@ interface AdminDisputesTabProps {
 
 export function AdminDisputesTab({
   disputes,
+  pagination,
+  onPageChange,
   isLoading,
   onOpenOverride,
   onOpenReassign,
@@ -106,6 +112,14 @@ export function AdminDisputesTab({
               </tbody>
             </table>
           </div>
+        )}
+
+        {pagination && onPageChange && (
+          <Pagination
+            pagination={pagination}
+            onPageChange={onPageChange}
+            className="mt-4 border-t border-gray-100 pt-3"
+          />
         )}
       </div>
     </div>
