@@ -11,13 +11,13 @@ export interface ScanResult {
 }
 
 export function useGateScan() {
-  const [isProcessing, setIsProcessing] = useState(false);
   const [scanResults, setScanResults] = useState<ScanResult[]>([]);
   const [sessionStart] = useState(() => Date.now());
   const [elapsed, setElapsed] = useState(0);
-  const [lastScannedText, setLastScannedText] = useState<string>('');
 
-  const lastScanTimeRef = useRef<number>(0);
+  const isProcessingRef = useRef(false);
+  const lastScanRef = useRef<{ text: string; ts: number }>({ text: '', ts: 0 });
+  const localAdmittedSet = useRef<Set<string>>(new Set());
 
   // Session duration timer
   useEffect(() => {
@@ -32,60 +32,65 @@ export function useGateScan() {
   const admittedCount = scanResults.filter((s) => s.result === 'admitted').length;
   const rejectedCount = scanResults.filter((s) => s.result === 'rejected').length;
 
-  const processQR = useCallback(
-    async (content: string) => {
-      const trimmed = content.trim();
-      if (!trimmed || isProcessing) return;
+  const processQR = useCallback(async (content: string) => {
+    const trimmed = content.trim();
+    if (!trimmed) return;
 
-      // Debounce identical scans within 3 seconds
-      const now = Date.now();
-      if (trimmed === lastScannedText && now - lastScanTimeRef.current < 3000) {
-        return;
-      }
+    // Guard 1: Jangan proses jika sedang ada request scan yang berlangsung
+    if (isProcessingRef.current) return;
 
-      lastScanTimeRef.current = now;
-      setLastScannedText(trimmed);
-      setIsProcessing(true);
+    // Guard 2: Debounce spam pembacaan frame kamera yang sama dalam 3 detik
+    const now = Date.now();
+    if (trimmed === lastScanRef.current.text && now - lastScanRef.current.ts < 3000) {
+      return;
+    }
 
-      const time = new Date().toLocaleTimeString('id-ID', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      });
+    // Guard 3: Jika tiket ini sudah pernah di-admit di sesi scanner ini, beri notifikasi ramah
+    if (localAdmittedSet.current.has(trimmed)) {
+      showToast.info('Tiket ini sudah berhasil di-check-in');
+      lastScanRef.current = { text: trimmed, ts: now };
+      return;
+    }
 
-      try {
-        const res = await checkinApi.scanTicketQR({ qr_content: trimmed });
-        setScanResults((prev) => [
-          {
-            time,
-            result: 'admitted',
-            ticketUnitId: res.ticket_unit_id,
-            eventId: res.event_id,
-          },
-          ...prev,
-        ]);
-        showToast.success('✅ Tiket Valid - Admitted');
-      } catch (err: unknown) {
-        const errorData = err as { response?: { data?: { error?: string } } };
-        const errorMsg = errorData?.response?.data?.error ?? 'QR tidak valid / ditolak';
-        setScanResults((prev) => [
-          { time, result: 'rejected', error: errorMsg },
-          ...prev,
-        ]);
-        showToast.error(`❌ Ditolak: ${errorMsg}`);
-      } finally {
-        setIsProcessing(false);
-      }
-    },
-    [isProcessing, lastScannedText]
-  );
+    isProcessingRef.current = true;
+    lastScanRef.current = { text: trimmed, ts: now };
+
+    const time = new Date().toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+
+    try {
+      const res = await checkinApi.scanTicketQR({ qr_content: trimmed });
+      localAdmittedSet.current.add(trimmed);
+
+      setScanResults((prev) => [
+        { time, result: 'admitted', ticketUnitId: res.ticket_unit_id, eventId: res.event_id },
+        ...prev,
+      ]);
+      showToast.success('Tiket Valid - Masuk Diizinkan!');
+    } catch (err: unknown) {
+      const errorData = err as { response?: { data?: { error?: string } } };
+      const errorMsg = errorData?.response?.data?.error ?? 'QR tidak valid atau ditolak';
+      
+      setScanResults((prev) => [
+        { time, result: 'rejected', error: errorMsg },
+        ...prev,
+      ]);
+      showToast.error(errorMsg);
+    } finally {
+      isProcessingRef.current = false;
+    }
+  }, []);
 
   const clearHistory = useCallback(() => {
     setScanResults([]);
+    localAdmittedSet.current.clear();
   }, []);
 
   return {
-    isProcessing,
+    isProcessing: isProcessingRef.current,
     scanResults,
     sessionDisplay,
     admittedCount,
