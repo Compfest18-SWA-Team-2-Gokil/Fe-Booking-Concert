@@ -5,11 +5,14 @@ import { useMyTickets } from '../../application/useMyTickets';
 import { TicketStatsHeader } from '../components/TicketStatsHeader';
 import { TicketCard } from '../components/TicketCard';
 import { TicketQRModal } from '../components/TicketQRModal';
+import { Pagination } from '../../../../shared/components/ui/Pagination';
 
 export function MyTicketsPage() {
   const { user } = useAuth();
   const {
     tickets,
+    pagination,
+    setPage,
     activeCount,
     pendingCount,
     refundingId,
@@ -81,7 +84,7 @@ export function MyTicketsPage() {
         <div className="mb-8">
           {HeaderSection}
           <TicketStatsHeader
-            totalOrders={tickets.length}
+            totalOrders={pagination?.total_items ?? tickets.length}
             activeCount={activeCount}
             pendingCount={pendingCount}
           />
@@ -101,6 +104,16 @@ export function MyTicketsPage() {
             />
           ))}
         </div>
+
+        {/* Pagination */}
+        <Pagination
+          pagination={pagination}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className="mt-6 border-t border-gray-200/60 pt-4"
+        />
 
         <div className="mt-8 text-center">
           <Link

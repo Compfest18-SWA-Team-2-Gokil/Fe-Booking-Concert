@@ -1,11 +1,17 @@
 import axiosInstance from '../../../core/api/axiosInstance';
 import type { Event, EventCategory } from '../domain/models/Event';
 import type { TicketType } from '../../inventory/domain/Ticket';
+import type { PaginationMeta } from '../../../shared/components/ui/Pagination';
 
 export interface ListEventsFilter {
   category?: EventCategory | '';
   page?: number;
   limit?: number;
+}
+
+export interface ListEventsResponse {
+  events: Event[];
+  pagination?: PaginationMeta;
 }
 
 export interface CreateEventPayload {
@@ -31,7 +37,7 @@ export const eventsApi = {
     if (filter.page) params.set('page', String(filter.page));
     if (filter.limit) params.set('limit', String(filter.limit));
     const qs = params.toString();
-    return axiosInstance.get<{ events: Event[] }>(`/api/v1/events${qs ? `?${qs}` : ''}`);
+    return axiosInstance.get<ListEventsResponse>(`/api/v1/events${qs ? `?${qs}` : ''}`);
   },
 
   getEvent: (id: string) =>

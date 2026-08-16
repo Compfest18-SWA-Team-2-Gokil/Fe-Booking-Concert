@@ -2,9 +2,12 @@ import { AlertCircle } from 'lucide-react';
 import { useOrganizerRefunds } from '../../application/useOrganizerRefunds';
 import { OrganizerRefundsFilterBar } from '../components/OrganizerRefundsFilterBar';
 import { OrganizerRefundsTable } from '../components/OrganizerRefundsTable';
+import { Pagination } from '../../../../shared/components/ui/Pagination';
 
 export function OrganizerRefundsPage() {
   const {
+    pagination,
+    setPage,
     search,
     setSearch,
     statusFilter,
@@ -63,6 +66,16 @@ export function OrganizerRefundsPage() {
           onCopy={handleCopy}
           onApprove={handleApprove}
           isApproving={isApproving}
+        />
+
+        {/* Pagination Controls */}
+        <Pagination
+          pagination={pagination}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className="bg-white px-6 py-4 rounded-2xl border border-gray-100 shadow-xs"
         />
       </div>
     </div>

@@ -1,4 +1,5 @@
 import axiosInstance from '../../../core/api/axiosInstance';
+import type { PaginationMeta } from '../../../shared/components/ui/Pagination';
 
 export type OrderStatus =
   | 'PENDING'
@@ -6,6 +7,7 @@ export type OrderStatus =
   | 'PAID'
   | 'CANCELLED'
   | 'REFUND_REQUESTED'
+  | 'REFUND_ORGANIZER_APPROVED'
   | 'REFUNDED'
   | 'PAYMENT_DISCREPANCY';
 
@@ -28,6 +30,27 @@ export interface StoredOrder {
   unitIds: string[];
   totalAmount: number;
   createdAt: string;
+}
+
+export interface MyOrdersResponse {
+  orders: Order[];
+  pagination?: PaginationMeta;
+}
+
+export interface OrganizerRefundItem {
+  order_id: string;
+  buyer_id: string;
+  buyer_email: string;
+  event_id: string;
+  event_name: string;
+  status: OrderStatus;
+  total_amount: number;
+  created_at: string;
+}
+
+export interface OrganizerRefundsResponse {
+  refunds: OrganizerRefundItem[];
+  pagination?: PaginationMeta;
 }
 
 const STORAGE_KEY = 'tiketin_orders';
@@ -55,8 +78,16 @@ export function getOrder(orderId: string): Promise<Order> {
   return axiosInstance.get<Order>(`/api/v1/orders/${orderId}`).then((r) => r.data);
 }
 
-export function getMyOrders(): Promise<{ orders: Order[] }> {
-  return axiosInstance.get<{ orders: Order[] }>('/api/v1/orders/my').then((r) => r.data);
+export function getMyOrders(page = 1, limit = 10): Promise<MyOrdersResponse> {
+  return axiosInstance
+    .get<MyOrdersResponse>(`/api/v1/orders/my?page=${page}&limit=${limit}`)
+    .then((r) => r.data);
+}
+
+export function getOrganizerRefunds(page = 1, limit = 10): Promise<OrganizerRefundsResponse> {
+  return axiosInstance
+    .get<OrganizerRefundsResponse>(`/api/v1/orders/organizer/refunds?page=${page}&limit=${limit}`)
+    .then((r) => r.data);
 }
 
 export function initiatePayment(orderId: string): Promise<{ payment_id: string; invoice_url: string }> {

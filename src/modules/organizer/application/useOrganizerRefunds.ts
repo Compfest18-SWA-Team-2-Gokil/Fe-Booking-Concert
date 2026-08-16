@@ -1,32 +1,24 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { approveRefund } from '../../orders/infrastructure/ordersApi';
-import axiosInstance from '../../../core/api/axiosInstance';
+import { approveRefund, getOrganizerRefunds, type OrganizerRefundItem } from '../../orders/infrastructure/ordersApi';
 import { formatCurrency } from '../../../core/utils/formatCurrency';
 import { showAlert, showToast } from '../../../shared/utils/alert';
 
-export interface RefundRequestItem {
-  order_id: string;
-  buyer_id: string;
-  buyer_email: string;
-  event_id: string;
-  event_name: string;
-  status: 'REFUND_REQUESTED' | 'REFUND_ORGANIZER_APPROVED' | 'REFUNDED';
-  total_amount: number;
-  created_at: string;
-}
+export type { OrganizerRefundItem as RefundRequestItem };
 
 export function useOrganizerRefunds() {
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const limit = 10;
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery<{ refunds: RefundRequestItem[] }>({
-    queryKey: ['organizer-refunds'],
-    queryFn: () =>
-      axiosInstance.get<{ refunds: RefundRequestItem[] }>('/api/v1/orders/organizer/refunds').then((r: any) => r.data),
+  const { data, isLoading } = useQuery({
+    queryKey: ['organizer-refunds', page, limit],
+    queryFn: () => getOrganizerRefunds(page, limit),
     refetchInterval: 8_000,
+    placeholderData: (prev) => prev,
   });
 
   const approve = useMutation({
@@ -66,6 +58,7 @@ export function useOrganizerRefunds() {
   }
 
   const refunds = data?.refunds ?? [];
+  const pagination = data?.pagination;
   const pendingCount = refunds.filter((r) => r.status === 'REFUND_REQUESTED').length;
 
   const filteredRefunds = useMemo(() => {
@@ -82,6 +75,9 @@ export function useOrganizerRefunds() {
   }, [refunds, search, statusFilter]);
 
   return {
+    page,
+    setPage,
+    pagination,
     search,
     setSearch,
     statusFilter,
