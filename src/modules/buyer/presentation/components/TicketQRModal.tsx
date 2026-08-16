@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { X } from 'lucide-react';
 import { checkinApi } from '../../../../modules/gate-operator/infrastructure/checkinApi';
 import { showToast } from '../../../../shared/utils/alert';
 
@@ -57,7 +58,7 @@ export function TicketQRModal({
 
   const qrContent = qrMap[currentUnitId];
 
-  // Fallback payload string if issue API is restricted to organizer token only in BE
+  // Fallback payload string jika issue API belum ready
   const displayQrValue =
     qrContent ||
     `tiketin://${eventId}/${orderId}/${currentUnitId}`;
@@ -78,7 +79,7 @@ export function TicketQRModal({
             onClick={onClose}
             className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors cursor-pointer text-sm font-bold"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
           <div className="text-blue-100 text-xs font-bold uppercase tracking-wider mb-1">
             E-Ticket Pas Masuk
@@ -113,9 +114,9 @@ export function TicketQRModal({
 
         <div className="p-6 text-center">
           {/* QR Container */}
-          <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 inline-block mx-auto mb-4 shadow-inner">
+          <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200 inline-block mx-auto mb-4 shadow-inner">
             {loading ? (
-              <div className="w-48 h-48 flex flex-col items-center justify-center gap-2">
+              <div className="w-52 h-52 flex flex-col items-center justify-center gap-2">
                 <div className="w-8 h-8 border-3 border-[#0064D2] border-t-transparent rounded-full animate-spin" />
                 <span className="text-xs text-gray-500 font-medium">
                   Memuat QR Code...
@@ -125,9 +126,9 @@ export function TicketQRModal({
               <div className="bg-white p-3 rounded-xl shadow-sm inline-block">
                 <QRCodeSVG
                   value={displayQrValue}
-                  size={180}
-                  level="H"
-                  includeMargin={false}
+                  size={210}
+                  level="M"
+                  includeMargin={true}
                 />
               </div>
             )}
@@ -138,7 +139,7 @@ export function TicketQRModal({
             <div className="flex justify-between text-gray-500">
               <span>Unit ID:</span>
               <span className="font-bold text-gray-900 truncate max-w-[200px]">
-                {currentUnitId}
+                {currentUnitId || '(Memuat...)'}
               </span>
             </div>
             <div className="flex justify-between text-gray-500">
