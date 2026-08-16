@@ -6,14 +6,17 @@ export type OrderStatus =
   | 'PAID'
   | 'CANCELLED'
   | 'REFUND_REQUESTED'
-  | 'REFUNDED';
+  | 'REFUNDED'
+  | 'PAYMENT_DISCREPANCY';
 
 export interface Order {
   id: string;
   buyer_id: string;
   event_id: string;
+  event_name?: string;
   status: OrderStatus;
   total_amount: number;
+  unit_ids?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -50,6 +53,10 @@ export function createOrder(eventId: string, unitIds: string[]): Promise<Order> 
 
 export function getOrder(orderId: string): Promise<Order> {
   return axiosInstance.get<Order>(`/api/v1/orders/${orderId}`).then((r) => r.data);
+}
+
+export function getMyOrders(): Promise<{ orders: Order[] }> {
+  return axiosInstance.get<{ orders: Order[] }>('/api/v1/orders/my').then((r) => r.data);
 }
 
 export function initiatePayment(orderId: string): Promise<{ payment_id: string; invoice_url: string }> {
