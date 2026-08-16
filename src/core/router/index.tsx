@@ -10,12 +10,12 @@ import { EventsPage } from '../../modules/events/presentation/pages/EventsPage';
 import { EventDetailPage } from '../../modules/events/presentation/pages/EventDetailPage';
 import { CheckoutPage } from '../../modules/inventory/presentation/pages/CheckoutPage';
 // Organizer
-import { OrganizerDashboardPage } from '../../modules/organizer/presentation/pages/OrganizerDashboardPage';
 import { CreateEventPage } from '../../modules/organizer/presentation/pages/CreateEventPage';
 import { TicketTypesPage } from '../../modules/organizer/presentation/pages/TicketTypesPage';
 import { GateOperatorPage } from '../../modules/organizer/presentation/pages/GateOperatorPage';
 import { MyOrganizerEventsPage } from '../../modules/organizer/presentation/pages/MyOrganizerEventsPage';
 import { EditEventPage } from '../../modules/organizer/presentation/pages/EditEventPage';
+import { OrganizerRefundsPage } from '../../modules/organizer/presentation/pages/OrganizerRefundsPage';
 // Buyer
 import { MyTicketsPage } from '../../modules/buyer/presentation/pages/MyTicketsPage';
 // Admin
@@ -133,9 +133,10 @@ export const router = createBrowserRouter([
           {
             element: <RequireRole roles={['ORGANIZER']} />,
             children: [
-              { path: '/organizer/dashboard', element: <OrganizerDashboardPage /> },
               { path: '/organizer/my-events', element: <MyOrganizerEventsPage /> },
               { path: '/organizer/events', element: <MyOrganizerEventsPage /> },
+              { path: '/organizer/refunds', element: <OrganizerRefundsPage /> },
+              { path: '/organizer/dashboard', element: <Navigate to="/organizer/my-events" replace /> },
               { path: '/organizer/events/create', element: <CreateEventPage /> },
               { path: '/organizer/events/:eventId/edit', element: <EditEventPage /> },
               { path: '/organizer/events/:eventId/ticket-types', element: <TicketTypesPage /> },

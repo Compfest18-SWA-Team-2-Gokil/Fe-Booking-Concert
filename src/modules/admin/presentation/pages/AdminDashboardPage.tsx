@@ -90,14 +90,19 @@ export function AdminDashboardPage() {
             </button>
             <button
               onClick={() => setActiveTab('disputes')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 relative ${
                 activeTab === 'disputes'
                   ? 'bg-[#0064D2] text-white shadow-sm'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               <AlertOctagon className="w-4 h-4" />
-              <span>Sengketa ({disputesTotal})</span>
+              <span>Sengketa & Refund</span>
+              {disputesTotal > 0 && (
+                <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full ml-1">
+                  {disputesTotal}
+                </span>
+              )}
             </button>
             <button
               onClick={() => setActiveTab('audit_logs')}
@@ -108,19 +113,24 @@ export function AdminDashboardPage() {
               }`}
             >
               <FileText className="w-4 h-4" />
-              <span>Audit Trail Logs</span>
+              <span>Audit Logs</span>
+              {auditLogsTotal > 0 && (
+                <span className="bg-gray-200 text-gray-700 text-[10px] px-1.5 py-0.2 rounded-full ml-1">
+                  {auditLogsTotal}
+                </span>
+              )}
             </button>
           </div>
         </div>
 
-        {/* Tab Contents */}
+        {/* Tab Panels */}
         {activeTab === 'metrics' && (
           <AdminMetricsTab
             events={events}
-            eventsLoading={eventsLoading}
-            filteredEvents={filteredEvents}
             platformStats={platformStats}
+            filteredEvents={filteredEvents}
             metricQueries={metricQueries}
+            eventsLoading={eventsLoading}
             search={search}
             onSearchChange={setSearch}
           />
@@ -148,7 +158,12 @@ export function AdminDashboardPage() {
       {selectedDispute && (
         <OverrideStatusModal
           orderId={selectedDispute.order_id || selectedDispute.id || ''}
-          initialStatus={selectedDispute.status === 'REFUND_REQUESTED' ? 'REFUNDED' : 'PAID'}
+          initialStatus={
+            selectedDispute.status === 'REFUND_REQUESTED' ||
+            selectedDispute.status === 'REFUND_ORGANIZER_APPROVED'
+              ? 'REFUNDED'
+              : 'PAID'
+          }
           isSubmitting={isOverriding}
           onClose={() => setSelectedDispute(null)}
           onSubmit={handleOverrideSubmit}

@@ -47,7 +47,7 @@ export function AdminAuditLogsTab({
                 {auditLogs.map((log) => {
                   const entity = log.entity_name || log.entity_type || 'order';
                   const actor = log.actor_email || log.performed_by || log.actor_role || 'System';
-                  const reasonText = log.reason || (log.from_state && log.to_state ? `${log.from_state} ➔ ${log.to_state}` : '-');
+                  const reasonText = log.reason || (log.from_state && log.to_state ? `${log.from_state} -> ${log.to_state}` : '-');
 
                   return (
                     <tr key={log.id} className="hover:bg-gray-50/70">
