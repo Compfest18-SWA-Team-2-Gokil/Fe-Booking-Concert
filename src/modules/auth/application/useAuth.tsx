@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import type { User } from '../domain/User';
+import { authApi } from '../infrastructure/authApi';
 
 interface AuthContextValue {
   user: User | null;
@@ -31,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
+    authApi.logout().catch(() => {});
     localStorage.removeItem('tiketin_token');
     localStorage.removeItem('tiketin_user');
     setState({ token: null, user: null });
