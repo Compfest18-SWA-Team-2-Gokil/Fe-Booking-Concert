@@ -37,7 +37,7 @@ export function RegisterForm() {
       {
         onSuccess: () => {
           showAlert.success(
-            'Pendaftaran Berhasil! 🎉',
+            'Pendaftaran Berhasil!',
             'Akunmu telah berhasil dibuat. Silakan masuk untuk mulai bertransaksi.'
           ).then(() => {
             navigate('/login');
