@@ -1,11 +1,11 @@
 import { CheckCircle2, Sliders } from 'lucide-react';
-import type { Order } from '../../../orders/infrastructure/ordersApi';
+import type { DisputeOrder } from '../../infrastructure/adminApi';
 import { formatCurrency } from '../../../../core/utils/formatCurrency';
 
 interface AdminDisputesTabProps {
-  disputes: Order[];
+  disputes: DisputeOrder[];
   isLoading: boolean;
-  onOpenOverride: (order: Order) => void;
+  onOpenOverride: (order: DisputeOrder) => void;
   onOpenReassign: () => void;
 }
 
@@ -48,43 +48,48 @@ export function AdminDisputesTab({
               <thead className="bg-gray-50 text-gray-500 uppercase font-bold border-b border-gray-100">
                 <tr>
                   <th className="px-4 py-3">Order ID</th>
+                  <th className="px-4 py-3">Buyer Email</th>
                   <th className="px-4 py-3">Status Anomali</th>
                   <th className="px-4 py-3">Total Amount</th>
-                  <th className="px-4 py-3">Waktu Dibuat</th>
+                  <th className="px-4 py-3">Waktu</th>
                   <th className="px-4 py-3 text-right">Aksi Override</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {disputes.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50/70">
-                    <td className="px-4 py-3 font-mono font-bold text-gray-900">{order.id}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          order.status === 'REFUND_REQUESTED'
-                            ? 'bg-amber-100 text-amber-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-bold text-gray-900">
-                      {formatCurrency(order.total_amount)}
-                    </td>
-                    <td className="px-4 py-3 text-gray-500 font-mono">
-                      {new Date(order.created_at).toLocaleString('id-ID')}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => onOpenOverride(order)}
-                        className="bg-[#0064D2] hover:bg-[#0052B0] text-white font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer transition-colors shadow-xs"
-                      >
-                        Override Status
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {disputes.map((order) => {
+                  const orderId = order.order_id || order.id || '';
+                  return (
+                    <tr key={orderId} className="hover:bg-gray-50/70">
+                      <td className="px-4 py-3 font-mono font-bold text-gray-900">{orderId}</td>
+                      <td className="px-4 py-3 text-gray-600">{order.buyer_email || '-'}</td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            order.status === 'REFUND_REQUESTED'
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}
+                        >
+                          {order.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-bold text-gray-900">
+                        {formatCurrency(order.total_amount)}
+                      </td>
+                      <td className="px-4 py-3 text-gray-500 font-mono text-[11px]">
+                        {new Date(order.updated_at || order.created_at).toLocaleString('id-ID')}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          onClick={() => onOpenOverride(order)}
+                          className="bg-[#0064D2] hover:bg-[#0052B0] text-white font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer transition-colors shadow-xs"
+                        >
+                          Override Status
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

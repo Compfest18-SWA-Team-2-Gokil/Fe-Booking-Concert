@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:8080',
+  withCredentials: true, // Mengizinkan pengiriman & penerimaan HttpOnly Cookie secara otomatis
 });
 
 axiosInstance.interceptors.request.use((config) => {

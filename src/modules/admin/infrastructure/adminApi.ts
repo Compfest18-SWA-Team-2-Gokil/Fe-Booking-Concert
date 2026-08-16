@@ -1,9 +1,20 @@
 import axiosInstance from '../../../core/api/axiosInstance';
-import type { Order } from '../../orders/infrastructure/ordersApi';
+
+export interface DisputeOrder {
+  order_id: string;
+  id?: string;
+  buyer_id: string;
+  buyer_email: string;
+  event_id: string;
+  status: string;
+  total_amount: number;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface DisputesResponse {
   total: number;
-  disputes: Order[];
+  disputes: DisputeOrder[];
 }
 
 export interface OverrideOrderPayload {
@@ -12,8 +23,9 @@ export interface OverrideOrderPayload {
 }
 
 export interface OverrideOrderResponse {
-  message: string;
+  order_id: string;
   status: string;
+  message: string;
 }
 
 export interface ReassignTicketPayload {
@@ -24,12 +36,19 @@ export interface ReassignTicketPayload {
 
 export interface AuditLog {
   id: string;
-  entity_type: string;
+  actor_id?: string;
+  actor_email?: string;
+  performed_by?: string;
+  actor_role: string;
+  entity_type?: string;
+  entity_name?: string;
   entity_id: string;
   action: string;
-  performed_by: string;
+  from_status?: string;
+  to_status?: string;
+  from_state?: string;
+  to_state?: string;
   reason: string;
-  details?: Record<string, unknown>;
   created_at: string;
 }
 
