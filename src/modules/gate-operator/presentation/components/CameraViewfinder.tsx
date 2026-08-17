@@ -45,45 +45,53 @@ export function CameraViewfinder({
 
         {/* Inactive or Loading Overlay */}
         {(!isCameraActive || isStartingCamera) && !cameraError && (
-          <div className="absolute inset-0 bg-gray-50 flex flex-col items-center justify-center p-6 text-center z-10">
-            <div className="w-20 h-20 rounded-full bg-blue-50 text-[#0064D2] flex items-center justify-center mb-4 shadow-lg">
+          <div className="absolute inset-0 bg-gray-950 flex flex-col items-center justify-center p-6 text-center z-10">
+            {/* Faint viewfinder frame to hint "this is a camera" */}
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+              <div className="w-64 h-64 border border-white/6 rounded-2xl relative">
+                <div className="absolute -top-1 -left-1 w-7 h-7 border-t-2 border-l-2 border-white/10 rounded-tl-lg" />
+                <div className="absolute -top-1 -right-1 w-7 h-7 border-t-2 border-r-2 border-white/10 rounded-tr-lg" />
+                <div className="absolute -bottom-1 -left-1 w-7 h-7 border-b-2 border-l-2 border-white/10 rounded-bl-lg" />
+                <div className="absolute -bottom-1 -right-1 w-7 h-7 border-b-2 border-r-2 border-white/10 rounded-br-lg" />
+              </div>
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center">
               {isStartingCamera ? (
-                <div className="w-10 h-10 border-3 border-[#0064D2] border-t-transparent rounded-full animate-spin" />
+                <div className="w-12 h-12 border-3 border-white/20 border-t-white/60 rounded-full animate-spin mb-5" />
               ) : (
-                <Camera className="w-10 h-10" />
+                <Camera className="w-10 h-10 text-white/20 mb-4" />
+              )}
+              <h3 className="font-bold text-sm text-white/50 mb-1 tracking-wide">
+                {isStartingCamera ? 'Menghubungkan Kamera...' : 'Kamera Belum Aktif'}
+              </h3>
+              <p className="text-xs text-white/25 max-w-xs mb-5">
+                {isStartingCamera
+                  ? 'Meminta izin akses kamera...'
+                  : 'Aktifkan kamera untuk mulai scan tiket.'}
+              </p>
+              {!isStartingCamera && (
+                <button
+                  onClick={onStartCamera}
+                  className="bg-[#0064D2] hover:bg-[#0052B0] text-white font-bold px-6 py-2.5 rounded-xl text-sm flex items-center gap-2 shadow-lg hover:scale-105 transition-all cursor-pointer"
+                >
+                  <Camera className="w-4 h-4" />
+                  Nyalakan Kamera
+                </button>
               )}
             </div>
-            <h3 className="font-black text-2xl text-gray-900 mb-2 tracking-tight">
-              {isStartingCamera ? 'Menghubungkan Kamera...' : 'Kamera Belum Aktif'}
-            </h3>
-            <p className="text-xs sm:text-sm text-gray-500 max-w-sm mb-6 leading-relaxed">
-              {isStartingCamera
-                ? 'Sedang meminta izin akses dan memuat video feed kamera...'
-                : 'Aktifkan kamera untuk memindai QR code tiket secara otomatis dari layar HP pembeli.'}
-            </p>
-            {!isStartingCamera && (
-              <button
-                onClick={onStartCamera}
-                className="bg-[#0064D2] hover:bg-[#0052B0] text-white font-black px-8 py-3.5 rounded-2xl text-sm flex items-center gap-2.5 shadow-md shadow-blue-200 hover:scale-105 transition-all cursor-pointer"
-              >
-                <Camera className="w-5 h-5" />
-                Nyalakan Kamera
-              </button>
-            )}
           </div>
         )}
 
         {/* Camera Error Overlay */}
         {cameraError && (
-          <div className="absolute inset-0 bg-gray-50 flex flex-col items-center justify-center p-6 text-center z-10">
-            <div className="w-18 h-18 rounded-full bg-red-50 text-red-500 flex items-center justify-center mb-4">
-              <CameraOff className="w-9 h-9" />
-            </div>
-            <h3 className="font-bold text-red-600 text-base mb-1">Akses Kamera Gagal</h3>
-            <p className="text-xs text-gray-500 max-w-xs mb-5">{cameraError}</p>
+          <div className="absolute inset-0 bg-gray-950 flex flex-col items-center justify-center p-6 text-center z-10">
+            <CameraOff className="w-10 h-10 text-red-400/60 mb-4" />
+            <h3 className="font-bold text-sm text-red-400/80 mb-1">Akses Kamera Gagal</h3>
+            <p className="text-xs text-white/25 max-w-xs mb-5">{cameraError}</p>
             <button
               onClick={onStartCamera}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer"
+              className="bg-white/10 hover:bg-white/15 text-white/70 font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Coba Lagi
