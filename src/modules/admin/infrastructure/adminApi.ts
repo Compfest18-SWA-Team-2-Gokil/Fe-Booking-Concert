@@ -1,4 +1,5 @@
 import axiosInstance from '../../../core/api/axiosInstance';
+import type { PaginationMeta } from '../../../shared/components/ui/Pagination';
 
 export interface DisputeOrder {
   order_id: string;
@@ -15,6 +16,7 @@ export interface DisputeOrder {
 export interface DisputesResponse {
   total: number;
   disputes: DisputeOrder[];
+  pagination?: PaginationMeta;
 }
 
 export interface OverrideOrderPayload {
@@ -55,11 +57,14 @@ export interface AuditLog {
 export interface AuditLogsResponse {
   total: number;
   audit_logs: AuditLog[];
+  pagination?: PaginationMeta;
 }
 
 export const adminApi = {
-  getDisputes: () =>
-    axiosInstance.get<DisputesResponse>('/api/v1/admin/disputes').then((r) => r.data),
+  getDisputes: (page = 1, limit = 10) =>
+    axiosInstance
+      .get<DisputesResponse>(`/api/v1/admin/disputes?page=${page}&limit=${limit}`)
+      .then((r) => r.data),
 
   overrideOrderStatus: (orderId: string, payload: OverrideOrderPayload) =>
     axiosInstance
@@ -71,8 +76,8 @@ export const adminApi = {
       .post<{ message: string }>(`/api/v1/admin/tickets/${unitId}/reassign`, payload)
       .then((r) => r.data),
 
-  getAuditLogs: (limit = 50) =>
+  getAuditLogs: (page = 1, limit = 10) =>
     axiosInstance
-      .get<AuditLogsResponse>(`/api/v1/admin/audit-logs?limit=${limit}`)
+      .get<AuditLogsResponse>(`/api/v1/admin/audit-logs?page=${page}&limit=${limit}`)
       .then((r) => r.data),
 };

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Ticket, LogOut, Menu, X, ChevronDown, LayoutDashboard, QrCode, Shield, ShoppingBag } from 'lucide-react';
+import { Menu, X, LogOut, Ticket, ShoppingBag, Shield, QrCode, ChevronDown, RotateCcw } from 'lucide-react';
 import { useAuth } from '../../../modules/auth/application/useAuth';
 import { showAlert, showToast } from '../../utils/alert';
 import logoSvg from '../../../assets/logo.svg';
@@ -31,8 +31,8 @@ function getNavLinks(role?: string): NavLink[] {
     case 'ORGANIZER':
       return [
         { to: '/events', label: 'Semua Events' },
-        { to: '/organizer/dashboard', label: 'Dashboard', matchPrefix: '/organizer/dashboard' },
         { to: '/organizer/my-events', label: 'Event Saya', matchPrefix: '/organizer/my-events' },
+        { to: '/organizer/refunds', label: 'Persetujuan Refund', matchPrefix: '/organizer/refunds' },
       ];
     case 'ADMIN':
       return [
@@ -64,8 +64,8 @@ function getDropdownItems(role?: string): DropdownItem[] {
     case 'ORGANIZER':
       return [
         { to: '/events', label: 'Semua Events', icon: ShoppingBag },
-        { to: '/organizer/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { to: '/organizer/my-events', label: 'Event Saya', icon: ShoppingBag },
+        { to: '/organizer/refunds', label: 'Persetujuan Refund', icon: RotateCcw },
         { to: '/organizer/events/create', label: 'Buat Event Baru', icon: ShoppingBag },
       ];
     case 'ADMIN':

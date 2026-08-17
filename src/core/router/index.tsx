@@ -15,12 +15,12 @@ const EventsPage = lazy(() => import('../../modules/events/presentation/pages/Ev
 const EventDetailPage = lazy(() => import('../../modules/events/presentation/pages/EventDetailPage').then(m => ({ default: m.EventDetailPage })));
 const CheckoutPage = lazy(() => import('../../modules/inventory/presentation/pages/CheckoutPage').then(m => ({ default: m.CheckoutPage })));
 // Organizer
-const OrganizerDashboardPage = lazy(() => import('../../modules/organizer/presentation/pages/OrganizerDashboardPage').then(m => ({ default: m.OrganizerDashboardPage })));
-const CreateEventPage = lazy(() => import('../../modules/organizer/presentation/pages/CreateEventPage').then(m => ({ default: m.CreateEventPage })));
-const TicketTypesPage = lazy(() => import('../../modules/organizer/presentation/pages/TicketTypesPage').then(m => ({ default: m.TicketTypesPage })));
-const GateOperatorPage = lazy(() => import('../../modules/organizer/presentation/pages/GateOperatorPage').then(m => ({ default: m.GateOperatorPage })));
-const MyOrganizerEventsPage = lazy(() => import('../../modules/organizer/presentation/pages/MyOrganizerEventsPage').then(m => ({ default: m.MyOrganizerEventsPage })));
-const EditEventPage = lazy(() => import('../../modules/organizer/presentation/pages/EditEventPage').then(m => ({ default: m.EditEventPage })));
+import { CreateEventPage } from '../../modules/organizer/presentation/pages/CreateEventPage';
+import { TicketTypesPage } from '../../modules/organizer/presentation/pages/TicketTypesPage';
+import { GateOperatorPage } from '../../modules/organizer/presentation/pages/GateOperatorPage';
+import { MyOrganizerEventsPage } from '../../modules/organizer/presentation/pages/MyOrganizerEventsPage';
+import { EditEventPage } from '../../modules/organizer/presentation/pages/EditEventPage';
+import { OrganizerRefundsPage } from '../../modules/organizer/presentation/pages/OrganizerRefundsPage';
 // Buyer
 const MyTicketsPage = lazy(() => import('../../modules/buyer/presentation/pages/MyTicketsPage').then(m => ({ default: m.MyTicketsPage })));
 // Admin
@@ -148,9 +148,10 @@ export const router = createBrowserRouter([
           {
             element: <RequireRole roles={['ORGANIZER']} />,
             children: [
-              { path: '/organizer/dashboard', element: <OrganizerDashboardPage /> },
               { path: '/organizer/my-events', element: <MyOrganizerEventsPage /> },
               { path: '/organizer/events', element: <MyOrganizerEventsPage /> },
+              { path: '/organizer/refunds', element: <OrganizerRefundsPage /> },
+              { path: '/organizer/dashboard', element: <Navigate to="/organizer/my-events" replace /> },
               { path: '/organizer/events/create', element: <CreateEventPage /> },
               { path: '/organizer/events/:eventId/edit', element: <EditEventPage /> },
               { path: '/organizer/events/:eventId/ticket-types', element: <TicketTypesPage /> },

@@ -1,9 +1,13 @@
-import { CheckCircle2, Sliders } from 'lucide-react';
+import { CheckCircle2, Sliders, AlertTriangle } from 'lucide-react';
 import type { DisputeOrder } from '../../infrastructure/adminApi';
+import type { PaginationMeta } from '../../../../shared/components/ui/Pagination';
+import { Pagination } from '../../../../shared/components/ui/Pagination';
 import { formatCurrency } from '../../../../core/utils/formatCurrency';
 
 interface AdminDisputesTabProps {
   disputes: DisputeOrder[];
+  pagination?: PaginationMeta;
+  onPageChange?: (newPage: number) => void;
   isLoading: boolean;
   onOpenOverride: (order: DisputeOrder) => void;
   onOpenReassign: () => void;
@@ -11,6 +15,8 @@ interface AdminDisputesTabProps {
 
 export function AdminDisputesTab({
   disputes,
+  pagination,
+  onPageChange,
   isLoading,
   onOpenOverride,
   onOpenReassign,
@@ -20,9 +26,9 @@ export function AdminDisputesTab({
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-lg font-black text-gray-900">Daftar Sengketa & Transaksi Anomali</h2>
+            <h2 className="text-lg font-black text-gray-900">Daftar Sengketa & Persetujuan Refund Akhir</h2>
             <p className="text-xs text-gray-500">
-              Menangani pesanan Payment Discrepancy (kursi kadaluarsa/direbut) & Permintaan Refund
+              Menangani pesanan Payment Discrepancy & Finalisasi Refund yang telah disetujui Organizer.
             </p>
           </div>
           <button
@@ -49,29 +55,38 @@ export function AdminDisputesTab({
                 <tr>
                   <th className="px-4 py-3">Order ID</th>
                   <th className="px-4 py-3">Buyer Email</th>
-                  <th className="px-4 py-3">Status Anomali</th>
+                  <th className="px-4 py-3">Status Sengketa / Refund</th>
                   <th className="px-4 py-3">Total Amount</th>
                   <th className="px-4 py-3">Waktu</th>
-                  <th className="px-4 py-3 text-right">Aksi Override</th>
+                  <th className="px-4 py-3 text-right">Aksi Admin</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {disputes.map((order) => {
                   const orderId = order.order_id || order.id || '';
+                  const isOrgApproved = order.status === 'REFUND_ORGANIZER_APPROVED';
+                  const isRefundReq = order.status === 'REFUND_REQUESTED';
+
                   return (
                     <tr key={orderId} className="hover:bg-gray-50/70">
                       <td className="px-4 py-3 font-mono font-bold text-gray-900">{orderId}</td>
                       <td className="px-4 py-3 text-gray-600">{order.buyer_email || '-'}</td>
                       <td className="px-4 py-3">
-                        <span
-                          className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                            order.status === 'REFUND_REQUESTED'
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {order.status}
-                        </span>
+                        {isOrgApproved && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                            Disetujui Organizer (Siap Refund Admin)
+                          </span>
+                        )}
+                        {isRefundReq && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                            Menunggu Review Organizer
+                          </span>
+                        )}
+                        {order.status === 'PAYMENT_DISCREPANCY' && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
+                            <AlertTriangle className="w-3 h-3" /> Kursi Direbut (Discrepancy)
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-3 font-bold text-gray-900">
                         {formatCurrency(order.total_amount)}
@@ -82,9 +97,13 @@ export function AdminDisputesTab({
                       <td className="px-4 py-3 text-right">
                         <button
                           onClick={() => onOpenOverride(order)}
-                          className="bg-[#0064D2] hover:bg-[#0052B0] text-white font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer transition-colors shadow-xs"
+                          className={`font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer transition-colors shadow-xs ${
+                            isOrgApproved
+                              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                              : 'bg-[#0064D2] hover:bg-[#0052B0] text-white'
+                          }`}
                         >
-                          Override Status
+                          {isOrgApproved ? 'Finalisasi Refund' : 'Override Status'}
                         </button>
                       </td>
                     </tr>
@@ -93,6 +112,14 @@ export function AdminDisputesTab({
               </tbody>
             </table>
           </div>
+        )}
+
+        {pagination && onPageChange && (
+          <Pagination
+            pagination={pagination}
+            onPageChange={onPageChange}
+            className="mt-4 border-t border-gray-100 pt-3"
+          />
         )}
       </div>
     </div>
