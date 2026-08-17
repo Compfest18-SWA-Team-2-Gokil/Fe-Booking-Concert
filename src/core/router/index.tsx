@@ -1,14 +1,19 @@
+/* eslint-disable react-refresh/only-export-components */
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../modules/auth/application/useAuth';
 import { Header } from '../../shared/components/layout/Header';
 import { Footer } from '../../shared/components/layout/Footer';
 import { SidebarLayout } from '../../shared/components/layout/SidebarLayout';
+import { Spinner } from '../../shared/components/ui/Spinner';
+// Eager: entry-point pages (landing, auth)
 import { LoginPage } from '../../modules/auth/presentation/pages/LoginPage';
 import { RegisterPage } from '../../modules/auth/presentation/pages/RegisterPage';
 import { HomePage } from '../../modules/home/presentation/pages/HomePage';
-import { EventsPage } from '../../modules/events/presentation/pages/EventsPage';
-import { EventDetailPage } from '../../modules/events/presentation/pages/EventDetailPage';
-import { CheckoutPage } from '../../modules/inventory/presentation/pages/CheckoutPage';
+// Lazy: role-specific & secondary pages
+const EventsPage = lazy(() => import('../../modules/events/presentation/pages/EventsPage').then(m => ({ default: m.EventsPage })));
+const EventDetailPage = lazy(() => import('../../modules/events/presentation/pages/EventDetailPage').then(m => ({ default: m.EventDetailPage })));
+const CheckoutPage = lazy(() => import('../../modules/inventory/presentation/pages/CheckoutPage').then(m => ({ default: m.CheckoutPage })));
 // Organizer
 import { CreateEventPage } from '../../modules/organizer/presentation/pages/CreateEventPage';
 import { TicketTypesPage } from '../../modules/organizer/presentation/pages/TicketTypesPage';
@@ -17,11 +22,11 @@ import { MyOrganizerEventsPage } from '../../modules/organizer/presentation/page
 import { EditEventPage } from '../../modules/organizer/presentation/pages/EditEventPage';
 import { OrganizerRefundsPage } from '../../modules/organizer/presentation/pages/OrganizerRefundsPage';
 // Buyer
-import { MyTicketsPage } from '../../modules/buyer/presentation/pages/MyTicketsPage';
+const MyTicketsPage = lazy(() => import('../../modules/buyer/presentation/pages/MyTicketsPage').then(m => ({ default: m.MyTicketsPage })));
 // Admin
-import { AdminDashboardPage } from '../../modules/admin/presentation/pages/AdminDashboardPage';
+const AdminDashboardPage = lazy(() => import('../../modules/admin/presentation/pages/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
 // Gate Operator
-import { ScanQRPage } from '../../modules/gate-operator/presentation/pages/ScanQRPage';
+const ScanQRPage = lazy(() => import('../../modules/gate-operator/presentation/pages/ScanQRPage').then(m => ({ default: m.ScanQRPage })));
 
 /** Redirect ke halaman utama sesuai role setelah login */
 function roleHome(role?: string): string {
@@ -37,12 +42,22 @@ function roleHome(role?: string): string {
   }
 }
 
+function SuspenseFallback() {
+  return (
+    <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+      <Spinner className="w-10 h-10" />
+    </div>
+  );
+}
+
 function Layout() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1">
-        <Outlet />
+        <Suspense fallback={<SuspenseFallback />}>
+          <Outlet />
+        </Suspense>
       </main>
       <Footer />
     </div>
@@ -75,7 +90,7 @@ function PublicAuthRoute() {
   return <Outlet />;
 }
 
-import { PaymentCallbackPage } from '../../modules/orders/presentation/pages/PaymentCallbackPage';
+const PaymentCallbackPage = lazy(() => import('../../modules/orders/presentation/pages/PaymentCallbackPage').then(m => ({ default: m.PaymentCallbackPage })));
 
 /** Adaptive layout for events: SidebarLayout when logged in, Header/Footer Layout when guest */
 function EventsLayoutWrapper() {

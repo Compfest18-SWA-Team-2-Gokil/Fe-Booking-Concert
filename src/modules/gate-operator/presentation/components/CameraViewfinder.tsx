@@ -54,9 +54,26 @@ export function CameraViewfinder({
           <div className="absolute inset-0 bg-gray-950 flex flex-col items-center justify-center p-6 text-center z-10">
             <div className="w-20 h-20 rounded-full bg-gray-800/80 text-emerald-400 flex items-center justify-center mb-4 shadow-lg border border-gray-700">
               {isStartingCamera ? (
-                <div className="w-10 h-10 border-3 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                <div className="w-12 h-12 border-3 border-white/20 border-t-white/60 rounded-full animate-spin mb-5" />
               ) : (
-                <Camera className="w-10 h-10" />
+                <Camera className="w-10 h-10 text-white/20 mb-4" />
+              )}
+              <h3 className="font-bold text-sm text-white/50 mb-1 tracking-wide">
+                {isStartingCamera ? 'Menghubungkan Kamera...' : 'Kamera Belum Aktif'}
+              </h3>
+              <p className="text-xs text-white/25 max-w-xs mb-5">
+                {isStartingCamera
+                  ? 'Meminta izin akses kamera...'
+                  : 'Aktifkan kamera untuk mulai scan tiket.'}
+              </p>
+              {!isStartingCamera && (
+                <button
+                  onClick={onStartCamera}
+                  className="bg-[#0064D2] hover:bg-[#0052B0] text-white font-bold px-6 py-2.5 rounded-xl text-sm flex items-center gap-2 shadow-lg hover:scale-105 transition-all cursor-pointer"
+                >
+                  <Camera className="w-4 h-4" />
+                  Nyalakan Kamera
+                </button>
               )}
             </div>
             <h3 className="font-black text-xl text-white mb-1.5 tracking-tight">

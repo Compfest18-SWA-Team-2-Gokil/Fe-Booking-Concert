@@ -4,7 +4,7 @@ import type { Event } from '../../../events/domain/models/Event';
 import { EventCard } from '../../../events/presentation/components/EventCard';
 import { useTicketTypes } from '../../../events/application/useTicketTypes';
 import { useAuth } from '../../../auth/application/useAuth';
-import drawkit10 from '../../../../assets/illustrator/DrawKit10.png';
+const drawkit10 = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786852214/draw10.webp';
 
 function EventCardFetched({ eventId, ...rest }: { eventId: string } & Parameters<typeof EventCard>[0]) {
   const { data: ticketTypes } = useTicketTypes(eventId);

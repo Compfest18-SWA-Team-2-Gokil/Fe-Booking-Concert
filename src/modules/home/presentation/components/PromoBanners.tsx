@@ -22,7 +22,7 @@ export function PromoBanners({ onNavigate }: PromoBannersProps) {
         {PROMO_BANNERS.map((banner) => (
           <div
             key={banner.id}
-            className={`relative rounded-3xl p-6 bg-gradient-to-r ${banner.gradient} text-white shadow-xl overflow-hidden group hover:scale-[1.02] transition-all duration-300`}
+            className={`relative rounded-3xl p-6 bg-linear-to-r ${banner.gradient} text-white shadow-xl overflow-hidden group hover:scale-[1.02] transition-all duration-300`}
           >
             <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
               {banner.badge}
