@@ -113,7 +113,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       {/* User info + logout */}
       <div className="p-4">
         <div className="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-gray-50/90 mb-2">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0064D2] to-blue-700 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#0064D2] to-blue-700 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">
             {user?.name.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
@@ -228,7 +228,7 @@ export function SidebarLayout() {
                 {ROLE_LABEL[user?.role ?? ''] ?? user?.role}
               </span>
             </div>
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#0064D2] to-blue-700 flex items-center justify-center text-white font-bold text-sm shadow-xs">
+            <div className="w-9 h-9 rounded-full bg-linear-to-br from-[#0064D2] to-blue-700 flex items-center justify-center text-white font-bold text-sm shadow-xs">
               {user?.name?.charAt(0).toUpperCase()}
             </div>
           </div>

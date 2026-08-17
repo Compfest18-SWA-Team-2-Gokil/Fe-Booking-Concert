@@ -19,11 +19,11 @@ export function ManualScanForm({ isProcessing, onSubmit }: ManualScanFormProps) 
   }
 
   return (
-    <div className="bg-gray-900 rounded-3xl border border-gray-800 p-6 mb-6">
-      <p className="text-sm font-bold text-gray-200 mb-1">
+    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 mb-6">
+      <p className="text-sm font-bold text-gray-900 mb-1">
         Input String QR / Barcode Scanner Gun
       </p>
-      <p className="text-xs text-gray-400 mb-4">
+      <p className="text-xs text-gray-500 mb-4">
         Arahkan scanner eksternal atau tempel string QR tiket di bawah lalu tekan Enter.
       </p>
 
@@ -35,13 +35,13 @@ export function ManualScanForm({ isProcessing, onSubmit }: ManualScanFormProps) 
           onChange={(e) => setQrInput(e.target.value)}
           placeholder="Tempel string QR tiket di sini..."
           autoFocus
-          className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+          className="w-full bg-white border border-gray-200 text-gray-900 placeholder-gray-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0064D2] font-mono"
         />
 
         <button
           type="submit"
           disabled={isProcessing || !qrInput.trim()}
-          className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-colors shadow-lg shadow-emerald-900 flex items-center gap-2 justify-center text-sm cursor-pointer"
+          className="w-full bg-[#0064D2] hover:bg-[#0052B0] disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-colors shadow-md shadow-blue-200 flex items-center gap-2 justify-center text-sm cursor-pointer"
         >
           <QrCode className="w-4 h-4" />
           {isProcessing ? 'Memverifikasi...' : 'Verifikasi Tiket'}
