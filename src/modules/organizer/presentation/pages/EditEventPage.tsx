@@ -32,6 +32,7 @@ export function EditEventPage() {
   // Pre-fill form when event data loads
   useEffect(() => {
     if (!event) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-filling form from fetched data is a valid effect pattern
     setName(event.name);
     setDescription(event.description ?? '');
     setCategory(event.category ?? 'music');
@@ -102,8 +103,9 @@ export function EditEventPage() {
       await qc.invalidateQueries({ queryKey: ['event', eventId] });
       showToast.success('Event dan foto berhasil diperbarui!');
       navigate('/organizer/my-events');
-    } catch (err: any) {
-      const msg = err?.response?.data?.error ?? 'Pastikan semua informasi valid dan ukuran file di bawah 5MB.';
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      const msg = axiosErr?.response?.data?.error ?? 'Pastikan semua informasi valid dan ukuran file di bawah 5MB.';
       showAlert.error('Gagal Menyimpan Perubahan', msg);
     } finally {
       setIsSaving(false);

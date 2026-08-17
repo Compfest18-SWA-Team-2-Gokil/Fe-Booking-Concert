@@ -132,8 +132,9 @@ export function MyOrganizerEventsPage() {
       qc.invalidateQueries({ queryKey: ['events'] });
       showToast.success('Event berhasil dihapus.');
     },
-    onError: (err: any) => {
-      const msg = err?.response?.data?.error ?? 'Terjadi kesalahan.';
+    onError: (err: unknown) => {
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      const msg = axiosErr?.response?.data?.error ?? 'Terjadi kesalahan.';
       showAlert.error('Gagal Menghapus Event', msg);
     },
   });

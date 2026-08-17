@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   X, LogOut, Ticket, Plus, QrCode,
@@ -143,6 +143,7 @@ export function SidebarLayout() {
 
   // Close mobile drawer on route change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing drawer state with route changes
     setMobileOpen(false);
   }, [location.pathname]);
 
@@ -235,7 +236,13 @@ export function SidebarLayout() {
 
         {/* Page Content */}
         <main className="flex-1">
-          <Outlet />
+          <Suspense fallback={
+            <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+              <div className="animate-spin rounded-full border-4 border-[#0064D2] border-t-transparent w-10 h-10" />
+            </div>
+          }>
+            <Outlet />
+          </Suspense>
         </main>
 
         {/* Global Footer */}

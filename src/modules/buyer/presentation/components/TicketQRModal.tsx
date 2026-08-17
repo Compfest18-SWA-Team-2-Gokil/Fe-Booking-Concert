@@ -30,25 +30,28 @@ export function TicketQRModal({
     if (qrMap[currentUnitId]) return;
 
     let isMounted = true;
-    setLoading(true);
 
-    checkinApi
-      .issueTicketQR({
-        ticket_unit_id: currentUnitId,
-        order_id: orderId,
-        event_id: eventId,
-      })
-      .then((res) => {
+    const fetchQR = async () => {
+      try {
+        const res = await checkinApi.issueTicketQR({
+          ticket_unit_id: currentUnitId,
+          order_id: orderId,
+          event_id: eventId,
+        });
         if (isMounted) {
           setQrMap((prev) => ({ ...prev, [currentUnitId]: res.qr_content }));
           setLoading(false);
         }
-      })
-      .catch(() => {
+      } catch {
         if (isMounted) {
           setLoading(false);
         }
-      });
+      }
+    };
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loading flag must be set before the async fetch
+    setLoading(true);
+    fetchQR();
 
     return () => {
       isMounted = false;
