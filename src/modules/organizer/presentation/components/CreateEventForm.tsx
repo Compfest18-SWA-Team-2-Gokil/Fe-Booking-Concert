@@ -120,7 +120,7 @@ export function CreateEventForm({
         <label className="block text-sm font-bold text-gray-900 mb-1.5">Poster Event (Opsional)</label>
         {previewSrc ? (
           <div className="relative rounded-2xl overflow-hidden border border-gray-200 mb-3">
-            <img src={previewSrc} alt="Preview Poster" className="w-full h-48 object-cover" />
+            <img src={previewSrc} alt="Preview Poster" loading="lazy" className="w-full h-48 object-cover" />
             <button
               type="button"
               onClick={() => setImageFile(null)}

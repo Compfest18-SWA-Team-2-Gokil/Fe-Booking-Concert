@@ -75,6 +75,7 @@ export function UpcomingEvents({ events, isLoading, onResetFilter, onNavigateToE
           <img
             src={drawkit10}
             alt="Tidak ada event"
+            loading="lazy"
             className="w-52 sm:w-64 max-h-56 object-contain mb-4 drop-shadow-sm"
           />
           <h4 className="text-xl font-bold text-gray-900 mb-1">

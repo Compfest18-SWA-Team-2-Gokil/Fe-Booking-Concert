@@ -23,6 +23,7 @@ export function WhyChooseUs() {
                 <img
                   src={f.img}
                   alt={f.title}
+                  loading="lazy"
                   className="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-300"
                 />
               </div>

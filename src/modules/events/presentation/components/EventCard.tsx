@@ -51,6 +51,7 @@ export function EventCard({ event, ticketTypes }: EventCardProps) {
           <img
             src={event.image_url}
             alt={event.name}
+            loading="lazy"
             className="w-full h-full object-cover"
           />
         ) : (

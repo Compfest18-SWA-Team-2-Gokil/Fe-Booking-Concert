@@ -43,6 +43,7 @@ export function EventGallery() {
                   key={ri}
                   src={src}
                   alt={`Concert ${ci * 3 + ri + 1}`}
+                  loading="lazy"
                   className="w-full h-auto rounded-2xl hover:scale-105 transition-transform duration-300"
                 />
               ))}

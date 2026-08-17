@@ -38,7 +38,7 @@ export function OrganizerEventCard({
       {/* Banner */}
       <div className={`relative h-40 flex items-center justify-center overflow-hidden ${event.image_url ? '' : `bg-gradient-to-br ${gradientFor(event.id)}`}`}>
         {event.image_url ? (
-          <img src={event.image_url} alt={event.name} className="w-full h-full object-cover" />
+          <img src={event.image_url} alt={event.name} loading="lazy" className="w-full h-full object-cover" />
         ) : (
           <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-md">
             <Calendar className="w-7 h-7" />

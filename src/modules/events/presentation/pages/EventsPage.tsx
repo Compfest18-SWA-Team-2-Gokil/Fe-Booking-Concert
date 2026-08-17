@@ -126,7 +126,7 @@ export function EventsPage() {
 
         {!isLoading && !error && filteredEvents && filteredEvents.length === 0 && (
           <div className="text-center py-16 px-6 bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
-            <img src={drawkit10} alt="Tidak ada event" className="w-56 sm:w-64 max-h-60 object-contain mb-4 drop-shadow-sm" />
+            <img src={drawkit10} alt="Tidak ada event" loading="lazy" className="w-56 sm:w-64 max-h-60 object-contain mb-4 drop-shadow-sm" />
             <h4 className="text-xl font-bold text-gray-900 mb-1">Belum ada event yang sesuai</h4>
             <p className="text-gray-500 text-sm max-w-sm mb-6">
               Coba ubah kategori atau reset filter untuk melihat semua event.

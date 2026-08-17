@@ -8,7 +8,7 @@ export function FaqAccordion() {
     <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
         <div className="lg:col-span-5 text-center lg:text-left">
-          <img src={faqImg} alt="FAQ Illustration" className="w-64 max-w-full mx-auto lg:mx-0 mb-6" />
+          <img src={faqImg} alt="FAQ Illustration" loading="lazy" className="w-64 max-w-full mx-auto lg:mx-0 mb-6" />
           <h2 className="text-3xl font-black text-gray-900 tracking-tight mb-3">
             Pertanyaan Umum (FAQ)
           </h2>

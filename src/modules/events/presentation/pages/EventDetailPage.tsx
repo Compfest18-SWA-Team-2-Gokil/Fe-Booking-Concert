@@ -64,6 +64,7 @@ export function EventDetailPage() {
             <img
               src={event.image_url}
               alt={event.name}
+              loading="lazy"
               className="absolute inset-0 w-full h-full object-cover opacity-40"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/60 to-transparent" />

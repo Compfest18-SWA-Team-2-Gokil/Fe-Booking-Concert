@@ -112,7 +112,7 @@ export function Footer() {
                   className="bg-white p-1 rounded-lg flex items-center justify-center h-8 shadow-sm hover:scale-105 transition-transform"
                   title={pm.name}
                 >
-                  <img src={pm.logo} alt={pm.name} className="max-h-full max-w-full object-contain" />
+                  <img src={pm.logo} alt={pm.name} loading="lazy" className="max-h-full max-w-full object-contain" />
                 </div>
               ))}
             </div>

@@ -107,7 +107,7 @@ export function RegisterForm() {
                     : 'border-[#E5E7EB] bg-white text-[#1A1A1A] hover:border-blue-200 hover:bg-blue-50/30'
                 }`}
               >
-                <img src={option.image} alt="" className="h-16 w-16 object-contain" />
+                <img src={option.image} alt="" loading="lazy" className="h-16 w-16 object-contain" />
                 <span className="mt-1 text-xs font-bold">{option.label}</span>
               </button>
             );
