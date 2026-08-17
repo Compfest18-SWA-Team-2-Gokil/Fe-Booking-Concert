@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../../modules/auth/application/useAuth';
 import { showAlert, showToast } from '../../utils/alert';
+import { usePrefetch } from '../../hooks/usePrefetch';
 import logoSvg from '../../../assets/logo.svg';
 
 const ROLE_BADGE: Record<string, string> = {
@@ -35,11 +36,15 @@ function NavItem({
   onClick?: () => void;
 }) {
   const location = useLocation();
+  const { prefetchRoute } = usePrefetch();
   const active = matchPrefix ? location.pathname.startsWith(matchPrefix) : location.pathname === to;
   return (
     <Link
       to={to}
       onClick={onClick}
+      onMouseEnter={() => prefetchRoute(to)}
+      onTouchStart={() => prefetchRoute(to)}
+      onFocus={() => prefetchRoute(to)}
       className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all ${
         active
           ? 'bg-[#0064D2] text-white shadow-md shadow-blue-600/20'

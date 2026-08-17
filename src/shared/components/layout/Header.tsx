@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, LogOut, Ticket, ShoppingBag, Shield, QrCode, ChevronDown, RotateCcw } from 'lucide-react';
 import { useAuth } from '../../../modules/auth/application/useAuth';
 import { showAlert, showToast } from '../../utils/alert';
+import { usePrefetch } from '../../hooks/usePrefetch';
 import logoSvg from '../../../assets/logo.svg';
 
 const ROLE_LABEL: Record<string, string> = {
@@ -87,6 +88,7 @@ export function Header() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { prefetchRoute } = usePrefetch();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -143,6 +145,9 @@ export function Header() {
               <Link
                 key={link.to}
                 to={link.to}
+                onMouseEnter={() => prefetchRoute(link.to)}
+                onTouchStart={() => prefetchRoute(link.to)}
+                onFocus={() => prefetchRoute(link.to)}
                 className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
                   isActive(link) ? 'bg-blue-50 text-[#0064D2]' : 'text-gray-700 hover:text-[#0064D2] hover:bg-gray-50'
                 }`}
@@ -186,6 +191,9 @@ export function Header() {
                     <Link
                       key={item.to}
                       to={item.to}
+                      onMouseEnter={() => prefetchRoute(item.to)}
+                      onTouchStart={() => prefetchRoute(item.to)}
+                      onFocus={() => prefetchRoute(item.to)}
                       onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
@@ -240,6 +248,7 @@ export function Header() {
               <Link
                 key={link.to}
                 to={link.to}
+                onTouchStart={() => prefetchRoute(link.to)}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`px-4 py-2.5 rounded-xl font-medium text-sm ${
                   isActive(link) ? 'bg-blue-50 text-[#0064D2]' : 'text-gray-700'
@@ -256,6 +265,7 @@ export function Header() {
                 <Link
                   key={item.to}
                   to={item.to}
+                  onTouchStart={() => prefetchRoute(item.to)}
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 rounded-xl hover:bg-gray-50"
                 >
