@@ -1,7 +1,7 @@
 import { type LucideIcon, Flame, Mic, Disc, Radio, PartyPopper, Sparkles, Tag } from 'lucide-react';
-import drawKit1 from '../../../assets/illustrator/DrawKit1.png';
-import drawKit2 from '../../../assets/illustrator/DrawKit2.png';
-import drawKit3 from '../../../assets/illustrator/DrawKit3.png';
+const drawKit1 = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851672/DrawKit1.webp';
+const drawKit2 = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851672/DrawKit2.webp';
+const drawKit3 = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851672/DrawKit3.webp';
 
 export interface Category {
   id: string;

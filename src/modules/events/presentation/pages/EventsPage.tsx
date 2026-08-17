@@ -11,7 +11,7 @@ import { formatDate } from '../../../../core/utils/formatDate';
 import { CATEGORY_LABELS } from '../../domain/models/Event';
 import type { EventCategory } from '../../domain/models/Event';
 import type { Event } from '../../domain/models/Event';
-import drawkit10 from '../../../../assets/illustrator/DrawKit10.png';
+const drawkit10 = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786852214/draw10.webp';
 
 function EventListItem({ event }: { event: Event }) {
   const categoryLabel = event.category ? CATEGORY_LABELS[event.category] ?? event.category : 'Event';

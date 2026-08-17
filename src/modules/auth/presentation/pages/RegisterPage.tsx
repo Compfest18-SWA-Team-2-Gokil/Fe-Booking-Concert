@@ -1,6 +1,6 @@
 import { RegisterForm } from '../components/RegisterForm';
 import logoSvg from '../../../../assets/logo.svg';
-import signUpImage from '../../../../assets/SignUp.png';
+const signUpImage = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851340/SignUp.webp';
 
 export function RegisterPage() {
   return (

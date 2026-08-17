@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRegister } from '../../application/useRegister';
 import { showAlert } from '../../../../shared/utils/alert';
-import buyerImage from '../../../../assets/roles/buyer.png';
-import organizerImage from '../../../../assets/roles/organizer.png';
-import gateOperatorImage from '../../../../assets/roles/gate-operator.png';
-import adminImage from '../../../../assets/roles/admin.png';
+const buyerImage = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851472/buyer.webp';
+const organizerImage = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851473/organizer.webp';
+const gateOperatorImage = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851472/gate-operator.webp';
+const adminImage = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851472/admin.webp';
 
 const ROLES = [
   { value: 'BUYER', label: 'Pembeli', image: buyerImage },

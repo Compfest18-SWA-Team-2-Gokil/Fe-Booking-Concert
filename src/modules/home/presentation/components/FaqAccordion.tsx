@@ -1,6 +1,7 @@
 import { ChevronDown } from 'lucide-react';
-import faqImg from '../../../../assets/Faq.png';
 import { FAQS } from '../../constants/homeData';
+
+const faqImg = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851180/Faq.webp';
 
 export function FaqAccordion() {
   return (

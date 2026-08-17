@@ -1,6 +1,6 @@
 import { LoginForm } from '../components/LoginForm';
 import logoSvg from '../../../../assets/logo.svg';
-import loginImage from '../../../../assets/Login.png';
+const loginImage = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851272/Login.webp';
 
 export function LoginPage() {
   return (
