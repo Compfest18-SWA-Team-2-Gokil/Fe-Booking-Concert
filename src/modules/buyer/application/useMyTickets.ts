@@ -1,13 +1,14 @@
 import { useState, useCallback } from 'react';
-import { useQueries, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  getStoredOrders,
-  getOrder,
+  getMyOrders,
   requestRefund,
   initiatePayment,
+  getStoredOrders,
   type StoredOrder,
   type Order,
 } from '../../orders/infrastructure/ordersApi';
+import { useAuth } from '../../auth/application/useAuth';
 import { showAlert, showToast } from '../../../shared/utils/alert';
 
 export interface TicketItem {
@@ -17,18 +18,57 @@ export interface TicketItem {
 }
 
 export function useMyTickets() {
-  const storedOrders = getStoredOrders();
+  const { token } = useAuth();
+  const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
   const [refundingId, setRefundingId] = useState<string | null>(null);
   const [refundedIds, setRefundedIds] = useState<Set<string>>(new Set());
   const [payingId, setPayingId] = useState<string | null>(null);
   const [qrModalOrder, setQrModalOrder] = useState<StoredOrder | null>(null);
 
-  const orderQueries = useQueries({
-    queries: storedOrders.map((o) => ({
-      queryKey: ['order', o.orderId],
-      queryFn: () => getOrder(o.orderId),
-      retry: false,
-    })),
+  // Primary source of truth: fetch langsung order dari backend dengan pagination
+  const { data: serverResponse, isLoading: serverLoading, isError } = useQuery({
+    queryKey: ['my-orders', page, limit],
+    queryFn: () => getMyOrders(page, limit),
+    enabled: !!token,
+    staleTime: 10_000,
+    refetchOnWindowFocus: true,
+    placeholderData: (prev) => prev,
+  });
+
+  const serverOrders = serverResponse?.orders ?? [];
+  const pagination = serverResponse?.pagination;
+
+  // Fallback cache di localStorage jika ada
+  const localOrders = getStoredOrders();
+  const localMap = new Map(localOrders.map((o) => [o.orderId, o]));
+
+  // Buat list TicketItem dari serverOrders
+  const tickets: TicketItem[] = serverOrders.map((order) => {
+    const local = localMap.get(order.id);
+    
+    // Gunakan event_name dan unit_ids dari server jika ada, atau fallback ke local
+    const eventName = order.event_name || local?.eventName || 'Event Tiket';
+    const unitIds = (order.unit_ids && order.unit_ids.length > 0) 
+      ? order.unit_ids 
+      : (local?.unitIds ?? []);
+
+    const stored: StoredOrder = {
+      orderId: order.id,
+      eventId: order.event_id,
+      eventName,
+      unitIds,
+      totalAmount: order.total_amount,
+      createdAt: order.created_at,
+    };
+
+    return {
+      stored,
+      order,
+      isLoading: false,
+    };
   });
 
   const refundMutation = useMutation({
@@ -36,17 +76,18 @@ export function useMyTickets() {
     onSuccess: (_, orderId) => {
       setRefundedIds((prev) => new Set([...prev, orderId]));
       setRefundingId(null);
+      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
       showAlert.success(
         'Pengajuan Refund Berhasil',
-        'Permintaan refund tiket telah dicatat. Tim kami akan memproses pengembalian dana.'
+        'Permintaan refund tiket telah dicatat. Organizer akan memproses pengembalian dana.'
       );
     },
-    onError: () => {
+    onError: (error: any) => {
       setRefundingId(null);
-      showAlert.error(
-        'Gagal Mengajukan Refund',
-        'Terjadi kendala saat mengajukan refund. Silakan coba kembali beberapa saat lagi.'
-      );
+      const msg =
+        error?.response?.data?.error ??
+        'Terjadi kendala saat mengajukan refund. Silakan coba kembali.';
+      showAlert.error('Gagal Mengajukan Refund', msg);
     },
   });
 
@@ -60,7 +101,6 @@ export function useMyTickets() {
         icon: 'warning',
         isDanger: true,
       });
-
       if (isConfirmed) {
         setRefundingId(orderId);
         refundMutation.mutate(orderId);
@@ -75,21 +115,15 @@ export function useMyTickets() {
       const res = await initiatePayment(orderId);
       window.open(res.invoice_url, '_blank');
       showToast.success('Halaman pembayaran dibuka di tab baru!');
-    } catch {
-      showAlert.error(
-        'Gagal Membuka Pembayaran',
-        'Tidak dapat membuat invoice pembayaran untuk order ini.'
-      );
+    } catch (error: any) {
+      const msg =
+        error?.response?.data?.error ??
+        'Tidak dapat membuat invoice pembayaran untuk order ini.';
+      showAlert.error('Gagal Membuka Pembayaran', msg);
     } finally {
       setPayingId(null);
     }
   }, []);
-
-  const tickets: TicketItem[] = storedOrders.map((stored, i) => ({
-    stored,
-    order: orderQueries[i]?.data ?? null,
-    isLoading: orderQueries[i]?.isLoading ?? false,
-  }));
 
   const activeCount = tickets.filter((t) => t.order?.status === 'PAID').length;
   const pendingCount = tickets.filter(
@@ -97,14 +131,19 @@ export function useMyTickets() {
   ).length;
 
   return {
-    storedOrders,
+    storedOrders: localOrders,
     tickets,
+    pagination,
+    page,
+    setPage,
     activeCount,
     pendingCount,
     refundingId,
     refundedIds,
     payingId,
     qrModalOrder,
+    isLoading: serverLoading,
+    isError,
     isRefunding: refundMutation.isPending,
     setQrModalOrder,
     handleRefundClick,

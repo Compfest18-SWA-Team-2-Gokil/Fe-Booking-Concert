@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QrCode, Wifi, Camera, Keyboard } from 'lucide-react';
 import { useAuth } from '../../../auth/application/useAuth';
 import { useGateScan } from '../../application/useGateScan';
@@ -34,6 +34,29 @@ export function ScanQRPage() {
     onScanSuccess: processQR,
   });
 
+  // Auto-start kamera saat mount atau saat switch kembali ke mode camera
+  // Pakai useEffect supaya DOM sudah render dulu sebelum html5-qrcode attach
+  useEffect(() => {
+    if (mode === 'camera') {
+      // Delay 100ms untuk pastikan DOM sudah flush
+      const timer = setTimeout(() => {
+        startCamera();
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      stopCamera();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
+  // Cleanup kamera saat komponen di-unmount
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-950 text-white py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
@@ -44,7 +67,7 @@ export function ScanQRPage() {
               <QrCode className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-black">Gate Scanner Kamera</h1>
+              <h1 className="text-xl font-black">Gate Scanner</h1>
               <p className="text-xs text-gray-400">Gate Operator · {user?.name}</p>
             </div>
           </div>
@@ -57,10 +80,7 @@ export function ScanQRPage() {
         {/* Mode Selector Tabs */}
         <div className="flex bg-gray-900 p-1.5 rounded-2xl border border-gray-800 mb-6">
           <button
-            onClick={() => {
-              setMode('camera');
-              if (!isCameraActive) startCamera();
-            }}
+            onClick={() => setMode('camera')}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
               mode === 'camera'
                 ? 'bg-emerald-500 text-white shadow-md'
@@ -71,10 +91,7 @@ export function ScanQRPage() {
             <span>Kamera Scanner</span>
           </button>
           <button
-            onClick={() => {
-              setMode('manual');
-              stopCamera();
-            }}
+            onClick={() => setMode('manual')}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
               mode === 'manual'
                 ? 'bg-emerald-500 text-white shadow-md'

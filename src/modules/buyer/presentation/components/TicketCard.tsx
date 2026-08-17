@@ -1,4 +1,4 @@
-import { Ticket, Calendar, MapPin, QrCode, CreditCard, RefreshCw, ExternalLink } from 'lucide-react';
+import { Ticket, Calendar, MapPin, QrCode, CreditCard, RefreshCw, ExternalLink, AlertCircle } from 'lucide-react';
 import type { TicketItem } from '../../application/useMyTickets';
 import type { StoredOrder } from '../../../orders/infrastructure/ordersApi';
 import { formatCurrency } from '../../../../core/utils/formatCurrency';
@@ -21,24 +21,29 @@ const STATUS_CONFIG: Record<string, { label: string; style: string; dot: string 
     dot: 'bg-amber-500',
   },
   PAID: {
-    label: 'Aktif',
+    label: 'Tiket Aktif',
     style: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
     dot: 'bg-emerald-500',
   },
   CANCELLED: {
-    label: 'Dibatalkan',
-    style: 'bg-gray-100 text-gray-500 border border-gray-200',
-    dot: 'bg-gray-400',
+    label: 'Kedaluwarsa (Batal)',
+    style: 'bg-rose-50 text-rose-700 border border-rose-200',
+    dot: 'bg-rose-500',
   },
   REFUND_REQUESTED: {
-    label: 'Refund Diminta',
-    style: 'bg-orange-50 text-orange-700 border border-orange-200',
-    dot: 'bg-orange-500',
+    label: 'Menunggu Persetujuan Organizer',
+    style: 'bg-amber-50 text-amber-700 border border-amber-200',
+    dot: 'bg-amber-500',
+  },
+  REFUND_ORGANIZER_APPROVED: {
+    label: 'Disetujui Organizer (Proses Admin)',
+    style: 'bg-blue-50 text-blue-700 border border-blue-200',
+    dot: 'bg-blue-500',
   },
   REFUNDED: {
-    label: 'Direfund',
-    style: 'bg-gray-100 text-gray-500 border border-gray-200',
-    dot: 'bg-gray-400',
+    label: 'Telah Direfund (Selesai)',
+    style: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    dot: 'bg-emerald-500',
   },
   PAYMENT_DISCREPANCY: {
     label: 'Kendala Pembayaran',
@@ -76,10 +81,12 @@ export function TicketCard({
   const effectiveStatus = isRefunded ? 'REFUND_REQUESTED' : status;
   const effectiveSt = getStatusConfig(effectiveStatus);
 
+  const isExpiredOrCancelled = status === 'CANCELLED';
+
   return (
     <div
       className={`bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md ${
-        status === 'CANCELLED' || status === 'REFUNDED' ? 'opacity-60' : ''
+        isExpiredOrCancelled || status === 'REFUNDED' ? 'opacity-75 bg-gray-50/50' : ''
       }`}
     >
       <div className="p-5 sm:p-6">
@@ -105,7 +112,7 @@ export function TicketCard({
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
                 <span className="flex items-center gap-1">
                   <Ticket className="w-3.5 h-3.5 shrink-0" />
-                  {stored.unitIds.length} tiket
+                  {stored.unitIds.length > 0 ? `${stored.unitIds.length} tiket` : '1 pesanan'}
                 </span>
                 <span className="flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5 shrink-0" />
@@ -120,6 +127,13 @@ export function TicketCard({
                   {formatCurrency(stored.totalAmount)}
                 </span>
               </div>
+
+              {isExpiredOrCancelled && (
+                <p className="text-xs text-rose-500 font-medium mt-2 flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  Batas waktu pembayaran habis. Kursi/tiket telah dirilis kembali.
+                </p>
+              )}
             </div>
 
             <div className="flex flex-wrap sm:flex-col gap-2 shrink-0 items-end">

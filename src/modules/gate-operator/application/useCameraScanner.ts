@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Html5Qrcode, type CameraDevice } from 'html5-qrcode';
+import { Html5Qrcode, Html5QrcodeSupportedFormats, type CameraDevice } from 'html5-qrcode';
 
 export const QR_READER_ELEMENT_ID = 'gate-qr-reader';
 
@@ -15,8 +15,14 @@ export function useCameraScanner({ onScanSuccess }: UseCameraScannerOptions) {
   const [selectedCameraIndex, setSelectedCameraIndex] = useState(0);
 
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
+  const onScanSuccessRef = useRef(onScanSuccess);
 
-  // Stop camera stream safely
+  useEffect(() => {
+    onScanSuccessRef.current = onScanSuccess;
+  }, [onScanSuccess]);
+
+  const lastScanRef = useRef<{ text: string; ts: number }>({ text: '', ts: 0 });
+
   const stopCamera = useCallback(async () => {
     if (html5QrCodeRef.current) {
       try {
@@ -25,7 +31,7 @@ export function useCameraScanner({ onScanSuccess }: UseCameraScannerOptions) {
         }
         await html5QrCodeRef.current.clear();
       } catch {
-        // Ignore stop error
+        // Abaikan error stop
       }
       html5QrCodeRef.current = null;
     }
@@ -33,7 +39,6 @@ export function useCameraScanner({ onScanSuccess }: UseCameraScannerOptions) {
     setIsStartingCamera(false);
   }, []);
 
-  // Start live camera
   const startCamera = useCallback(
     async (cameraIdx = selectedCameraIndex) => {
       setCameraError(null);
@@ -54,29 +59,55 @@ export function useCameraScanner({ onScanSuccess }: UseCameraScannerOptions) {
         setSelectedCameraIndex(validIdx);
         const selectedDevice = devices[validIdx];
 
-        setIsCameraActive(true);
-
-        // Allow DOM rendering time
+        // Berikan waktu DOM mounting
         await new Promise((resolve) => setTimeout(resolve, 150));
 
-        const html5QrCode = new Html5Qrcode(QR_READER_ELEMENT_ID);
+        // Inisialisasi scanner dengan format fokus QR_CODE dan akselerasi BarcodeDetector API browser
+        const html5QrCode = new Html5Qrcode(QR_READER_ELEMENT_ID, {
+          formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+          verbose: false,
+          experimentalFeatures: {
+            useBarCodeDetectorIfSupported: true,
+          },
+        });
         html5QrCodeRef.current = html5QrCode;
 
+        lastScanRef.current = { text: '', ts: 0 };
+
+        // Konfigurasi scan area responsif & framerate tinggi
         await html5QrCode.start(
           selectedDevice.id,
           {
-            fps: 15,
-            qrbox: { width: 260, height: 260 },
+            fps: 20, // 20 FPS untuk respons cepat
+            qrbox: (viewfinderWidth: number, viewfinderHeight: number) => {
+              // Area scan mencakup 85% area kamera agar user tidak harus mengepaskan di kotak sempit
+              const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+              const qrboxSize = Math.floor(minEdge * 0.85);
+              return {
+                width: Math.max(qrboxSize, 220),
+                height: Math.max(qrboxSize, 220),
+              };
+            },
             aspectRatio: 1.0,
           },
           (decodedText) => {
-            onScanSuccess(decodedText);
+            const now = Date.now();
+            const last = lastScanRef.current;
+
+            // Cegah duplicate scan string yang sama dalam 2.5 detik
+            if (decodedText === last.text && now - last.ts < 2500) {
+              return;
+            }
+
+            lastScanRef.current = { text: decodedText, ts: now };
+            onScanSuccessRef.current(decodedText);
           },
           () => {
-            // Ignore frame decode errors
+            // Abaikan frame decode miss
           }
         );
 
+        setIsCameraActive(true);
         setIsStartingCamera(false);
       } catch (err: unknown) {
         const errorMsg =
@@ -88,10 +119,9 @@ export function useCameraScanner({ onScanSuccess }: UseCameraScannerOptions) {
         setIsStartingCamera(false);
       }
     },
-    [selectedCameraIndex, stopCamera, onScanSuccess]
+    [selectedCameraIndex, stopCamera]
   );
 
-  // Switch camera device
   const switchCamera = useCallback(() => {
     if (availableCameras.length <= 1) return;
     const nextIdx = (selectedCameraIndex + 1) % availableCameras.length;
