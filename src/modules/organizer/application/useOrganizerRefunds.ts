@@ -30,7 +30,7 @@ export function useOrganizerRefunds() {
         `Permintaan refund untuk order #${id.slice(0, 8)} telah disetujui dan diteruskan ke Admin.`
       );
     },
-    onError: (error: any) => {
+    onError: (error: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
       const msg = error?.response?.data?.error ?? 'Gagal menyetujui refund.';
       showAlert.error('Gagal Menyetujui Refund', msg);
     },

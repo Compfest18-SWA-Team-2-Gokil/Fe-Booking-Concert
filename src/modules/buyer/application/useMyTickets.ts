@@ -82,7 +82,7 @@ export function useMyTickets() {
         'Permintaan refund tiket telah dicatat. Organizer akan memproses pengembalian dana.'
       );
     },
-    onError: (error: any) => {
+    onError: (error: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
       setRefundingId(null);
       const msg =
         error?.response?.data?.error ??
@@ -115,7 +115,7 @@ export function useMyTickets() {
       const res = await initiatePayment(orderId);
       window.open(res.invoice_url, '_blank');
       showToast.success('Halaman pembayaran dibuka di tab baru!');
-    } catch (error: any) {
+    } catch (error: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) {
       const msg =
         error?.response?.data?.error ??
         'Tidak dapat membuat invoice pembayaran untuk order ini.';

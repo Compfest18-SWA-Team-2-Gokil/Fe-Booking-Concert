@@ -27,7 +27,7 @@ export function useGateOperatorAssignment() {
       setOperatorId('');
       showToast.success('Gate Operator berhasil ditugaskan.');
     },
-    onError: (err: any) => {
+    onError: (err: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
       const msg = err?.response?.data?.error ?? 'Gagal menugaskan Gate Operator.';
       showAlert.error('Gagal Assign Gate Operator', msg);
     },

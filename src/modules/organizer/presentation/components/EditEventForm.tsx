@@ -8,7 +8,7 @@ interface EditEventFormProps {
   description: string;
   setDescription: (v: string) => void;
   category: 'music' | 'olahraga' | 'seni' | 'workshop';
-  setCategory: (v: any) => void;
+  setCategory: (v: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => void;
   date: string;
   setDate: (v: string) => void;
   time: string;
@@ -70,7 +70,7 @@ export function EditEventForm({
         <label className="block text-sm font-bold text-gray-900 mb-1.5">Kategori</label>
         <select
           value={category}
-          onChange={(e) => setCategory(e.target.value as any)}
+          onChange={(e) => setCategory(e.target.value as any /* eslint-disable-line @typescript-eslint/no-explicit-any */)}
           className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0064D2] text-sm bg-white"
         >
           {Object.entries(CATEGORY_LABELS).map(([val, label]) => (

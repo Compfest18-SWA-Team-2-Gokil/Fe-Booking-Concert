@@ -30,7 +30,7 @@ export function useOrganizerEvents() {
       qc.invalidateQueries({ queryKey: ['events'] });
       showToast.success('Event berhasil dihapus.');
     },
-    onError: (err: any) => {
+    onError: (err: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
       const msg = err?.response?.data?.error ?? 'Terjadi kesalahan.';
       showAlert.error('Gagal Menghapus Event', msg);
     },

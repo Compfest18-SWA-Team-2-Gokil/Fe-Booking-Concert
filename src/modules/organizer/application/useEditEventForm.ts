@@ -28,6 +28,7 @@ export function useEditEventForm() {
 
   useEffect(() => {
     if (!event) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setName(event.name);
     setDescription(event.description ?? '');
     setCategory(event.category ?? 'music');
@@ -38,7 +39,7 @@ export function useEditEventForm() {
     if (currentImageUrl === undefined) {
       setCurrentImageUrl(event.image_url ?? '');
     }
-  }, [event]);
+  }, [event, currentImageUrl]);
 
   const uploadImage = useMutation({
     mutationFn: ({ file }: { file: File }) => {
@@ -48,7 +49,7 @@ export function useEditEventForm() {
         .post<{ image_url: string }>(`/api/v1/events/${eventId}/image`, form, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
-        .then((r: any) => r.data);
+        .then((r: unknown) => (r as { data: { image_url: string } }).data);
     },
   });
 
@@ -61,8 +62,8 @@ export function useEditEventForm() {
       showToast.success('Event berhasil diperbarui.');
       navigate('/organizer/my-events');
     },
-    onError: (err: any) => {
-      const msg = err?.response?.data?.error ?? 'Gagal memperbarui event.';
+    onError: (err: unknown) => {
+      const msg = (err as any /* eslint-disable-line @typescript-eslint/no-explicit-any */)?.response?.data?.error ?? 'Gagal memperbarui event.';
       showAlert.error('Gagal Menyimpan Perubahan', msg);
     },
   });

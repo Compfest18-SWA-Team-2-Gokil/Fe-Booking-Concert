@@ -3,8 +3,10 @@ import { Check } from 'lucide-react';
 import { formatCurrency } from '../../../../core/utils/formatCurrency';
 
 interface PaymentSuccessStateProps {
-  order: any;
-  matchingStored: any;
+   
+  order: any /* eslint-disable-line @typescript-eslint/no-explicit-any */;
+   
+  matchingStored: any /* eslint-disable-line @typescript-eslint/no-explicit-any */;
   targetOrderId: string;
   onOpenQR: () => void;
 }

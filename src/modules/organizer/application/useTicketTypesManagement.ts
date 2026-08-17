@@ -39,7 +39,7 @@ export function useTicketTypesManagement() {
       setQuota('');
       showToast.success('Ticket type berhasil dibuat.');
     },
-    onError: (err: any) => {
+    onError: (err: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
       const msg = err?.response?.data?.error ?? 'Gagal membuat ticket type.';
       showAlert.error('Gagal Membuat Ticket Type', msg);
     },

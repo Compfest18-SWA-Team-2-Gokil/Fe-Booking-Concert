@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 
-type ImportFn = () => Promise<any>;
+type ImportFn = () => Promise<unknown>;
 
 // Map routes to their lazy import functions
 const ROUTE_IMPORTS: Record<string, ImportFn> = {
