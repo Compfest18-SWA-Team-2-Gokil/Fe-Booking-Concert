@@ -1,13 +1,15 @@
+import { Skeleton } from '../../../../shared/components/ui/Skeleton';
+
 export function EventSkeleton() {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden animate-pulse h-[380px] flex flex-col justify-between p-4">
-      <div className="h-44 bg-gray-200 rounded-xl" />
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden h-95 flex flex-col justify-between p-4">
+      <Skeleton variant="shimmer" className="h-44 w-full rounded-xl" />
       <div className="space-y-3 my-4">
-        <div className="h-4 bg-gray-200 rounded w-3/4" />
-        <div className="h-3 bg-gray-200 rounded w-1/2" />
-        <div className="h-3 bg-gray-200 rounded w-2/3" />
+        <Skeleton variant="shimmer" className="h-4 w-3/4 rounded" />
+        <Skeleton variant="shimmer" className="h-3 w-1/2 rounded" />
+        <Skeleton variant="shimmer" className="h-3 w-2/3 rounded" />
       </div>
-      <div className="h-10 bg-gray-200 rounded-xl mt-auto" />
+      <Skeleton variant="shimmer" className="h-10 w-full rounded-xl mt-auto" />
     </div>
   );
 }
