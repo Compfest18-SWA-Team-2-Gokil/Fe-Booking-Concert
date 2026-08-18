@@ -5,17 +5,20 @@ import {
   type OverrideOrderPayload,
   type ReassignTicketPayload,
 } from '../infrastructure/adminApi';
+import { useAuth } from '../../auth/application/useAuth';
 import { showAlert, showToast } from '../../../shared/utils/alert';
 import { getApiErrorMessage } from '../../../shared/utils/apiError';
 
 export function useAdminDisputes() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [page, setPage] = useState(1);
   const limit = 10;
 
   const disputesQuery = useQuery({
     queryKey: ['admin-disputes', page, limit],
     queryFn: () => adminApi.getDisputes(page, limit),
+    enabled: user?.role === 'ADMIN',
     refetchInterval: 10_000,
     placeholderData: (prev) => prev,
   });

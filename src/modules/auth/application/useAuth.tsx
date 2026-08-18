@@ -6,7 +6,7 @@ interface AuthContextValue {
   user: User | null;
   token: string | null;
   login: (token: string, user: User) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -31,11 +31,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setState({ token, user });
   }, []);
 
-  const logout = useCallback(() => {
-    authApi.logout().catch(() => {});
-    localStorage.removeItem('tiketin_token');
-    localStorage.removeItem('tiketin_user');
-    setState({ token: null, user: null });
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } catch {
+      // Abaikan jika network error saat logout
+    } finally {
+      localStorage.removeItem('tiketin_token');
+      localStorage.removeItem('tiketin_user');
+      setState({ token: null, user: null });
+    }
   }, []);
 
   return (
