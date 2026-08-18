@@ -18,6 +18,7 @@ const ROLES = [
 export function RegisterForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState('BUYER');
@@ -26,16 +27,16 @@ export function RegisterForm() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !email.trim() || password.length < 8) {
+    if (!name.trim() || !email.trim() || !username.trim() || password.length < 8) {
       showAlert.warning(
         'Format Belum Sesuai',
-        'Pastikan nama, email terisi dan password minimal 8 karakter.'
+        'Pastikan nama, username, email terisi dan password minimal 8 karakter.'
       );
       return;
     }
 
     register.mutate(
-      { name, email, password, role },
+      { name, email, username, password, role },
       {
         onSuccess: () => {
           showAlert.success(
@@ -79,6 +80,21 @@ export function RegisterForm() {
           className="w-full border border-[#E5E7EB] rounded-xl px-3.5 py-2.5 text-[#1A1A1A] text-sm focus:outline-none focus:ring-2 focus:ring-[#0064D2]"
           placeholder="email@example.com"
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-bold text-[#1A1A1A] mb-1">Username</label>
+        <input
+          type="text"
+          required
+          value={username}
+          onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+          className="w-full border border-[#E5E7EB] rounded-xl px-3.5 py-2.5 text-[#1A1A1A] text-sm focus:outline-none focus:ring-2 focus:ring-[#0064D2]"
+          placeholder="cth. budi_sfo"
+          minLength={3}
+          maxLength={30}
+        />
+        <p className="text-xs text-gray-400 mt-1">3-30 karakter, huruf kecil, angka, dan underscore</p>
       </div>
 
       <div>
