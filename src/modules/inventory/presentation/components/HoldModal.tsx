@@ -10,9 +10,10 @@ interface HoldModalProps {
   eventId: string;
   eventName: string;
   onClose: () => void;
+  queueToken?: string | null;
 }
 
-export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose }: HoldModalProps) {
+export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose, queueToken }: HoldModalProps) {
   const navigate = useNavigate();
   const {
     minutes,
@@ -29,6 +30,7 @@ export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose }
     totalAmount,
     eventId,
     eventName,
+    queueToken,
   });
 
   if (paymentStep === 'redirect') {

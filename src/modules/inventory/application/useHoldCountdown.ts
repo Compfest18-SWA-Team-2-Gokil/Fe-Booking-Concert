@@ -3,6 +3,7 @@ import type { HoldResponse } from '../domain/Ticket';
 import { createOrder, initiatePayment, storeOrder } from '../../orders/infrastructure/ordersApi';
 import { showAlert, showToast } from '../../../shared/utils/alert';
 import { formatCurrency } from '../../../core/utils/formatCurrency';
+import { getApiErrorMessage } from '../../../shared/utils/apiError';
 
 export type PaymentStep = 'hold' | 'processing' | 'redirect' | 'error';
 
@@ -11,6 +12,7 @@ interface UseHoldCountdownOptions {
   totalAmount: number;
   eventId: string;
   eventName: string;
+  queueToken?: string | null;
 }
 
 export function useHoldCountdown({
@@ -18,6 +20,7 @@ export function useHoldCountdown({
   totalAmount,
   eventId,
   eventName,
+  queueToken,
 }: UseHoldCountdownOptions) {
   const heldUntil = new Date(holdData.held_until).getTime();
   const [secondsLeft, setSecondsLeft] = useState(() =>
@@ -57,7 +60,7 @@ export function useHoldCountdown({
 
     setPaymentStep('processing');
     try {
-      const order = await createOrder(eventId, holdData.unit_ids);
+      const order = await createOrder(eventId, holdData.unit_ids, queueToken);
       setCreatedOrderId(order.id);
       const payment = await initiatePayment(order.id);
       storeOrder({
@@ -72,12 +75,10 @@ export function useHoldCountdown({
       window.open(payment.invoice_url, '_blank');
       showToast.success('Halaman pembayaran dibuka di tab baru!');
       setPaymentStep('redirect');
-    } catch {
-      setErrorMsg('Gagal membuat pesanan tiket. Silakan coba lagi.');
-      showAlert.error(
-        'Gagal Membuat Pesanan',
-        'Terjadi kendala saat menghubungi gateway pembayaran.'
-      );
+    } catch (err: unknown) {
+      const msg = getApiErrorMessage(err, 'Terjadi kendala saat menghubungi gateway pembayaran.');
+      setErrorMsg(msg);
+      showAlert.error('Gagal Membuat Pesanan', msg);
       setPaymentStep('error');
     }
   }, [eventId, eventName, holdData.unit_ids, totalAmount]);

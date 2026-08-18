@@ -6,12 +6,13 @@ import { useHomeFilter } from '../../../home/application/useHomeFilter';
 import { HeroSection } from '../../../home/presentation/components/HeroSection';
 import { EventGrid } from '../components/EventGrid';
 import { EventSkeleton } from '../components/EventSkeleton';
+import { Pagination } from '../../../../shared/components/ui/Pagination';
 import { useAuth } from '../../../auth/application/useAuth';
 import { formatDate } from '../../../../core/utils/formatDate';
 import { CATEGORY_LABELS } from '../../domain/models/Event';
 import type { EventCategory } from '../../domain/models/Event';
 import type { Event } from '../../domain/models/Event';
-import drawkit10 from '../../../../assets/illustrator/DrawKit10.png';
+const drawkit10 = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786852214/draw10.webp';
 
 function EventListItem({ event }: { event: Event }) {
   const categoryLabel = event.category ? CATEGORY_LABELS[event.category] ?? event.category : 'Event';
@@ -35,12 +36,19 @@ function EventListItem({ event }: { event: Event }) {
 export function EventsPage() {
   const { user } = useAuth();
   const isBuyer = user?.role === 'BUYER';
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('q') || '';
   const cityParam = searchParams.get('city') || '';
   const categoryParam = (searchParams.get('category') as EventCategory) || '';
 
-  const { data: events, isLoading, error } = useEvents();
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
+  const { events, pagination, isLoading, error } = useEvents({
+    category: categoryParam,
+    page,
+    limit,
+  });
 
   const {
     searchQuery, setSearchQuery,
@@ -58,23 +66,23 @@ export function EventsPage() {
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
+    setPage(1);
     applyFilters();
-    setSearchParams((p) => {
-      if (searchQuery) p.set('q', searchQuery); else p.delete('q');
-      if (selectedCity) p.set('city', selectedCity); else p.delete('city');
-      if (selectedCategory) p.set('category', selectedCategory); else p.delete('category');
-      return p;
-    });
-    document.getElementById('events-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('events-section')?.scrollIntoView({ behavior: 'smooth' });
   }
 
   function handleReset() {
     resetFilters();
-    setSearchParams({});
+    setPage(1);
+  }
+
+  function handlePageChange(newPage: number) {
+    setPage(newPage);
+    document.getElementById('events-section')?.scrollIntoView({ behavior: 'smooth' });
   }
 
   return (
-    <div className="w-full bg-white pb-16">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <HeroSection
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -95,9 +103,9 @@ export function EventsPage() {
               Amankan tiket sebelum kuota kehabisan!
             </p>
           </div>
-          {filteredEvents && filteredEvents.length > 0 && (
+          {pagination && pagination.total_items > 0 && (
             <span className="hidden sm:inline-block px-4 py-2 rounded-xl text-xs font-bold bg-blue-50 text-[#0064D2]">
-              {filteredEvents.length} Event Tersedia
+              {pagination.total_items} Event Tersedia
             </span>
           )}
         </div>
@@ -133,9 +141,24 @@ export function EventsPage() {
         )}
 
         {!isLoading && !error && filteredEvents && filteredEvents.length > 0 && (
-          !user || isBuyer
-            ? <EventGrid events={filteredEvents} />
-            : <div className="space-y-3">{filteredEvents.map((e) => <EventListItem key={e.id} event={e} />)}</div>
+          <>
+            {!user || isBuyer ? (
+              <EventGrid events={filteredEvents} />
+            ) : (
+              <div className="space-y-3">
+                {filteredEvents.map((e) => (
+                  <EventListItem key={e.id} event={e} />
+                ))}
+              </div>
+            )}
+
+            {/* Pagination Controls */}
+            <Pagination
+              pagination={pagination}
+              onPageChange={handlePageChange}
+              className="mt-10 border-t border-gray-200/60 pt-6"
+            />
+          </>
         )}
       </section>
     </div>

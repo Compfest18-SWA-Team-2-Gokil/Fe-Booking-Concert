@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ticketApi } from '../infrastructure/ticketApi';
+import { showAlert } from '../../../shared/utils/alert';
+import { getApiErrorMessage } from '../../../shared/utils/apiError';
 
 type QueueStep = 'idle' | 'waiting' | 'ready';
 
@@ -23,6 +25,12 @@ export function useQueue(eventId: string, userId: string) {
         setStep('waiting');
       }
     },
+    onError: (err: unknown) => {
+      showAlert.error(
+        'Gagal Bergabung ke Antrian',
+        getApiErrorMessage(err, 'Terjadi kesalahan saat menghubungkan ke antrian. Silakan coba lagi.')
+      );
+    },
   });
 
   const statusQuery = useQuery<QueueStatusResponse>({
@@ -31,7 +39,18 @@ export function useQueue(eventId: string, userId: string) {
       ticketApi.getQueueStatus(eventId, userId).then((r) => r.data),
     enabled: step === 'waiting',
     refetchInterval: step === 'waiting' ? 3000 : false,
+    retry: 2,
   });
+
+  // Antrian gagal dipoll berkali-kali (mis. server down) — hentikan polling diam-diam
+  // dan beri tahu user daripada membiarkan spinner antrian berputar selamanya.
+  if (step === 'waiting' && statusQuery.isError) {
+    setStep('idle');
+    showAlert.error(
+      'Gagal Memeriksa Status Antrian',
+      getApiErrorMessage(statusQuery.error, 'Koneksi ke server antrian terputus. Silakan coba bergabung kembali.')
+    );
+  }
 
   // Derived: check if we moved to ready
   if (

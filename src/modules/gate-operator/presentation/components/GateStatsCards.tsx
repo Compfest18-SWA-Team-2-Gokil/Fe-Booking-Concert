@@ -15,19 +15,25 @@ export function GateStatsCards({
     {
       label: 'Admitted (Masuk)',
       value: admittedCount,
-      color: 'text-emerald-400',
+      iconColor: 'text-emerald-500',
+      valueColor: 'text-emerald-600',
+      labelColor: 'text-emerald-600',
       icon: CheckCircle2,
     },
     {
       label: 'Ditolak',
       value: rejectedCount,
-      color: 'text-red-400',
+      iconColor: 'text-red-500',
+      valueColor: 'text-red-600',
+      labelColor: 'text-red-600',
       icon: XCircle,
     },
     {
       label: 'Durasi Sesi',
       value: sessionDisplay,
-      color: 'text-blue-400',
+      iconColor: 'text-[#0064D2]',
+      valueColor: 'text-gray-900',
+      labelColor: 'text-gray-500',
       icon: Clock,
     },
   ];
@@ -37,11 +43,11 @@ export function GateStatsCards({
       {stats.map((s) => (
         <div
           key={s.label}
-          className="bg-gray-900 rounded-2xl p-4 border border-gray-800 text-center"
+          className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm text-center"
         >
-          <s.icon className={`w-5 h-5 mx-auto mb-1 ${s.color}`} />
-          <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
-          <p className="text-[11px] text-gray-500 font-medium">{s.label}</p>
+          <s.icon className={`w-5 h-5 mx-auto mb-1 ${s.iconColor}`} />
+          <p className={`text-2xl font-black ${s.valueColor}`}>{s.value}</p>
+          <p className={`text-[11px] font-medium ${s.labelColor}`}>{s.label}</p>
         </div>
       ))}
     </div>

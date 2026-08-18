@@ -1,7 +1,8 @@
 import { MapPin, Search as SearchIcon, Tag } from 'lucide-react';
 import type { EventCategory } from '../../../events/domain/models/Event';
 import { CATEGORY_LABELS } from '../../../events/domain/models/Event';
-import landingBg from '../../../../assets/landing.jpg';
+
+const landingBg = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851248/landing.webp';
 
 interface HeroSectionProps {
   searchQuery: string;
@@ -23,19 +24,19 @@ export function HeroSection({
   onSearch,
 }: HeroSectionProps) {
   return (
-    <section className="relative min-h-[600px] lg:min-h-[660px] flex items-center justify-center overflow-hidden bg-slate-900">
+    <section className="relative min-h-150 lg:min-h-165 flex items-center justify-center overflow-hidden bg-slate-900">
       <div
         className="absolute inset-0 bg-cover bg-center transform scale-105 filter brightness-95"
         style={{ backgroundImage: `url(${landingBg})` }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/50 via-slate-900/40 to-slate-950/70" />
+      <div className="absolute inset-0 bg-linear-to-b from-slate-950/50 via-slate-900/40 to-slate-950/70" />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 text-center flex flex-col items-center justify-center">
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white !text-white tracking-tight mb-4 max-w-4xl mx-auto leading-tight drop-shadow-lg text-center" style={{ color: '#ffffff' }}>
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight mb-4 max-w-4xl mx-auto leading-tight drop-shadow-lg text-center" style={{ color: '#ffffff' }}>
           Temukan Events Impian Favoritmu
         </h1>
 
-        <p className="text-white/95 !text-white/95 text-base sm:text-lg mb-12 max-w-2xl mx-auto font-normal leading-relaxed drop-shadow-md text-center" style={{ color: 'rgba(255, 255, 255, 0.95)' }}>
+        <p className="text-white/95 text-base sm:text-lg mb-12 max-w-2xl mx-auto font-normal leading-relaxed drop-shadow-md text-center" style={{ color: 'rgba(255, 255, 255, 0.95)' }}>
           Pesan tiket konser artis lokal &amp; internasional dengan sistem antrian adil, transaksi aman, dan konfirmasi instan.
         </p>
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Ticket, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../../auth/application/useAuth';
@@ -12,6 +13,7 @@ import { QueueWaitingRoom } from '../components/QueueWaitingRoom';
 import { formatCurrency } from '../../../../core/utils/formatCurrency';
 import type { HoldResponse } from '../../domain/Ticket';
 import { showAlert } from '../../../../shared/utils/alert';
+import { getApiErrorMessage } from '../../../../shared/utils/apiError';
 
 export function CheckoutPage() {
   const { id } = useParams<{ id: string }>();
@@ -19,10 +21,10 @@ export function CheckoutPage() {
   const { user } = useAuth();
 
   const { data: events } = useEvents();
-  const { data: ticketTypes, isLoading } = useTicketTypes(id ?? '');
+  const { data: ticketTypes, isLoading, isError: isTicketTypesError } = useTicketTypes(id ?? '');
   const event = events?.find((e) => e.id === id);
 
-  const { step, position, joinQueue, isJoining } = useQueue(
+  const { step, position, joinQueue, isJoining, queueToken } = useQueue(
     id ?? '',
     user?.id ?? ''
   );
@@ -47,11 +49,14 @@ export function CheckoutPage() {
     holdTicket.mutate(items, {
       onSuccess: (data) => setHoldData(data),
       onError: (err: unknown) => {
-        const status = (err as { response?: { status?: number } })?.response?.status;
-        if (status === 409) {
+        const isQuotaConflict = axios.isAxiosError(err) && err.response?.status === 409;
+        if (isQuotaConflict) {
           showAlert.error('Kuota Habis', 'Maaf, kuota tiket untuk kategori yang kamu pilih sudah habis atau sedang dipesan orang lain.');
         } else {
-          showAlert.error('Gagal Mereservasi Tiket', 'Terjadi kesalahan saat memproses reservasi tiketmu. Silakan coba kembali.');
+          showAlert.error(
+            'Gagal Mereservasi Tiket',
+            getApiErrorMessage(err, 'Terjadi kesalahan saat memproses reservasi tiketmu. Silakan coba kembali.')
+          );
         }
       },
     });
@@ -61,6 +66,25 @@ export function CheckoutPage() {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
         <div className="animate-spin w-12 h-12 border-4 border-[#0064D2] border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (isTicketTypesError) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 sm:p-10 max-w-lg w-full text-center">
+          <h2 className="text-xl font-black text-gray-900 mb-2">Gagal Memuat Tiket</h2>
+          <p className="text-gray-500 text-sm mb-6">
+            Terjadi kendala saat mengambil data tiket untuk event ini. Silakan coba muat ulang halaman.
+          </p>
+          <button
+            onClick={() => navigate('/events')}
+            className="w-full bg-[#0064D2] hover:bg-[#0052B0] text-white py-3 rounded-xl font-bold transition-colors"
+          >
+            Kembali ke Semua Events
+          </button>
+        </div>
       </div>
     );
   }
@@ -187,6 +211,7 @@ export function CheckoutPage() {
           eventId={id ?? ''}
           eventName={event?.name ?? ''}
           onClose={() => setHoldData(null)}
+          queueToken={queueToken}
         />
       )}
     </div>
