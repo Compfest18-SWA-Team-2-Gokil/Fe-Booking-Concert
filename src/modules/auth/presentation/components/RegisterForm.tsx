@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { useRegister } from '../../application/useRegister';
 import { showAlert } from '../../../../shared/utils/alert';
+
 const buyerImage = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851472/buyer.webp';
 const organizerImage = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851473/organizer.webp';
 const gateOperatorImage = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851472/gate-operator.webp';
@@ -18,6 +20,7 @@ export function RegisterForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState('BUYER');
   const register = useRegister();
   const navigate = useNavigate();
@@ -66,6 +69,7 @@ export function RegisterForm() {
           placeholder="Nama kamu"
         />
       </div>
+
       <div>
         <label className="block text-sm font-bold text-[#1A1A1A] mb-1">Email</label>
         <input
@@ -77,18 +81,31 @@ export function RegisterForm() {
           placeholder="email@example.com"
         />
       </div>
+
       <div>
         <label className="block text-sm font-bold text-[#1A1A1A] mb-1">Password</label>
-        <input
-          type="password"
-          required
-          minLength={8}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border border-[#E5E7EB] rounded-xl px-3.5 py-2.5 text-[#1A1A1A] text-sm focus:outline-none focus:ring-2 focus:ring-[#0064D2]"
-          placeholder="Minimal 8 karakter"
-        />
+        <div className="relative">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            required
+            minLength={8}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border border-[#E5E7EB] rounded-xl pl-3.5 pr-10 py-2.5 text-[#1A1A1A] text-sm focus:outline-none focus:ring-2 focus:ring-[#0064D2]"
+            placeholder="Minimal 8 karakter"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer p-1"
+            title={showPassword ? 'Sembunyikan password' : 'Lihat password'}
+            aria-label={showPassword ? 'Sembunyikan password' : 'Lihat password'}
+          >
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
+
       <div>
         <p className="block text-sm font-bold text-[#1A1A1A] mb-2">Daftar sebagai</p>
         <div className="grid grid-cols-2 gap-3">
@@ -132,4 +149,3 @@ export function RegisterForm() {
     </form>
   );
 }
-
