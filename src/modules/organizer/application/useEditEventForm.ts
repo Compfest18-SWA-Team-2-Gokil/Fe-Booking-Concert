@@ -29,9 +29,10 @@ export function useEditEventForm() {
 
   useEffect(() => {
     if (!event) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setName(event.name);
     setDescription(event.description ?? '');
-    setCategory(event.category ?? 'music');
+    setCategory((event.category as 'music' | 'olahraga' | 'seni' | 'workshop') ?? 'music');
     const d = new Date(event.date);
     setDate(d.toISOString().split('T')[0]);
     setTime(d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }));
@@ -39,7 +40,7 @@ export function useEditEventForm() {
     if (currentImageUrl === undefined) {
       setCurrentImageUrl(event.image_url ?? '');
     }
-  }, [event]);
+  }, [event, currentImageUrl]);
 
   const uploadImage = useMutation({
     mutationFn: ({ file }: { file: File }) => {
@@ -49,7 +50,7 @@ export function useEditEventForm() {
         .post<{ image_url: string }>(`/api/v1/events/${eventId}/image`, form, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
-        .then((r: any) => r.data);
+        .then((r: { data: { image_url: string } }) => r.data);
     },
   });
 
