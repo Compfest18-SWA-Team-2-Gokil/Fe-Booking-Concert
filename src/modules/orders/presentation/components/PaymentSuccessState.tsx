@@ -3,7 +3,7 @@ import { Check } from 'lucide-react';
 import { formatCurrency } from '../../../../core/utils/formatCurrency';
 
 interface PaymentSuccessStateProps {
-  order: { event_id?: string; total_amount?: number } | null;
+  order?: { event_id?: string; total_amount?: number } | null;
   matchingStored: { eventName?: string; unitIds?: string[]; totalAmount?: number } | null;
   targetOrderId: string;
   onOpenQR: () => void;

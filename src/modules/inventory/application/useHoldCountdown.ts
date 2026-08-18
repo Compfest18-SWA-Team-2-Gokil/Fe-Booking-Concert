@@ -13,6 +13,8 @@ interface UseHoldCountdownOptions {
   eventId: string;
   eventName: string;
   queueToken?: string | null;
+  promoCode?: string;
+  discountAmount?: number;
 }
 
 export function useHoldCountdown({
@@ -21,6 +23,8 @@ export function useHoldCountdown({
   eventId,
   eventName,
   queueToken,
+  promoCode,
+  discountAmount = 0,
 }: UseHoldCountdownOptions) {
   const heldUntil = new Date(holdData.held_until).getTime();
   const [secondsLeft, setSecondsLeft] = useState(() =>
@@ -47,10 +51,14 @@ export function useHoldCountdown({
     return () => clearInterval(interval);
   }, [heldUntil, paymentStep]);
 
+  const finalPayAmount = Math.max(0, totalAmount - discountAmount);
+
   const handlePay = useCallback(async () => {
     const confirm = await showAlert.confirm({
       title: 'Lanjutkan ke Pembayaran?',
-      text: `Total tagihan: ${formatCurrency(totalAmount)} untuk ${holdData.unit_ids.length} tiket.`,
+      text: `Total tagihan: ${formatCurrency(finalPayAmount)} untuk ${holdData.unit_ids.length} tiket.${
+        discountAmount > 0 ? ` (Termasuk hemat ${formatCurrency(discountAmount)})` : ''
+      }`,
       confirmText: 'Ya, Bayar Sekarang',
       cancelText: 'Cek Kembali',
       icon: 'question',
@@ -60,7 +68,7 @@ export function useHoldCountdown({
 
     setPaymentStep('processing');
     try {
-      const order = await createOrder(eventId, holdData.unit_ids, queueToken);
+      const order = await createOrder(eventId, holdData.unit_ids, queueToken, promoCode);
       setCreatedOrderId(order.id);
       const payment = await initiatePayment(order.id);
       storeOrder({
@@ -81,7 +89,8 @@ export function useHoldCountdown({
       showAlert.error('Gagal Membuat Pesanan', msg);
       setPaymentStep('error');
     }
-  }, [eventId, eventName, holdData.unit_ids, totalAmount, queueToken]);
+  }, [eventId, eventName, holdData.unit_ids, finalPayAmount, discountAmount, queueToken, promoCode]);
+
 
   const minutes = Math.floor(secondsLeft / 60);
   const seconds = secondsLeft % 60;

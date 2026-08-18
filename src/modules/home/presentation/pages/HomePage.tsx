@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEvents } from '../../../events/application/useEvents';
 import { useHomeFilter } from '../../application/useHomeFilter';
 import { HeroSection } from '../components/HeroSection';
+import { PromoBanners } from '../components/PromoBanners';
 import { UpcomingEvents } from '../components/UpcomingEvents';
 import { WhyChooseUs } from '../components/WhyChooseUs';
 import { FaqAccordion } from '../components/FaqAccordion';
@@ -40,6 +41,9 @@ export function HomePage() {
         onCategoryChange={setSelectedCategory}
         onSearch={handleSearch}
       />
+      <div className="pt-10">
+        <PromoBanners onNavigate={() => navigate('/events')} />
+      </div>
       <UpcomingEvents
         events={filteredEvents?.slice(0, 6)}
         isLoading={isLoading}

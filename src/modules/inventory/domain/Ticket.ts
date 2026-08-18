@@ -5,6 +5,7 @@ export interface TicketType {
   price: number; // rupiah
   kind: 'GA' | 'SEATED';
   total_quota: number;
+  available_quota?: number;
   price_status: 'OPEN' | 'LOCKED';
 }
 

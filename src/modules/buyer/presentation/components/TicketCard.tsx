@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Ticket, Calendar, MapPin, QrCode, CreditCard, RefreshCw, ExternalLink, AlertCircle } from 'lucide-react';
 import type { TicketItem } from '../../application/useMyTickets';
 import type { StoredOrder } from '../../../orders/infrastructure/ordersApi';
@@ -26,24 +27,24 @@ const STATUS_CONFIG: Record<string, { label: string; style: string; dot: string 
     dot: 'bg-emerald-500',
   },
   CANCELLED: {
-    label: 'Kedaluwarsa (Batal)',
-    style: 'bg-rose-50 text-rose-700 border border-rose-200',
-    dot: 'bg-rose-500',
+    label: 'Dibatalkan / Kadaluarsa',
+    style: 'bg-gray-100 text-gray-500 border border-gray-200',
+    dot: 'bg-gray-400',
   },
   REFUND_REQUESTED: {
-    label: 'Menunggu Persetujuan Organizer',
-    style: 'bg-amber-50 text-amber-700 border border-amber-200',
-    dot: 'bg-amber-500',
+    label: 'Refund Diajukan',
+    style: 'bg-orange-50 text-orange-700 border border-orange-200',
+    dot: 'bg-orange-500',
   },
   REFUND_ORGANIZER_APPROVED: {
-    label: 'Disetujui Organizer (Proses Admin)',
-    style: 'bg-blue-50 text-blue-700 border border-blue-200',
-    dot: 'bg-blue-500',
+    label: 'Refund Disetujui EO',
+    style: 'bg-blue-50 text-[#0064D2] border border-blue-200',
+    dot: 'bg-[#0064D2]',
   },
   REFUNDED: {
     label: 'Telah Direfund (Selesai)',
-    style: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-    dot: 'bg-emerald-500',
+    style: 'bg-purple-50 text-purple-700 border border-purple-200',
+    dot: 'bg-purple-500',
   },
   PAYMENT_DISCREPANCY: {
     label: 'Kendala Pembayaran',
@@ -52,7 +53,14 @@ const STATUS_CONFIG: Record<string, { label: string; style: string; dot: string 
   },
 };
 
-function getStatusConfig(status?: string) {
+function getStatusConfig(status?: string, isAdmitted?: boolean) {
+  if (status === 'PAID' && isAdmitted) {
+    return {
+      label: 'Sudah Digunakan (Masuk Gate)',
+      style: 'bg-gray-100 text-gray-700 border border-gray-300',
+      dot: 'bg-gray-500',
+    };
+  }
   if (!status) return DEFAULT_STATUS_CONFIG;
   return STATUS_CONFIG[status.toUpperCase()] || DEFAULT_STATUS_CONFIG;
 }
@@ -78,8 +86,9 @@ export function TicketCard({
 }: TicketCardProps) {
   const { stored, order, isLoading } = ticket;
   const status = order?.status ?? 'PENDING';
+  const isAdmitted = (order?.admitted_count ?? 0) > 0;
   const effectiveStatus = isRefunded ? 'REFUND_REQUESTED' : status;
-  const effectiveSt = getStatusConfig(effectiveStatus);
+  const effectiveSt = getStatusConfig(effectiveStatus, isAdmitted);
 
   const isExpiredOrCancelled = status === 'CANCELLED';
 
@@ -171,21 +180,30 @@ export function TicketCard({
               )}
 
               {status === 'PAID' && !isRefunded && (
-                <button
-                  onClick={() => onRefund(stored.orderId, stored.eventName)}
-                  disabled={isRefunding}
-                  className="flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
-                >
-                  {isRefunding ? 'Memproses...' : 'Minta Refund'}
-                </button>
+                isAdmitted ? (
+                  <span
+                    title="Tiket sudah di-scan masuk di gerbang, pengajuan refund tidak diizinkan."
+                    className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 bg-gray-100 px-3 py-1.5 rounded-lg cursor-not-allowed select-none"
+                  >
+                    Sudah Masuk Gate
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => onRefund(stored.orderId, stored.eventName)}
+                    disabled={isRefunding}
+                    className="flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    {isRefunding ? 'Memproses...' : 'Minta Refund'}
+                  </button>
+                )
               )}
 
-              <a
-                href="/events"
-                className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-900"
+              <Link
+                to={`/events/${order?.event_id || stored.eventId}`}
+                className="flex items-center gap-1.5 text-xs font-bold text-[#0064D2] hover:text-[#0052B0] bg-blue-50/80 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
               >
                 <ExternalLink className="w-3.5 h-3.5" /> Detail Event
-              </a>
+              </Link>
             </div>
           </div>
         )}

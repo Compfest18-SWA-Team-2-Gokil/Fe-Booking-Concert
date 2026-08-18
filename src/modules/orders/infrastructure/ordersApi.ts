@@ -19,6 +19,7 @@ export interface Order {
   status: OrderStatus;
   total_amount: number;
   unit_ids?: string[];
+  admitted_count?: number;
   created_at: string;
   updated_at: string;
 }
@@ -68,13 +69,13 @@ export function storeOrder(order: StoredOrder): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify([order, ...existing]));
 }
 
-export function createOrder(eventId: string, unitIds: string[], queueToken?: string | null): Promise<Order> {
+export function createOrder(eventId: string, unitIds: string[], queueToken?: string | null, promoCode?: string): Promise<Order> {
   const headers: Record<string, string> = {};
   if (queueToken) {
     headers['X-Queue-Token'] = queueToken;
   }
   return axiosInstance
-    .post<Order>('/api/v1/orders', { event_id: eventId, unit_ids: unitIds }, { headers })
+    .post<Order>('/api/v1/orders', { event_id: eventId, unit_ids: unitIds, promo_code: promoCode || undefined }, { headers })
     .then((r) => r.data);
 }
 

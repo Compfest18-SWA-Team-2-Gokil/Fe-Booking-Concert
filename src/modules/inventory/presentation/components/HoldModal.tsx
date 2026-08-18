@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { Clock, Ticket, AlertCircle, CheckCircle2, Loader2, ExternalLink } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import type { HoldResponse } from '../../domain/Ticket';
-import { formatCurrency } from '../../../../core/utils/formatCurrency';
 import { useHoldCountdown } from '../../application/useHoldCountdown';
+import { HoldModalRedirectStep } from './hold/HoldModalRedirectStep';
+import { HoldModalSummaryCard } from './hold/HoldModalSummaryCard';
 
 interface HoldModalProps {
   holdData: HoldResponse;
@@ -11,9 +12,20 @@ interface HoldModalProps {
   eventName: string;
   onClose: () => void;
   queueToken?: string | null;
+  promoCode?: string;
+  discountAmount?: number;
 }
 
-export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose, queueToken }: HoldModalProps) {
+export function HoldModal({
+  holdData,
+  totalAmount,
+  eventId,
+  eventName,
+  onClose,
+  queueToken,
+  promoCode,
+  discountAmount = 0,
+}: HoldModalProps) {
   const navigate = useNavigate();
   const {
     minutes,
@@ -31,44 +43,20 @@ export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose, 
     eventId,
     eventName,
     queueToken,
+    promoCode,
+    discountAmount,
   });
+
+  const finalAmount = Math.max(0, totalAmount - discountAmount);
 
   if (paymentStep === 'redirect') {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-gray-100 text-center">
-          <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
-            <ExternalLink className="w-10 h-10 text-[#0064D2]" />
-          </div>
-          <h2 className="text-2xl font-black text-gray-900 mb-2">Halaman Pembayaran Dibuka</h2>
-          <p className="text-gray-500 text-sm mb-6">
-            Selesaikan pembayaran di tab baru. Setelah selesai membayar, klik tombol di bawah untuk melihat tiketmu.
-          </p>
-          <div className="space-y-3">
-            <a
-              href={invoiceUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="w-full bg-[#FF6100] hover:bg-[#E55500] text-white py-3.5 rounded-xl font-extrabold shadow-md transition-colors text-base flex items-center justify-center gap-2"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Buka Halaman Pembayaran
-            </a>
-            <button
-              onClick={() => navigate(`/payment/callback?order_id=${createdOrderId}`)}
-              className="w-full bg-[#0064D2] hover:bg-[#0052B0] text-white py-3 rounded-xl font-bold transition-colors text-sm shadow-md"
-            >
-              Saya Sudah Bayar / Cek Status
-            </button>
-            <button
-              onClick={() => navigate('/my-tickets')}
-              className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm"
-            >
-              Ke Tiket Saya
-            </button>
-          </div>
-        </div>
-      </div>
+      <HoldModalRedirectStep
+        invoiceUrl={invoiceUrl}
+        createdOrderId={createdOrderId}
+        onCheckStatus={() => navigate(`/payment/callback?order_id=${createdOrderId}`)}
+        onGoToTickets={() => navigate('/my-tickets')}
+      />
     );
   }
 
@@ -84,109 +72,49 @@ export function HoldModal({ holdData, totalAmount, eventId, eventName, onClose, 
     );
   }
 
-  if (paymentStep === 'error') {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-gray-100 text-center">
-          <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-8 h-8 text-red-500" />
-          </div>
-          <h2 className="text-xl font-black text-gray-900 mb-2">Gagal Membuat Pesanan</h2>
-          <p className="text-gray-500 text-sm mb-6">{errorMsg}</p>
-          <div className="space-y-3">
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 sm:p-8 border border-gray-100">
+        <h2 className="text-2xl font-black text-gray-900 mb-1">Konfirmasi Pesanan</h2>
+        <p className="text-xs text-gray-500 mb-6">Periksa rincian sebelum beralih ke pembayaran.</p>
+
+        {paymentStep === 'error' && (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-xs text-red-700 mb-6">
+            <p className="font-bold mb-1">Gagal Memproses Pembayaran</p>
+            <p>{errorMsg || 'Terjadi kesalahan sistem.'}</p>
             <button
               onClick={() => setPaymentStep('hold')}
-              className="w-full bg-[#0064D2] text-white py-3 rounded-xl font-bold hover:bg-[#0052B0] transition-colors"
+              className="mt-2 text-[#0064D2] font-bold underline cursor-pointer"
             >
               Coba Lagi
             </button>
-            <button
-              onClick={onClose}
-              className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm"
-            >
-              Batal
-            </button>
           </div>
-        </div>
-      </div>
-    );
-  }
+        )}
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
-        <div className="text-center mb-6">
-          {isExpired ? (
-            <>
-              <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-8 h-8 text-red-500" />
-              </div>
-              <h2 className="text-2xl font-black text-red-600">Waktu Habis!</h2>
-              <p className="text-gray-500 mt-2 text-sm">
-                Reservasi tiketmu sudah kedaluwarsa. Silakan coba lagi.
-              </p>
-            </>
-          ) : (
-            <>
-              <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-                <CheckCircle2 className="w-8 h-8 text-[#0064D2]" />
-              </div>
-              <h2 className="text-2xl font-black text-gray-900">Tiket Berhasil Direservasi!</h2>
-              <p className="text-gray-500 mt-2 text-sm">Selesaikan pembayaran sebelum waktu habis</p>
-            </>
-          )}
-        </div>
+        <HoldModalSummaryCard
+          eventName={eventName}
+          ticketCount={holdData.unit_ids.length}
+          promoCode={promoCode}
+          discountAmount={discountAmount}
+          totalAmount={totalAmount}
+          finalAmount={finalAmount}
+          minutes={minutes}
+          seconds={seconds}
+          isExpired={isExpired}
+        />
 
-        <div
-          className={`text-center mb-6 p-5 rounded-2xl border ${
-            isExpired ? 'bg-red-50 border-red-100' : 'bg-blue-50/70 border-blue-100'
-          }`}
-        >
-          <div className="flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
-            <Clock className="w-4 h-4 text-[#0064D2]" />
-            <span>Waktu Tersisa Hold</span>
-          </div>
-          <div
-            className={`text-4xl font-black font-mono tracking-tight ${
-              isExpired ? 'text-red-600' : 'text-[#0064D2]'
-            }`}
-          >
-            {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
-          </div>
-        </div>
-
-        <div className="bg-gray-50 rounded-2xl p-4 mb-6 space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-500 font-medium">Event</span>
-            <span className="font-bold text-gray-900 text-right">{eventName}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-500 font-medium">Jumlah tiket</span>
-            <span className="font-bold text-gray-900 flex items-center gap-1">
-              <Ticket className="w-4 h-4 text-[#0064D2]" />
-              {holdData.unit_ids.length} tiket
-            </span>
-          </div>
-          <div className="flex justify-between pt-2 border-t border-gray-200/60">
-            <span className="font-bold text-gray-900">Total Pembayaran</span>
-            <span className="font-black text-[#0064D2] text-lg">
-              {formatCurrency(totalAmount)}
-            </span>
-          </div>
-        </div>
-
-        <div className="space-y-3">
+        <div className="space-y-2 mt-6">
           {!isExpired && (
             <button
               onClick={handlePay}
-              className="w-full bg-[#FF6100] hover:bg-[#E55500] text-white py-3.5 rounded-xl font-extrabold shadow-md shadow-orange-500/20 transition-colors text-base"
+              className="w-full bg-[#FF6100] hover:bg-[#E55500] text-white py-3.5 rounded-xl font-extrabold shadow-md shadow-orange-500/20 transition-colors text-base cursor-pointer"
             >
               Bayar Sekarang
             </button>
           )}
           <button
             onClick={onClose}
-            className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm"
+            className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm cursor-pointer"
           >
             {isExpired ? 'Coba Lagi' : 'Batal'}
           </button>
