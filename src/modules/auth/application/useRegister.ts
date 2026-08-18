@@ -8,17 +8,19 @@ export function useRegister() {
   return useMutation({
     mutationFn: ({
       email,
+      username,
       name,
       password,
       role,
     }: {
       email: string;
+      username: string;
       name: string;
       password: string;
       role: string;
     }) =>
       authApi
-        .register({ email, name, password, role })
+        .register({ email, username, name, password, role })
         .then((r) => r.data),
     onSuccess: () => {
       navigate('/login');

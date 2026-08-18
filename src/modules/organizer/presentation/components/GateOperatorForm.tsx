@@ -1,60 +1,59 @@
-import { Check, Copy } from 'lucide-react';
+import type { AssignedOperator } from '../../domain/types';
+import { UserX, Loader2 } from 'lucide-react';
+
+function formatDate(dateStr: string): string {
+  return new Intl.DateTimeFormat('id-ID', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(dateStr));
+}
 
 interface GateOperatorFormProps {
-  operatorId: string;
-  setOperatorId: (v: string) => void;
-  assigned: string | null;
-  copied: boolean;
-  onCopy: (text: string) => void;
+  usernameOperator: string;
+  setUsernameOperator: (v: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   isSubmitting: boolean;
+  assignedOperators: AssignedOperator[];
+  isListLoading: boolean;
+  isRevoking: boolean;
+  onRevoke: (userId: string) => void;
 }
 
 export function GateOperatorForm({
-  operatorId,
-  setOperatorId,
-  assigned,
-  copied,
-  onCopy,
+  usernameOperator,
+  setUsernameOperator,
   onSubmit,
   isSubmitting,
+  assignedOperators,
+  isListLoading,
+  isRevoking,
+  onRevoke,
 }: GateOperatorFormProps) {
   return (
-    <div className="space-y-6">
-      {assigned && (
-        <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Check className="w-5 h-5 text-green-600 shrink-0" />
-            <div>
-              <p className="text-xs font-bold text-green-800">Operator Berhasil Di-assign!</p>
-              <p className="text-xs text-green-600 font-mono mt-0.5">{assigned}</p>
-            </div>
-          </div>
-          <button
-            onClick={() => onCopy(assigned)}
-            className="flex items-center gap-1 bg-green-100 hover:bg-green-200 text-green-800 text-xs font-bold px-3 py-1.5 rounded-xl transition-colors cursor-pointer"
-          >
-            {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Tersalin' : 'Salin ID'}
-          </button>
-        </div>
-      )}
-
+    <div className="space-y-8">
+      {/* Assign Form */}
       <form onSubmit={onSubmit} className="space-y-5">
         <div>
           <label className="block text-xs font-bold text-gray-700 mb-1.5">
-            User ID Gate Operator (UUID)
+            Username Gate Operator
           </label>
           <input
             type="text"
             required
-            value={operatorId}
-            onChange={(e) => setOperatorId(e.target.value)}
-            placeholder="cth. 3fa85f64-5717-4562-b3fc-2c963f66afa6"
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-[#0064D2]"
+            value={usernameOperator}
+            onChange={(e) =>
+              setUsernameOperator(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))
+            }
+            placeholder="cth. budi_sfo"
+            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0064D2]"
+            minLength={3}
+            maxLength={30}
           />
           <p className="text-xs text-gray-400 mt-1.5">
-            Pastikan user yang di-assign memiliki akun dengan role GATE_OPERATOR.
+            Masukkan username akun Gate Operator yang ingin ditugaskan.
           </p>
         </div>
 
@@ -66,6 +65,52 @@ export function GateOperatorForm({
           {isSubmitting ? 'Menugaskan...' : 'Tugaskan Gate Operator'}
         </button>
       </form>
+
+      {/* Assigned Operators List */}
+      <div>
+        <h2 className="text-sm font-bold text-gray-800 mb-3">Operator yang Ditugaskan</h2>
+
+        {isListLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-5 h-5 animate-spin text-[#0064D2]" />
+          </div>
+        ) : assignedOperators.length === 0 ? (
+          <div className="bg-gray-50 border border-dashed border-gray-200 rounded-2xl p-6 text-center">
+            <p className="text-sm text-gray-400">Belum ada gate operator yang ditugaskan.</p>
+          </div>
+        ) : (
+          <ul className="space-y-3">
+            {assignedOperators.map((op) => (
+              <li
+                key={op.user_id}
+                className="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 gap-3"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-gray-900 truncate">
+                    {op.name}{' '}
+                    <span className="font-mono font-normal text-gray-400 text-xs">@{op.username}</span>
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5 truncate">{op.email}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Ditugaskan: {formatDate(op.assigned_at)}
+                  </p>
+
+                </div>
+                <button
+                  type="button"
+                  disabled={isRevoking}
+                  onClick={() => onRevoke(op.user_id)}
+                  className="flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold px-3 py-1.5 rounded-xl transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+                  title="Cabut akses operator ini"
+                >
+                  <UserX className="w-3.5 h-3.5" />
+                  Cabut
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

@@ -9,13 +9,14 @@ export function GateOperatorPage() {
   const {
     event,
     isLoading,
-    operatorId,
-    setOperatorId,
-    assigned,
-    copied,
+    isListLoading,
+    usernameOperator,
+    setUsernameOperator,
+    assignedOperators,
     handleSubmit,
-    handleCopy,
+    handleRevoke,
     isSubmitting,
+    isRevoking,
   } = useGateOperatorAssignment();
 
   if (isLoading) {
@@ -66,13 +67,14 @@ export function GateOperatorPage() {
           </div>
 
           <GateOperatorForm
-            operatorId={operatorId}
-            setOperatorId={setOperatorId}
-            assigned={assigned}
-            copied={copied}
-            onCopy={handleCopy}
+            usernameOperator={usernameOperator}
+            setUsernameOperator={setUsernameOperator}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
+            assignedOperators={assignedOperators}
+            isListLoading={isListLoading}
+            isRevoking={isRevoking}
+            onRevoke={handleRevoke}
           />
         </div>
       </div>
