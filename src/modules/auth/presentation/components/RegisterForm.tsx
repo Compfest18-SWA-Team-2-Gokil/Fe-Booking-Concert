@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from '../../../../shared/utils/apiError';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
@@ -7,13 +8,11 @@ import { showAlert } from '../../../../shared/utils/alert';
 const buyerImage = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851472/buyer.webp';
 const organizerImage = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851473/organizer.webp';
 const gateOperatorImage = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851472/gate-operator.webp';
-const adminImage = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851472/admin.webp';
 
 const ROLES = [
   { value: 'BUYER', label: 'Pembeli', image: buyerImage },
   { value: 'ORGANIZER', label: 'Organizer', image: organizerImage },
   { value: 'GATE_OPERATOR', label: 'Gate Operator', image: gateOperatorImage },
-  { value: 'ADMIN', label: 'Admin', image: adminImage },
 ];
 
 export function RegisterForm() {
@@ -46,10 +45,10 @@ export function RegisterForm() {
             navigate('/login');
           });
         },
-        onError: () => {
+        onError: (err: unknown) => {
           showAlert.error(
             'Pendaftaran Gagal',
-            'Email mungkin sudah terdaftar di platform kami. Silakan gunakan email lain atau masuk ke akunmu.'
+            getApiErrorMessage(err, 'Pendaftaran gagal. Pastikan data pendaftaranmu sudah benar dan coba lagi.')
           );
         },
       }
@@ -108,7 +107,7 @@ export function RegisterForm() {
 
       <div>
         <p className="block text-sm font-bold text-[#1A1A1A] mb-2">Daftar sebagai</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {ROLES.map((option) => {
             const isSelected = role === option.value;
 

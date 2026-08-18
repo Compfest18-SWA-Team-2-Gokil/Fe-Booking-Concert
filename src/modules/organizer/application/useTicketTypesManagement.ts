@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from '../../../shared/utils/apiError';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -39,9 +40,8 @@ export function useTicketTypesManagement() {
       setQuota('');
       showToast.success('Ticket type berhasil dibuat.');
     },
-    onError: (err: any) => {
-      const msg = err?.response?.data?.error ?? 'Gagal membuat ticket type.';
-      showAlert.error('Gagal Membuat Ticket Type', msg);
+    onError: (err: unknown) => {
+      showAlert.error('Gagal Membuat Ticket Type', getApiErrorMessage(err, 'Gagal membuat ticket type.'));
     },
   });
 
