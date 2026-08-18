@@ -1,4 +1,4 @@
-import { XCircle, Clock, Copy, Check } from 'lucide-react';
+import { XCircle, Clock, Copy, Check, CheckCircle2 } from 'lucide-react';
 import type { RefundRequestItem } from '../../application/useOrganizerRefunds';
 import { formatCurrency } from '../../../../core/utils/formatCurrency';
 
@@ -55,7 +55,7 @@ export function OrganizerRefundsTable({
               <th className="px-5 py-3.5">Order ID & Pembeli</th>
               <th className="px-5 py-3.5">Nama Event</th>
               <th className="px-5 py-3.5">Nominal Refund</th>
-              <th className="px-5 py-3.5 text-center">Status Alur</th>
+              <th className="px-5 py-3.5 text-center">Status Alur Refund</th>
               <th className="px-5 py-3.5 text-right">Aksi</th>
             </tr>
           </thead>
@@ -63,6 +63,7 @@ export function OrganizerRefundsTable({
             {refunds.map((r) => {
               const isRequested = r.status === 'REFUND_REQUESTED';
               const isApprovedByOrg = r.status === 'REFUND_ORGANIZER_APPROVED';
+              const isRefunded = r.status === 'REFUNDED';
 
               return (
                 <tr key={r.order_id} className="hover:bg-gray-50/60 transition-colors">
@@ -95,17 +96,17 @@ export function OrganizerRefundsTable({
                   <td className="px-5 py-4 text-center">
                     {isRequested && (
                       <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full text-xs font-bold">
-                        <Clock className="w-3.5 h-3.5" /> Menunggu Persetujuan Anda
+                        <Clock className="w-3.5 h-3.5" /> Perlu Persetujuan Anda
                       </span>
                     )}
                     {isApprovedByOrg && (
                       <span className="inline-flex items-center gap-1.5 bg-blue-50 text-[#0064D2] border border-blue-200 px-3 py-1 rounded-full text-xs font-bold">
-                        Menunggu Eksekusi Admin
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Disetujui Anda — Menunggu Admin
                       </span>
                     )}
-                    {r.status === 'REFUNDED' && (
+                    {isRefunded && (
                       <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full text-xs font-bold">
-                        Selesai Dicairkan
+                        <Check className="w-3.5 h-3.5" /> Selesai — Dicairkan Admin
                       </span>
                     )}
                   </td>
@@ -122,12 +123,12 @@ export function OrganizerRefundsTable({
                     )}
                     {isApprovedByOrg && (
                       <span className="text-xs text-slate-400 font-semibold italic">
-                        Diteruskan ke Admin
+                        Menunggu Eksekusi Admin
                       </span>
                     )}
-                    {r.status === 'REFUNDED' && (
+                    {isRefunded && (
                       <span className="text-xs text-emerald-600 font-bold">
-                        Refund Sukses
+                        Dana Telah Kembali
                       </span>
                     )}
                   </td>
