@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { useLogin } from '../../application/useLogin';
 import { showToast, showAlert } from '../../../../shared/utils/alert';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const login = useLogin();
 
   function handleSubmit(e: React.FormEvent) {
@@ -44,16 +46,28 @@ export function LoginForm() {
           placeholder="email@example.com"
         />
       </div>
+
       <div>
         <label className="block text-sm font-bold text-[#1A1A1A] mb-1">Password</label>
-        <input
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border border-[#E5E7EB] rounded-xl px-3.5 py-2.5 text-[#1A1A1A] text-sm transition-all focus:outline-none focus:ring-2 focus:ring-[#0064D2]"
-          placeholder="••••••••"
-        />
+        <div className="relative">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border border-[#E5E7EB] rounded-xl pl-3.5 pr-10 py-2.5 text-[#1A1A1A] text-sm transition-all focus:outline-none focus:ring-2 focus:ring-[#0064D2]"
+            placeholder="••••••••"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer p-1"
+            title={showPassword ? 'Sembunyikan password' : 'Lihat password'}
+            aria-label={showPassword ? 'Sembunyikan password' : 'Lihat password'}
+          >
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
 
       <button
@@ -73,4 +87,3 @@ export function LoginForm() {
     </form>
   );
 }
-

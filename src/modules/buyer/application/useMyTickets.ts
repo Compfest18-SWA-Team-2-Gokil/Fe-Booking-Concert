@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getMyOrders,
@@ -21,55 +21,111 @@ export function useMyTickets() {
   const { token } = useAuth();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [searchPage, setSearchPage] = useState(1);
   const limit = 10;
+  const [search, setSearch] = useState('');
+
+  const isSearching = Boolean(search.trim());
+
+  // Reset search page when query changes
+  useEffect(() => {
+    setSearchPage(1);
+  }, [search]);
 
   const [refundingId, setRefundingId] = useState<string | null>(null);
   const [refundedIds, setRefundedIds] = useState<Set<string>>(new Set());
   const [payingId, setPayingId] = useState<string | null>(null);
   const [qrModalOrder, setQrModalOrder] = useState<StoredOrder | null>(null);
 
-  // Primary source of truth: fetch langsung order dari backend dengan pagination
+  // Primary source of truth:
+  // Jika sedang mencari (search), ambil data global (limit: 1000) agar pencarian mencakup SEMUA halaman pesanan buyer.
+  // Jika tidak mencari, gunakan pagination per halaman normal (limit: 10).
   const { data: serverResponse, isLoading: serverLoading, isError } = useQuery({
-    queryKey: ['my-orders', page, limit],
-    queryFn: () => getMyOrders(page, limit),
+    queryKey: ['my-orders', isSearching ? 'search-all' : page, isSearching ? 1000 : limit],
+    queryFn: () => getMyOrders(isSearching ? 1 : page, isSearching ? 1000 : limit),
     enabled: !!token,
     staleTime: 10_000,
     refetchOnWindowFocus: true,
-    placeholderData: (prev) => prev,
   });
 
   const serverOrders = serverResponse?.orders ?? [];
-  const pagination = serverResponse?.pagination;
+  const serverPagination = serverResponse?.pagination;
 
   // Fallback cache di localStorage jika ada
   const localOrders = getStoredOrders();
-  const localMap = new Map(localOrders.map((o) => [o.orderId, o]));
+  const localMap = useMemo(() => new Map(localOrders.map((o) => [o.orderId, o])), [localOrders]);
 
   // Buat list TicketItem dari serverOrders
-  const tickets: TicketItem[] = serverOrders.map((order) => {
-    const local = localMap.get(order.id);
-    
-    // Gunakan event_name dan unit_ids dari server jika ada, atau fallback ke local
-    const eventName = order.event_name || local?.eventName || 'Event Tiket';
-    const unitIds = (order.unit_ids && order.unit_ids.length > 0) 
-      ? order.unit_ids 
-      : (local?.unitIds ?? []);
+  const allTickets: TicketItem[] = useMemo(() => {
+    return serverOrders.map((order) => {
+      const local = localMap.get(order.id);
+      
+      const eventName = order.event_name || local?.eventName || 'Event Tiket';
+      const unitIds = (order.unit_ids && order.unit_ids.length > 0) 
+        ? order.unit_ids 
+        : (local?.unitIds ?? []);
 
-    const stored: StoredOrder = {
-      orderId: order.id,
-      eventId: order.event_id,
-      eventName,
-      unitIds,
-      totalAmount: order.total_amount,
-      createdAt: order.created_at,
-    };
+      const stored: StoredOrder = {
+        orderId: order.id,
+        eventId: order.event_id,
+        eventName,
+        unitIds,
+        totalAmount: order.total_amount,
+        createdAt: order.created_at,
+      };
 
-    return {
-      stored,
-      order,
-      isLoading: false,
-    };
-  });
+      return {
+        stored,
+        order,
+        isLoading: false,
+      };
+    });
+  }, [serverOrders, localMap]);
+
+  // Pencarian global mencakup semua data pesanan
+  const allMatchingTickets = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return allTickets;
+
+    return allTickets.filter((t) => {
+      const nameMatch = t.stored.eventName.toLowerCase().includes(q);
+      const orderIdMatch = t.stored.orderId.toLowerCase().includes(q);
+      return nameMatch || orderIdMatch;
+    });
+  }, [allTickets, search]);
+
+  // Pagination untuk hasil pencarian
+  const paginatedTickets = useMemo(() => {
+    if (!isSearching) return allTickets;
+
+    const start = (searchPage - 1) * limit;
+    return allMatchingTickets.slice(start, start + limit);
+  }, [isSearching, allTickets, allMatchingTickets, searchPage, limit]);
+
+  // Objek pagination dinamis
+  const pagination = useMemo(() => {
+    if (isSearching) {
+      const totalItems = allMatchingTickets.length;
+      return {
+        current_page: searchPage,
+        per_page: limit,
+        total_items: totalItems,
+        total_pages: Math.max(1, Math.ceil(totalItems / limit)),
+      };
+    }
+    return serverPagination;
+  }, [isSearching, allMatchingTickets.length, searchPage, limit, serverPagination]);
+
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      if (isSearching) {
+        setSearchPage(newPage);
+      } else {
+        setPage(newPage);
+      }
+    },
+    [isSearching]
+  );
 
   const refundMutation = useMutation({
     mutationFn: (orderId: string) => requestRefund(orderId),
@@ -125,17 +181,21 @@ export function useMyTickets() {
     }
   }, []);
 
-  const activeCount = tickets.filter((t) => t.order?.status === 'PAID').length;
-  const pendingCount = tickets.filter(
+  const activeCount = allTickets.filter((t) => t.order?.status === 'PAID').length;
+  const pendingCount = allTickets.filter(
     (t) => t.order?.status === 'PENDING' || t.order?.status === 'PAYMENT_PENDING'
   ).length;
 
   return {
     storedOrders: localOrders,
-    tickets,
+    tickets: allTickets,
+    filteredTickets: paginatedTickets,
+    totalMatchingCount: allMatchingTickets.length,
+    search,
+    setSearch,
     pagination,
-    page,
-    setPage,
+    page: isSearching ? searchPage : page,
+    setPage: handlePageChange,
     activeCount,
     pendingCount,
     refundingId,
