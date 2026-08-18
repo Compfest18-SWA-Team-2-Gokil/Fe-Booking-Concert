@@ -16,7 +16,13 @@ export function useGateScan() {
   const [sessionStart] = useState(() => Date.now());
   const [elapsed, setElapsed] = useState(0);
 
+  const [isProcessingState, setIsProcessingState] = useState(false);
   const isProcessingRef = useRef(false);
+
+  const setProcessing = useCallback((val: boolean) => {
+    isProcessingRef.current = val;
+    setIsProcessingState(val);
+  }, []);
   const lastScanRef = useRef<{ text: string; ts: number }>({ text: '', ts: 0 });
   const localAdmittedSet = useRef<Set<string>>(new Set());
 
@@ -53,7 +59,7 @@ export function useGateScan() {
       return;
     }
 
-    isProcessingRef.current = true;
+    setProcessing(true);
     lastScanRef.current = { text: trimmed, ts: now };
 
     const time = new Date().toLocaleTimeString('id-ID', {
@@ -80,9 +86,9 @@ export function useGateScan() {
       ]);
       showToast.error(errorMsg);
     } finally {
-      isProcessingRef.current = false;
+      setProcessing(false);
     }
-  }, []);
+  }, [setProcessing]);
 
   const clearHistory = useCallback(() => {
     setScanResults([]);
@@ -90,7 +96,7 @@ export function useGateScan() {
   }, []);
 
   return {
-    isProcessing: isProcessingRef.current,
+    isProcessing: isProcessingState,
     scanResults,
     sessionDisplay,
     admittedCount,

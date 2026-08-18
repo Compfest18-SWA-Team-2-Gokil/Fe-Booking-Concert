@@ -30,6 +30,7 @@ export function useMyTickets() {
 
   // Reset search page when query changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSearchPage(1);
   }, [search]);
 
@@ -49,7 +50,7 @@ export function useMyTickets() {
     refetchOnWindowFocus: true,
   });
 
-  const serverOrders = serverResponse?.orders ?? [];
+  const serverOrders = useMemo(() => serverResponse?.orders ?? [], [serverResponse?.orders]);
   const serverPagination = serverResponse?.pagination;
 
   // Fallback cache di localStorage jika ada

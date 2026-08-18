@@ -81,7 +81,7 @@ export function useHoldCountdown({
       showAlert.error('Gagal Membuat Pesanan', msg);
       setPaymentStep('error');
     }
-  }, [eventId, eventName, holdData.unit_ids, totalAmount]);
+  }, [eventId, eventName, holdData.unit_ids, totalAmount, queueToken]);
 
   const minutes = Math.floor(secondsLeft / 60);
   const seconds = secondsLeft % 60;
