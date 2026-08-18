@@ -6,6 +6,7 @@ import {
   type ReassignTicketPayload,
 } from '../infrastructure/adminApi';
 import { showAlert, showToast } from '../../../shared/utils/alert';
+import { getApiErrorMessage } from '../../../shared/utils/apiError';
 
 export function useAdminDisputes() {
   const queryClient = useQueryClient();
@@ -28,11 +29,7 @@ export function useAdminDisputes() {
       queryClient.invalidateQueries({ queryKey: ['admin-audit-logs'] });
     },
     onError: (err: unknown) => {
-      const errorData = err as { response?: { data?: { error?: string } } };
-      showAlert.error(
-        'Gagal Override Status',
-        errorData?.response?.data?.error ?? 'Terjadi kesalahan'
-      );
+      showAlert.error('Gagal Override Status', getApiErrorMessage(err, 'Terjadi kesalahan'));
     },
   });
 
@@ -45,11 +42,7 @@ export function useAdminDisputes() {
       queryClient.invalidateQueries({ queryKey: ['admin-audit-logs'] });
     },
     onError: (err: unknown) => {
-      const errorData = err as { response?: { data?: { error?: string } } };
-      showAlert.error(
-        'Gagal Reassign Tiket',
-        errorData?.response?.data?.error ?? 'Terjadi kesalahan'
-      );
+      showAlert.error('Gagal Reassign Tiket', getApiErrorMessage(err, 'Terjadi kesalahan'));
     },
   });
 

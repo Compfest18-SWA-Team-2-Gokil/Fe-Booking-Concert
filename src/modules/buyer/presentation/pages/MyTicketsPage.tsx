@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Ticket, ArrowRight, Loader2, Search, X } from 'lucide-react';
+import { Ticket, ArrowRight, Loader2, Search, X, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../../auth/application/useAuth';
 import { useMyTickets } from '../../application/useMyTickets';
 import { TicketStatsHeader } from '../components/TicketStatsHeader';
@@ -24,6 +24,7 @@ export function MyTicketsPage() {
     payingId,
     qrModalOrder,
     isLoading,
+    isError,
     isRefunding,
     setQrModalOrder,
     handleRefundClick,
@@ -57,7 +58,25 @@ export function MyTicketsPage() {
     );
   }
 
-  // State 2: Kosong setelah fetch selesai (belum pernah beli tiket)
+  // State 2: Gagal memuat tiket dari server
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          {HeaderSection}
+          <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm">
+            <AlertTriangle className="w-16 h-16 text-red-300 mx-auto mb-4" />
+            <h2 className="text-lg font-bold text-gray-900 mb-2">Gagal Memuat Tiket</h2>
+            <p className="text-gray-500 text-sm mb-6">
+              Terjadi kendala saat mengambil data tiketmu dari server. Silakan coba muat ulang halaman.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // State 3: Kosong setelah fetch selesai (belum pernah beli tiket)
   if (tickets.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">

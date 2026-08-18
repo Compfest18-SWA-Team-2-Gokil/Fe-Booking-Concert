@@ -10,6 +10,7 @@ import {
 } from '../../orders/infrastructure/ordersApi';
 import { useAuth } from '../../auth/application/useAuth';
 import { showAlert, showToast } from '../../../shared/utils/alert';
+import { getApiErrorMessage } from '../../../shared/utils/apiError';
 
 export interface TicketItem {
   stored: StoredOrder;
@@ -138,12 +139,12 @@ export function useMyTickets() {
         'Permintaan refund tiket telah dicatat. Organizer akan memproses pengembalian dana.'
       );
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       setRefundingId(null);
-      const msg =
-        error?.response?.data?.error ??
-        'Terjadi kendala saat mengajukan refund. Silakan coba kembali.';
-      showAlert.error('Gagal Mengajukan Refund', msg);
+      showAlert.error(
+        'Gagal Mengajukan Refund',
+        getApiErrorMessage(error, 'Terjadi kendala saat mengajukan refund. Silakan coba kembali.')
+      );
     },
   });
 
@@ -171,11 +172,11 @@ export function useMyTickets() {
       const res = await initiatePayment(orderId);
       window.open(res.invoice_url, '_blank');
       showToast.success('Halaman pembayaran dibuka di tab baru!');
-    } catch (error: any) {
-      const msg =
-        error?.response?.data?.error ??
-        'Tidak dapat membuat invoice pembayaran untuk order ini.';
-      showAlert.error('Gagal Membuka Pembayaran', msg);
+    } catch (error: unknown) {
+      showAlert.error(
+        'Gagal Membuka Pembayaran',
+        getApiErrorMessage(error, 'Tidak dapat membuat invoice pembayaran untuk order ini.')
+      );
     } finally {
       setPayingId(null);
     }

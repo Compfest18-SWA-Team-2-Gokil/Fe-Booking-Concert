@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { checkinApi } from '../infrastructure/checkinApi';
 import { showToast } from '../../../shared/utils/alert';
+import { getApiErrorMessage } from '../../../shared/utils/apiError';
 
 export interface ScanResult {
   time: string;
@@ -71,9 +72,8 @@ export function useGateScan() {
       ]);
       showToast.success('Tiket Valid - Masuk Diizinkan!');
     } catch (err: unknown) {
-      const errorData = err as { response?: { data?: { error?: string } } };
-      const errorMsg = errorData?.response?.data?.error ?? 'QR tidak valid atau ditolak';
-      
+      const errorMsg = getApiErrorMessage(err, 'QR tidak valid atau ditolak');
+
       setScanResults((prev) => [
         { time, result: 'rejected', error: errorMsg },
         ...prev,

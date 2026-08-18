@@ -3,6 +3,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { X } from 'lucide-react';
 import { checkinApi } from '../../../../modules/gate-operator/infrastructure/checkinApi';
 import { showToast } from '../../../../shared/utils/alert';
+import { getApiErrorMessage } from '../../../../shared/utils/apiError';
 
 interface TicketQRModalProps {
   orderId: string;
@@ -43,9 +44,10 @@ export function TicketQRModal({
           setQrMap((prev) => ({ ...prev, [currentUnitId]: res.qr_content }));
           setLoading(false);
         }
-      } catch {
+      } catch (err: unknown) {
         if (isMounted) {
           setLoading(false);
+          showToast.error(getApiErrorMessage(err, 'Gagal memuat QR tiket, memakai kode fallback.'));
         }
       }
     };

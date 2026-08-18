@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { approveRefund, getOrganizerRefunds, type OrganizerRefundItem } from '../../orders/infrastructure/ordersApi';
 import { formatCurrency } from '../../../core/utils/formatCurrency';
 import { showAlert, showToast } from '../../../shared/utils/alert';
+import { getApiErrorMessage } from '../../../shared/utils/apiError';
 
 export type { OrganizerRefundItem as RefundRequestItem };
 
@@ -30,9 +31,8 @@ export function useOrganizerRefunds() {
         `Permintaan refund untuk order #${id.slice(0, 8)} telah disetujui dan diteruskan ke Admin untuk pencairan dana.`
       );
     },
-    onError: (error: any) => {
-      const msg = error?.response?.data?.error ?? 'Gagal menyetujui refund.';
-      showAlert.error('Gagal Menyetujui Refund', msg);
+    onError: (error: unknown) => {
+      showAlert.error('Gagal Menyetujui Refund', getApiErrorMessage(error, 'Gagal menyetujui refund.'));
     },
   });
 

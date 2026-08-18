@@ -33,10 +33,12 @@ export function AdminDisputesTab({
           </div>
           <button
             onClick={onOpenReassign}
-            className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-1.5 cursor-pointer transition-colors"
+            disabled
+            title="Belum tersedia — endpoint backend untuk reassign tiket belum diimplementasikan"
+            className="bg-gray-300 text-gray-500 font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-1.5 cursor-not-allowed transition-colors"
           >
             <Sliders className="w-3.5 h-3.5" />
-            Pindahkan Kepemilikan Tiket (Reassign)
+            Pindahkan Kepemilikan Tiket (Belum Tersedia)
           </button>
         </div>
 
