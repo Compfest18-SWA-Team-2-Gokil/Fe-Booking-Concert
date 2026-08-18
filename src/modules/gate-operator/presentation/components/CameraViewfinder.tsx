@@ -22,9 +22,15 @@ export function CameraViewfinder({
   onSwitchCamera,
 }: CameraViewfinderProps) {
   return (
-    <div className="bg-gray-900 rounded-3xl border border-gray-800 p-5 mb-6 shadow-xl">
-      <div className="relative rounded-2xl overflow-hidden bg-black border border-gray-800 min-h-[360px] flex items-center justify-center mb-4">
-        {/* HTML5 QR Code Mount Element (Always mounted for video attach) */}
+    <div className="bg-white rounded-3xl border border-gray-100 p-5 mb-6 shadow-sm">
+      <div
+        className={`relative rounded-2xl overflow-hidden min-h-[360px] flex items-center justify-center mb-4 transition-all ${
+          isCameraActive
+            ? 'bg-slate-900 border border-slate-300'
+            : 'bg-slate-50 border-2 border-dashed border-slate-200'
+        }`}
+      >
+        {/* HTML5 QR Code Mount Element */}
         <div
           id={QR_READER_ELEMENT_ID}
           className="w-full max-w-[460px] mx-auto overflow-hidden rounded-2xl [&_video]:w-full [&_video]:h-full [&_video]:object-cover [&_video]:rounded-2xl"
@@ -39,7 +45,7 @@ export function CameraViewfinder({
               <div className="absolute -top-1.5 -right-1.5 w-8 h-8 border-t-4 border-r-4 border-emerald-400 rounded-tr-xl" />
               <div className="absolute -bottom-1.5 -left-1.5 w-8 h-8 border-b-4 border-l-4 border-emerald-400 rounded-bl-xl" />
               <div className="absolute -bottom-1.5 -right-1.5 w-8 h-8 border-b-4 border-r-4 border-emerald-400 rounded-br-xl" />
-              
+
               {/* Laser Animation */}
               <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_10px_#34d399] animate-pulse absolute top-1/2 -translate-y-1/2" />
             </div>
@@ -49,45 +55,31 @@ export function CameraViewfinder({
           </div>
         )}
 
-        {/* Inactive or Loading Overlay */}
+        {/* Inactive or Loading State (Clean Light Theme) */}
         {(!isCameraActive || isStartingCamera) && !cameraError && (
-          <div className="absolute inset-0 bg-gray-950 flex flex-col items-center justify-center p-6 text-center z-10">
-            <div className="w-20 h-20 rounded-full bg-gray-800/80 text-emerald-400 flex items-center justify-center mb-4 shadow-lg border border-gray-700">
+          <div className="absolute inset-0 bg-slate-50 flex flex-col items-center justify-center p-6 text-center z-10">
+            <div className="w-16 h-16 rounded-2xl bg-blue-50 text-[#0064D2] flex items-center justify-center mb-4 shadow-sm border border-blue-100">
               {isStartingCamera ? (
-                <div className="w-12 h-12 border-3 border-white/20 border-t-white/60 rounded-full animate-spin mb-5" />
+                <div className="w-8 h-8 border-3 border-[#0064D2] border-t-transparent rounded-full animate-spin" />
               ) : (
-                <Camera className="w-10 h-10 text-white/20 mb-4" />
-              )}
-              <h3 className="font-bold text-sm text-white/50 mb-1 tracking-wide">
-                {isStartingCamera ? 'Menghubungkan Kamera...' : 'Kamera Belum Aktif'}
-              </h3>
-              <p className="text-xs text-white/25 max-w-xs mb-5">
-                {isStartingCamera
-                  ? 'Meminta izin akses kamera...'
-                  : 'Aktifkan kamera untuk mulai scan tiket.'}
-              </p>
-              {!isStartingCamera && (
-                <button
-                  onClick={onStartCamera}
-                  className="bg-[#0064D2] hover:bg-[#0052B0] text-white font-bold px-6 py-2.5 rounded-xl text-sm flex items-center gap-2 shadow-lg hover:scale-105 transition-all cursor-pointer"
-                >
-                  <Camera className="w-4 h-4" />
-                  Nyalakan Kamera
-                </button>
+                <Camera className="w-8 h-8 text-[#0064D2]" />
               )}
             </div>
-            <h3 className="font-black text-xl text-white mb-1.5 tracking-tight">
+
+            <h3 className="font-black text-lg sm:text-xl text-gray-900 mb-1.5 tracking-tight">
               {isStartingCamera ? 'Menghubungkan Kamera...' : 'Kamera Belum Aktif'}
             </h3>
-            <p className="text-xs text-gray-400 max-w-sm mb-6 leading-relaxed">
+
+            <p className="text-xs text-gray-500 max-w-sm mb-6 leading-relaxed">
               {isStartingCamera
                 ? 'Sedang meminta izin akses dan memuat video feed kamera...'
                 : 'Aktifkan kamera untuk memindai QR code tiket secara instan dari layar HP pengunjung.'}
             </p>
+
             {!isStartingCamera && (
               <button
                 onClick={onStartCamera}
-                className="bg-emerald-500 hover:bg-emerald-400 text-white font-black px-7 py-3 rounded-2xl text-xs sm:text-sm flex items-center gap-2.5 shadow-lg shadow-emerald-900/50 hover:scale-105 transition-all cursor-pointer"
+                className="bg-[#0064D2] hover:bg-[#0052B0] text-white font-bold px-7 py-3 rounded-xl text-xs sm:text-sm flex items-center gap-2 shadow-md shadow-blue-600/20 hover:scale-[1.02] transition-all cursor-pointer"
               >
                 <Camera className="w-4 h-4" />
                 Nyalakan Kamera
@@ -96,17 +88,17 @@ export function CameraViewfinder({
           </div>
         )}
 
-        {/* Camera Error Overlay */}
+        {/* Camera Error State */}
         {cameraError && (
-          <div className="absolute inset-0 bg-gray-950 flex flex-col items-center justify-center p-6 text-center z-10">
-            <div className="w-16 h-16 rounded-full bg-red-950/60 text-red-400 flex items-center justify-center mb-3 border border-red-800/50">
-              <CameraOff className="w-8 h-8" />
+          <div className="absolute inset-0 bg-rose-50/90 flex flex-col items-center justify-center p-6 text-center z-10 border border-rose-200">
+            <div className="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mb-3">
+              <CameraOff className="w-7 h-7" />
             </div>
-            <h3 className="font-bold text-red-400 text-sm mb-1">Akses Kamera Terkendala</h3>
-            <p className="text-xs text-gray-400 max-w-xs mb-4">{cameraError}</p>
+            <h3 className="font-bold text-rose-700 text-sm mb-1">Akses Kamera Terkendala</h3>
+            <p className="text-xs text-rose-600 max-w-xs mb-4">{cameraError}</p>
             <button
               onClick={onStartCamera}
-              className="bg-gray-800 hover:bg-gray-700 text-white font-bold px-5 py-2 rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer border border-gray-700"
+              className="bg-white hover:bg-gray-50 text-gray-800 font-bold px-5 py-2 rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer border border-gray-200 shadow-sm"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Coba Lagi
@@ -120,7 +112,7 @@ export function CameraViewfinder({
         <div className="flex gap-2">
           <button
             onClick={onStopCamera}
-            className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border border-gray-700"
+            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border border-gray-200"
           >
             <CameraOff className="w-4 h-4" />
             Matikan Kamera
@@ -129,7 +121,7 @@ export function CameraViewfinder({
           {availableCameras.length > 1 && (
             <button
               onClick={onSwitchCamera}
-              className="bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border border-gray-700"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border border-gray-200"
               title="Ganti Kamera Depan/Belakang"
             >
               <SwitchCamera className="w-4 h-4" />
@@ -139,7 +131,7 @@ export function CameraViewfinder({
 
           <button
             onClick={onStartCamera}
-            className="bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border border-gray-700"
+            className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border border-gray-200"
             title="Refresh Kamera"
           >
             <RefreshCw className="w-3.5 h-3.5" />

@@ -1,4 +1,4 @@
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, RotateCcw } from 'lucide-react';
 import { useOrganizerRefunds } from '../../application/useOrganizerRefunds';
 import { OrganizerRefundsFilterBar } from '../components/OrganizerRefundsFilterBar';
 import { OrganizerRefundsTable } from '../components/OrganizerRefundsTable';
@@ -18,35 +18,43 @@ export function OrganizerRefundsPage() {
     isApproving,
     isLoading,
     pendingCount,
+    waitingAdminCount,
+    completedCount,
     filteredRefunds,
   } = useOrganizerRefunds();
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-24">
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-[#0064D2] via-blue-600 to-indigo-700 text-white py-10 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <span className="bg-white/20 backdrop-blur-md text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-            Pusat Pengajuan Refund
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight mt-2">Persetujuan Refund</h1>
-          <p className="text-blue-100 text-sm mt-1">
-            Verifikasi dan setujui pengajuan refund tiket dari pembeli event Anda.
-          </p>
+    <div className="min-h-screen bg-[#F8FAFC] py-10 px-4 sm:px-6 lg:px-8 pb-20">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-[#0064D2]">
+                <RotateCcw className="w-3.5 h-3.5" /> Pusat Pengajuan Refund
+              </span>
+            </div>
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+              Persetujuan Refund Organizer
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Verifikasi dan setujui pengajuan refund tiket dari pembeli event Anda.
+            </p>
+          </div>
         </div>
-      </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 space-y-6">
         <OrganizerRefundsFilterBar
           search={search}
           onSearchChange={setSearch}
           statusFilter={statusFilter}
           onStatusFilterChange={setStatusFilter}
           pendingCount={pendingCount}
+          waitingAdminCount={waitingAdminCount}
+          completedCount={completedCount}
         />
 
         {/* Info Box */}
-        <div className="bg-blue-50/80 border border-blue-100 rounded-3xl p-5 flex items-start gap-3.5 text-xs text-blue-900">
+        <div className="bg-blue-50/80 border border-blue-100 rounded-3xl p-5 flex items-start gap-3.5 text-xs text-blue-900 shadow-xs">
           <AlertCircle className="w-5 h-5 text-[#0064D2] shrink-0 mt-0.5" />
           <div className="space-y-1">
             <p className="font-bold text-sm text-[#0064D2]">Alur Persetujuan 2 Tahap (Two-Tier Refund Workflow)</p>

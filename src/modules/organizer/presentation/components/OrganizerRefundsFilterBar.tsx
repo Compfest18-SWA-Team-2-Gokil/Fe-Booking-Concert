@@ -6,6 +6,8 @@ interface OrganizerRefundsFilterBarProps {
   statusFilter: string;
   onStatusFilterChange: (val: string) => void;
   pendingCount: number;
+  waitingAdminCount: number;
+  completedCount: number;
 }
 
 export function OrganizerRefundsFilterBar({
@@ -14,12 +16,23 @@ export function OrganizerRefundsFilterBar({
   statusFilter,
   onStatusFilterChange,
   pendingCount,
+  waitingAdminCount,
+  completedCount,
 }: OrganizerRefundsFilterBarProps) {
   const tabs = [
     { id: 'ALL', label: 'Semua' },
-    { id: 'REFUND_REQUESTED', label: `Perlu Disetujui (${pendingCount})` },
-    { id: 'REFUND_ORGANIZER_APPROVED', label: 'Menunggu Admin' },
-    { id: 'REFUNDED', label: 'Selesai' },
+    {
+      id: 'REFUND_REQUESTED',
+      label: pendingCount > 0 ? `Perlu Disetujui (${pendingCount})` : 'Perlu Disetujui',
+    },
+    {
+      id: 'REFUND_ORGANIZER_APPROVED',
+      label: waitingAdminCount > 0 ? `Menunggu Admin (${waitingAdminCount})` : 'Menunggu Admin',
+    },
+    {
+      id: 'REFUNDED',
+      label: completedCount > 0 ? `Selesai (${completedCount})` : 'Selesai',
+    },
   ];
 
   return (

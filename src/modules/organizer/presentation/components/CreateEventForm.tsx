@@ -117,7 +117,7 @@ export function CreateEventForm({
 
       {/* Poster Image Upload */}
       <div>
-        <label className="block text-sm font-bold text-gray-900 mb-1.5">Poster Event (Opsional)</label>
+        <label className="block text-sm font-bold text-gray-900 mb-1.5">Poster Event *</label>
         {previewSrc ? (
           <div className="relative rounded-2xl overflow-hidden border border-gray-200 mb-3">
             <img src={previewSrc} alt="Preview Poster" className="w-full h-48 object-cover" />
@@ -133,11 +133,12 @@ export function CreateEventForm({
           <label className="border-2 border-dashed border-gray-200 hover:border-[#0064D2] rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer transition-colors group">
             <Upload className="w-8 h-8 text-gray-400 group-hover:text-[#0064D2] mb-2" />
             <span className="text-sm font-semibold text-gray-600 group-hover:text-[#0064D2]">
-              Pilih foto poster (PNG, JPG, max 5MB)
+              Pilih foto poster (PNG, JPG, max 5MB) — Wajib
             </span>
             <input
               type="file"
               accept="image/*"
+              required
               className="hidden"
               onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
             />

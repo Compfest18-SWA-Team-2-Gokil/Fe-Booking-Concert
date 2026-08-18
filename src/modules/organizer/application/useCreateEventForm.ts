@@ -32,6 +32,11 @@ export function useCreateEventForm() {
     e.preventDefault();
     if (!name || !date || !location) return;
 
+    if (!imageFile) {
+      showAlert.error('Poster Event Wajib', 'Silakan pilih foto poster event terlebih dahulu.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const isoDateTime = new Date(`${date}T${time}:00`).toISOString();
