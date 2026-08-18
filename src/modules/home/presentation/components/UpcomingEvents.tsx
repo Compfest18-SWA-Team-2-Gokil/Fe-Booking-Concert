@@ -4,6 +4,7 @@ import type { Event } from '../../../events/domain/models/Event';
 import { EventCard } from '../../../events/presentation/components/EventCard';
 import { useTicketTypes } from '../../../events/application/useTicketTypes';
 import { useAuth } from '../../../auth/application/useAuth';
+import { Skeleton } from '../../../../shared/components/ui/Skeleton';
 const drawkit10 = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786852214/draw10.webp';
 
 function EventCardFetched({ eventId, ...rest }: { eventId: string } & Parameters<typeof EventCard>[0]) {
@@ -53,13 +54,13 @@ export function UpcomingEvents({ events, isLoading, onResetFilter, onNavigateToE
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 animate-pulse h-80 flex flex-col justify-between">
-              <div className="h-40 bg-gray-200 rounded-xl mb-4" />
+            <div key={i} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 h-80 flex flex-col justify-between">
+              <Skeleton variant="shimmer" className="h-40 w-full rounded-xl mb-4" />
               <div className="space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-3/4" />
-                <div className="h-3 bg-gray-200 rounded w-1/2" />
+                <Skeleton variant="shimmer" className="h-4 w-3/4 rounded" />
+                <Skeleton variant="shimmer" className="h-3 w-1/2 rounded" />
               </div>
-              <div className="h-10 bg-gray-200 rounded-xl mt-4" />
+              <Skeleton variant="shimmer" className="h-10 w-full rounded-xl mt-4" />
             </div>
           ))}
         </div>

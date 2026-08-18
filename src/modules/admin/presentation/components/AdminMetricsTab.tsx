@@ -11,6 +11,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import { formatDate } from '../../../../core/utils/formatDate';
 import type { Event } from '../../../events/domain/models/Event';
 import type { EventMetricsResponse } from '../../application/useAdminMetrics';
+import { TableSkeleton } from '../../../../shared/components/ui/TableSkeleton';
 
 interface AdminMetricsTabProps {
   events: Event[] | undefined;
@@ -148,11 +149,7 @@ export function AdminMetricsTab({
             </thead>
             <tbody className="divide-y divide-gray-100">
               {eventsLoading ? (
-                <tr>
-                  <td colSpan={8} className="px-6 py-8 text-center text-gray-400">
-                    Memuat data event...
-                  </td>
-                </tr>
+                <TableSkeleton columns={8} rows={5} />
               ) : filteredEvents.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-6 py-8 text-center text-gray-400">

@@ -18,6 +18,7 @@ import {
 import { useOrganizerEvents } from '../../application/useOrganizerEvents';
 import { OrganizerEventMetricsModal } from '../components/OrganizerEventMetricsModal';
 import { formatDate } from '../../../../core/utils/formatDate';
+import { TableSkeleton } from '../../../../shared/components/ui/TableSkeleton';
 
 export function MyOrganizerEventsPage() {
   const navigate = useNavigate();
@@ -172,11 +173,7 @@ export function MyOrganizerEventsPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {isLoading ? (
-                  <tr>
-                    <td colSpan={9} className="px-6 py-8 text-center text-gray-400">
-                      Memuat data event...
-                    </td>
-                  </tr>
+                  <TableSkeleton columns={9} rows={5} />
                 ) : filteredEvents.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="px-6 py-8 text-center text-gray-400">
@@ -206,7 +203,7 @@ export function MyOrganizerEventsPage() {
                       <tr key={evt.id} className="hover:bg-gray-50/70 transition-colors">
                         <td className="px-6 py-4 font-medium text-gray-900">
                           <p className="font-bold text-sm text-gray-900">{evt.name}</p>
-                          <p className="text-gray-400 text-[11px] truncate max-w-[200px]">{evt.location}</p>
+                          <p className="text-gray-400 text-[11px] truncate max-w-50">{evt.location}</p>
                         </td>
                         <td className="px-4 py-4 text-gray-600 font-medium whitespace-nowrap">
                           {formatDate(evt.date)}
