@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Ticket, ArrowRight, Loader2 } from 'lucide-react';
+import { Ticket, ArrowRight, Loader2, Search, X } from 'lucide-react';
 import { useAuth } from '../../../auth/application/useAuth';
 import { useMyTickets } from '../../application/useMyTickets';
 import { TicketStatsHeader } from '../components/TicketStatsHeader';
@@ -11,6 +11,10 @@ export function MyTicketsPage() {
   const { user } = useAuth();
   const {
     tickets,
+    filteredTickets,
+    totalMatchingCount,
+    search,
+    setSearch,
     pagination,
     setPage,
     activeCount,
@@ -53,7 +57,7 @@ export function MyTicketsPage() {
     );
   }
 
-  // State 2: Kosong setelah fetch selesai
+  // State 2: Kosong setelah fetch selesai (belum pernah beli tiket)
   if (tickets.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
@@ -81,29 +85,75 @@ export function MyTicketsPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
+        <div className="mb-6">
           {HeaderSection}
           <TicketStatsHeader
-            totalOrders={pagination?.total_items ?? tickets.length}
+            totalOrders={tickets.length}
             activeCount={activeCount}
             pendingCount={pendingCount}
           />
         </div>
 
-        <div className="space-y-4">
-          {tickets.map((t) => (
-            <TicketCard
-              key={t.stored.orderId}
-              ticket={t}
-              isRefunded={refundedIds.has(t.stored.orderId)}
-              isRefunding={isRefunding && refundingId === t.stored.orderId}
-              isPaying={payingId === t.stored.orderId}
-              onViewQR={setQrModalOrder}
-              onPay={handlePayClick}
-              onRefund={handleRefundClick}
+        {/* Search Bar */}
+        <div className="bg-white rounded-2xl p-3 sm:p-4 mb-6 shadow-sm border border-gray-100 flex items-center justify-between gap-3">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari berdasarkan nama event atau Order ID..."
+              className="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0064D2] focus:bg-white transition-all"
             />
-          ))}
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
+                title="Hapus pencarian"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          {search && (
+            <span className="text-xs font-semibold text-gray-500 whitespace-nowrap hidden sm:inline">
+              Ditemukan: <strong className="text-[#0064D2]">{totalMatchingCount}</strong>
+            </span>
+          )}
         </div>
+
+        {/* Ticket List / Empty Search */}
+        {filteredTickets.length === 0 ? (
+          <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm">
+            <Search className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <h3 className="font-bold text-gray-900 text-base mb-1">Tiket Tidak Ditemukan</h3>
+            <p className="text-xs text-gray-500 max-w-sm mx-auto mb-4">
+              Tidak ada tiket yang cocok dengan kata kunci &quot;{search}&quot;.
+            </p>
+            <button
+              onClick={() => setSearch('')}
+              className="inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs transition-colors cursor-pointer"
+            >
+              Reset Pencarian
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredTickets.map((t) => (
+              <TicketCard
+                key={t.stored.orderId}
+                ticket={t}
+                isRefunded={refundedIds.has(t.stored.orderId)}
+                isRefunding={isRefunding && refundingId === t.stored.orderId}
+                isPaying={payingId === t.stored.orderId}
+                onViewQR={setQrModalOrder}
+                onPay={handlePayClick}
+                onRefund={handleRefundClick}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Pagination */}
         <Pagination
