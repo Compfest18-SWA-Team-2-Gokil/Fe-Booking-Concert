@@ -15,6 +15,7 @@ import { EventsPage } from '../../modules/events/presentation/pages/EventsPage';
 import { EventDetailPage } from '../../modules/events/presentation/pages/EventDetailPage';
 import { CheckoutPage } from '../../modules/inventory/presentation/pages/CheckoutPage';
 import { MyTicketsPage } from '../../modules/buyer/presentation/pages/MyTicketsPage';
+import { MyPromosPage } from '../../modules/buyer/presentation/pages/MyPromosPage';
 import { PaymentCallbackPage } from '../../modules/orders/presentation/pages/PaymentCallbackPage';
 // Organizer
 import { CreateEventPage } from '../../modules/organizer/presentation/pages/CreateEventPage';
@@ -183,6 +184,7 @@ export const router = createBrowserRouter([
             children: [
               { path: '/checkout/:id', element: <CheckoutPage /> },
               { path: '/my-tickets', element: <MyTicketsPage /> },
+              { path: '/my-promos', element: <MyPromosPage /> },
             ],
           },
 
