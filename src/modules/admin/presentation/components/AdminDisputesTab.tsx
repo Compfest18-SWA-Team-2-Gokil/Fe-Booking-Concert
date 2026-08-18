@@ -3,6 +3,7 @@ import type { DisputeOrder } from '../../infrastructure/adminApi';
 import type { PaginationMeta } from '../../../../shared/components/ui/Pagination';
 import { Pagination } from '../../../../shared/components/ui/Pagination';
 import { formatCurrency } from '../../../../core/utils/formatCurrency';
+import { TableSkeleton } from '../../../../shared/components/ui/TableSkeleton';
 
 interface AdminDisputesTabProps {
   disputes: DisputeOrder[];
@@ -43,7 +44,21 @@ export function AdminDisputesTab({
         </div>
 
         {isLoading ? (
-          <div className="py-12 text-center text-gray-400">Memuat daftar sengketa...</div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-gray-50 text-gray-500 uppercase font-bold border-b border-gray-100">
+                <tr>
+                  <th className="px-4 py-3">Order ID</th>
+                  <th className="px-4 py-3">Buyer Email</th>
+                  <th className="px-4 py-3">Status Sengketa / Refund</th>
+                  <th className="px-4 py-3">Total Amount</th>
+                  <th className="px-4 py-3">Waktu</th>
+                  <th className="px-4 py-3 text-right">Aksi Admin</th>
+                </tr>
+              </thead>
+              <TableSkeleton columns={6} rows={5} />
+            </table>
+          </div>
         ) : disputes.length === 0 ? (
           <div className="py-12 text-center">
             <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-2" />
