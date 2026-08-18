@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from '../../../shared/utils/apiError';
 import { useState, useMemo } from 'react';
 import { useMutation, useQueryClient, useQueries, type UseQueryResult } from '@tanstack/react-query';
 import { useEvents } from '../../events/application/useEvents';
@@ -73,9 +74,8 @@ export function useOrganizerEvents() {
       qc.invalidateQueries({ queryKey: ['events'] });
       showToast.success('Event berhasil dihapus.');
     },
-    onError: (err: any) => {
-      const msg = err?.response?.data?.error ?? 'Terjadi kesalahan.';
-      showAlert.error('Gagal Menghapus Event', msg);
+    onError: (err: unknown) => {
+      showAlert.error('Gagal Menghapus Event', getApiErrorMessage(err, 'Terjadi kesalahan saat menghapus event.'));
     },
   });
 

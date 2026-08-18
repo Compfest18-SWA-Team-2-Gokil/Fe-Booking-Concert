@@ -68,9 +68,13 @@ export function storeOrder(order: StoredOrder): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify([order, ...existing]));
 }
 
-export function createOrder(eventId: string, unitIds: string[]): Promise<Order> {
+export function createOrder(eventId: string, unitIds: string[], queueToken?: string | null): Promise<Order> {
+  const headers: Record<string, string> = {};
+  if (queueToken) {
+    headers['X-Queue-Token'] = queueToken;
+  }
   return axiosInstance
-    .post<Order>('/api/v1/orders', { event_id: eventId, unit_ids: unitIds })
+    .post<Order>('/api/v1/orders', { event_id: eventId, unit_ids: unitIds }, { headers })
     .then((r) => r.data);
 }
 
