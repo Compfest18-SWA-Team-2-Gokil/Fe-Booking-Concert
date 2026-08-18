@@ -8,6 +8,7 @@ export interface IssueQRPayload {
 
 export interface IssueQRResponse {
   qr_content: string;
+  status?: string;
 }
 
 export interface ScanQRPayload {
