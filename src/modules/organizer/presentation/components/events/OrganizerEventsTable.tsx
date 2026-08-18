@@ -3,6 +3,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import type { Event } from '../../../../events/domain/models/Event';
 import type { EventMetricsResponse } from '../../../application/useOrganizerEvents';
 import { formatDate } from '../../../../../core/utils/formatDate';
+import { TableSkeleton } from '../../../../../shared/components/ui/TableSkeleton';
 
 interface OrganizerEventsTableProps {
   events: Event[];
@@ -67,11 +68,7 @@ export function OrganizerEventsTable({
           </thead>
           <tbody className="divide-y divide-gray-100">
             {isLoading ? (
-              <tr>
-                <td colSpan={9} className="px-6 py-8 text-center text-gray-400">
-                  Memuat data event...
-                </td>
-              </tr>
+              <TableSkeleton columns={9} rows={5} />
             ) : events.length === 0 ? (
               <tr>
                 <td colSpan={9} className="px-6 py-8 text-center text-gray-400">

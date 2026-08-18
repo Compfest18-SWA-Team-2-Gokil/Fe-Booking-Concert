@@ -2,6 +2,7 @@ import { ShieldCheck, History } from 'lucide-react';
 import type { AuditLog } from '../../infrastructure/adminApi';
 import type { PaginationMeta } from '../../../../shared/components/ui/Pagination';
 import { Pagination } from '../../../../shared/components/ui/Pagination';
+import { TableSkeleton } from '../../../../shared/components/ui/TableSkeleton';
 
 interface AdminAuditLogsTabProps {
   auditLogs: AuditLog[];
@@ -32,7 +33,22 @@ export function AdminAuditLogsTab({
       </div>
 
       {isLoading ? (
-        <div className="py-12 text-center text-gray-400">Memuat log aktivitas...</div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-gray-50 text-gray-500 uppercase font-bold border-b border-gray-100">
+              <tr>
+                <th className="px-4 py-3">Waktu (WIB)</th>
+                <th className="px-4 py-3">Pelaku / Admin</th>
+                <th className="px-4 py-3">Role</th>
+                <th className="px-4 py-3">Aksi</th>
+                <th className="px-4 py-3">Target Entitas</th>
+                <th className="px-4 py-3">Perubahan Status</th>
+                <th className="px-4 py-3">Alasan / Catatan</th>
+              </tr>
+            </thead>
+            <TableSkeleton columns={7} rows={5} />
+          </table>
+        </div>
       ) : auditLogs.length === 0 ? (
         <div className="py-12 text-center text-gray-400">
           <History className="w-10 h-10 text-gray-300 mx-auto mb-2" />

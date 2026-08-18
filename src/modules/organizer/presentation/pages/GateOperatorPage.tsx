@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users } from 'lucide-react';
 import { useGateOperatorAssignment } from '../../application/useGateOperatorAssignment';
 import { GateOperatorForm } from '../components/GateOperatorForm';
+import { Skeleton } from '../../../../shared/components/ui/Skeleton';
 
 export function GateOperatorPage() {
   const navigate = useNavigate();
@@ -19,8 +20,17 @@ export function GateOperatorPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
-        <div className="animate-spin w-8 h-8 border-4 border-[#0064D2] border-t-transparent rounded-full mx-auto mb-3" />
+      <div className="min-h-screen bg-[#F8FAFC] pb-20">
+        <div className="bg-white border-b border-gray-100 shadow-sm px-4 py-4">
+          <div className="max-w-2xl mx-auto flex items-center gap-3">
+             <Skeleton className="w-24 h-5 rounded" variant="shimmer" />
+             <span className="text-gray-300">/</span>
+             <Skeleton className="w-48 h-5 rounded" variant="shimmer" />
+          </div>
+        </div>
+        <div className="max-w-2xl mx-auto px-4 py-10">
+           <Skeleton className="w-full h-80 rounded-3xl" variant="shimmer" />
+        </div>
       </div>
     );
   }
