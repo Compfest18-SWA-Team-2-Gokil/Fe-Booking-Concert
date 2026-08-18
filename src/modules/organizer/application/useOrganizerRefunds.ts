@@ -57,7 +57,7 @@ export function useOrganizerRefunds() {
     setTimeout(() => setCopiedId(null), 2000);
   }
 
-  const refunds = data?.refunds ?? [];
+  const refunds = useMemo(() => data?.refunds ?? [], [data?.refunds]);
   const pagination = data?.pagination;
   const pendingCount = refunds.filter((r) => r.status === 'REFUND_REQUESTED').length;
   const waitingAdminCount = refunds.filter((r) => r.status === 'REFUND_ORGANIZER_APPROVED').length;

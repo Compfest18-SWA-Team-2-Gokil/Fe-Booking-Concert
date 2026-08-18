@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Ticket, ArrowRight, Loader2, Search, X, AlertTriangle } from 'lucide-react';
+import { Ticket, ArrowRight, Search, X, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../../auth/application/useAuth';
 import { useMyTickets } from '../../application/useMyTickets';
 import { TicketStatsHeader } from '../components/TicketStatsHeader';
