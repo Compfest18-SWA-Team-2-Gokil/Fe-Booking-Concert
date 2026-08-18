@@ -20,4 +20,22 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      const url = error.config?.url || '';
+      // Jangan bersihkan session jika yang 401 adalah form login/register
+      if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
+        const hasToken = !!localStorage.getItem('tiketin_token');
+        if (hasToken && url.includes('/auth/me')) {
+          localStorage.removeItem('tiketin_token');
+          localStorage.removeItem('tiketin_user');
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default axiosInstance;

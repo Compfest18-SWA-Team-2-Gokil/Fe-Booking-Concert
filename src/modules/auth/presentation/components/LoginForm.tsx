@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from '../../../../shared/utils/apiError';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
@@ -23,10 +24,10 @@ export function LoginForm() {
         onSuccess: (data) => {
           showToast.success(`Selamat datang kembali, ${data.user.name}!`);
         },
-        onError: () => {
+        onError: (err: unknown) => {
           showAlert.error(
             'Gagal Masuk',
-            'Email atau password yang kamu masukkan salah. Silakan periksa kembali dan coba lagi.'
+            getApiErrorMessage(err, 'Email atau password yang kamu masukkan salah. Silakan periksa kembali dan coba lagi.')
           );
         },
       }

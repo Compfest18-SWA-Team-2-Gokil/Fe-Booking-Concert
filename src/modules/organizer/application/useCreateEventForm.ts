@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from '../../../shared/utils/apiError';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { eventsApi } from '../../events/infrastructure/eventsApi';
@@ -22,9 +23,8 @@ export function useCreateEventForm() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['events'] });
     },
-    onError: (err: any) => {
-      const msg = err?.response?.data?.error ?? 'Gagal membuat event.';
-      showAlert.error('Gagal Membuat Event', msg);
+    onError: (err: unknown) => {
+      showAlert.error('Gagal Membuat Event', getApiErrorMessage(err, 'Gagal membuat event. Silakan periksa kembali formulir.'));
     },
   });
 

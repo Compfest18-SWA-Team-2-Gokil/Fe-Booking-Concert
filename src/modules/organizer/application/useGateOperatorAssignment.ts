@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from '../../../shared/utils/apiError';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -20,6 +21,7 @@ export function useGateOperatorAssignment() {
   const assign = useMutation({
     mutationFn: (opId: string) =>
       axiosInstance.post(`/api/v1/events/${eventId}/gate-operators`, {
+        user_id: opId,
         gate_operator_id: opId,
       }),
     onSuccess: (_, opId) => {
@@ -27,9 +29,8 @@ export function useGateOperatorAssignment() {
       setOperatorId('');
       showToast.success('Gate Operator berhasil ditugaskan.');
     },
-    onError: (err: any) => {
-      const msg = err?.response?.data?.error ?? 'Gagal menugaskan Gate Operator.';
-      showAlert.error('Gagal Assign Gate Operator', msg);
+    onError: (err: unknown) => {
+      showAlert.error('Gagal Assign Gate Operator', getApiErrorMessage(err, 'Gagal menugaskan Gate Operator.'));
     },
   });
 

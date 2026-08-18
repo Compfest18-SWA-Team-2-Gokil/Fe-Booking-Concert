@@ -12,6 +12,7 @@ interface UseHoldCountdownOptions {
   totalAmount: number;
   eventId: string;
   eventName: string;
+  queueToken?: string | null;
 }
 
 export function useHoldCountdown({
@@ -19,6 +20,7 @@ export function useHoldCountdown({
   totalAmount,
   eventId,
   eventName,
+  queueToken,
 }: UseHoldCountdownOptions) {
   const heldUntil = new Date(holdData.held_until).getTime();
   const [secondsLeft, setSecondsLeft] = useState(() =>
@@ -58,7 +60,7 @@ export function useHoldCountdown({
 
     setPaymentStep('processing');
     try {
-      const order = await createOrder(eventId, holdData.unit_ids);
+      const order = await createOrder(eventId, holdData.unit_ids, queueToken);
       setCreatedOrderId(order.id);
       const payment = await initiatePayment(order.id);
       storeOrder({

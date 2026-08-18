@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from '../../../shared/utils/apiError';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -61,9 +62,8 @@ export function useEditEventForm() {
       showToast.success('Event berhasil diperbarui.');
       navigate('/organizer/my-events');
     },
-    onError: (err: any) => {
-      const msg = err?.response?.data?.error ?? 'Gagal memperbarui event.';
-      showAlert.error('Gagal Menyimpan Perubahan', msg);
+    onError: (err: unknown) => {
+      showAlert.error('Gagal Menyimpan Perubahan', getApiErrorMessage(err, 'Gagal memperbarui event.'));
     },
   });
 

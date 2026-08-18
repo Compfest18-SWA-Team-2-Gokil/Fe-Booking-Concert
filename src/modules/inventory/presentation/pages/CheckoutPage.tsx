@@ -24,7 +24,7 @@ export function CheckoutPage() {
   const { data: ticketTypes, isLoading, isError: isTicketTypesError } = useTicketTypes(id ?? '');
   const event = events?.find((e) => e.id === id);
 
-  const { step, position, joinQueue, isJoining } = useQueue(
+  const { step, position, joinQueue, isJoining, queueToken } = useQueue(
     id ?? '',
     user?.id ?? ''
   );
@@ -211,6 +211,7 @@ export function CheckoutPage() {
           eventId={id ?? ''}
           eventName={event?.name ?? ''}
           onClose={() => setHoldData(null)}
+          queueToken={queueToken}
         />
       )}
     </div>
