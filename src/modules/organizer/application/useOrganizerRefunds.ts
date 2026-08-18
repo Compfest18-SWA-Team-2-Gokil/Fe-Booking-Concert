@@ -27,7 +27,7 @@ export function useOrganizerRefunds() {
       queryClient.invalidateQueries({ queryKey: ['organizer-refunds'] });
       showAlert.success(
         'Refund Berhasil Disetujui',
-        `Permintaan refund untuk order #${id.slice(0, 8)} telah disetujui dan diteruskan ke Admin.`
+        `Permintaan refund untuk order #${id.slice(0, 8)} telah disetujui dan diteruskan ke Admin untuk pencairan dana.`
       );
     },
     onError: (error: any) => {
@@ -39,7 +39,7 @@ export function useOrganizerRefunds() {
   async function handleApprove(orderId: string, eventName: string, amount: number) {
     const isConfirmed = await showAlert.confirm({
       title: 'Setujui Pengajuan Refund?',
-      text: `Anda akan menyetujui pengembalian dana ${formatCurrency(amount)} untuk event "${eventName}". Lanjutkan?`,
+      text: `Anda akan menyetujui pengembalian dana ${formatCurrency(amount)} untuk event "${eventName}". Pengajuan akan diteruskan ke Admin untuk pencairan dana. Lanjutkan?`,
       confirmText: 'Ya, Setujui',
       cancelText: 'Batal',
       icon: 'question',
@@ -60,6 +60,8 @@ export function useOrganizerRefunds() {
   const refunds = data?.refunds ?? [];
   const pagination = data?.pagination;
   const pendingCount = refunds.filter((r) => r.status === 'REFUND_REQUESTED').length;
+  const waitingAdminCount = refunds.filter((r) => r.status === 'REFUND_ORGANIZER_APPROVED').length;
+  const completedCount = refunds.filter((r) => r.status === 'REFUNDED').length;
 
   const filteredRefunds = useMemo(() => {
     return refunds.filter((r) => {
@@ -88,6 +90,8 @@ export function useOrganizerRefunds() {
     isApproving: approve.isPending,
     isLoading,
     pendingCount,
+    waitingAdminCount,
+    completedCount,
     filteredRefunds,
   };
 }
