@@ -192,10 +192,6 @@ export function AdminMetricsTab({
 
             if (!currentEvent) return <div className="text-sm text-gray-400 my-auto text-center">Belum ada event</div>;
 
-            const admitPercentage = currentEvent.totals.sold > 0
-              ? Math.min(100, Math.round((currentEvent.totals.admitted / currentEvent.totals.sold) * 100))
-              : 0;
-
             return (
               <div className="flex flex-col gap-4 flex-1 justify-center">
                 <div className="flex items-center gap-4">
@@ -222,25 +218,12 @@ export function AdminMetricsTab({
                 
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 space-y-3 mt-1">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500 font-medium">Gate Admitted</span>
-                    <span className="text-sm font-black text-purple-600">{currentEvent.totals.admitted.toLocaleString('id-ID')}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500 font-medium">Expected (Terjual)</span>
+                    <span className="text-xs text-gray-500 font-medium">Total Sold</span>
                     <span className="text-sm font-black text-gray-700">{currentEvent.totals.sold.toLocaleString('id-ID')}</span>
                   </div>
-                  
-                  <div className="pt-2">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Check-in Progress</span>
-                      <span className="text-xs font-bold text-gray-700">{admitPercentage}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                      <div
-                        className="bg-purple-600 h-full rounded-full transition-all"
-                        style={{ width: `${admitPercentage}%` }}
-                      />
-                    </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500 font-medium">Gate Admitted</span>
+                    <span className="text-sm font-black text-purple-600">{currentEvent.totals.admitted.toLocaleString('id-ID')}</span>
                   </div>
                 </div>
               </div>
