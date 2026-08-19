@@ -1,8 +1,6 @@
-import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import type { HoldResponse } from '../../domain/Ticket';
 import { useHoldCountdown } from '../../application/useHoldCountdown';
-import { HoldModalRedirectStep } from './hold/HoldModalRedirectStep';
 import { HoldModalSummaryCard } from './hold/HoldModalSummaryCard';
 
 interface HoldModalProps {
@@ -26,14 +24,11 @@ export function HoldModal({
   promoCode,
   discountAmount = 0,
 }: HoldModalProps) {
-  const navigate = useNavigate();
   const {
     minutes,
     seconds,
     isExpired,
     paymentStep,
-    invoiceUrl,
-    createdOrderId,
     errorMsg,
     setPaymentStep,
     handlePay,
@@ -48,17 +43,6 @@ export function HoldModal({
   });
 
   const finalAmount = Math.max(0, totalAmount - discountAmount);
-
-  if (paymentStep === 'redirect') {
-    return (
-      <HoldModalRedirectStep
-        invoiceUrl={invoiceUrl}
-        createdOrderId={createdOrderId}
-        onCheckStatus={() => navigate(`/payment/callback?order_id=${createdOrderId}`)}
-        onGoToTickets={() => navigate('/my-tickets')}
-      />
-    );
-  }
 
   if (paymentStep === 'processing') {
     return (

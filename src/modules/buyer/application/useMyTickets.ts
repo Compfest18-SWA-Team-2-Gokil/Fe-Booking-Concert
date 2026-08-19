@@ -4,6 +4,7 @@ import {
   getMyOrders,
   requestRefund,
   initiatePayment,
+  storeOrder,
   getStoredOrders,
   type StoredOrder,
   type Order,
@@ -171,17 +172,22 @@ export function useMyTickets() {
     setPayingId(orderId);
     try {
       const res = await initiatePayment(orderId);
-      window.open(res.invoice_url, '_blank');
-      showToast.success('Halaman pembayaran dibuka di tab baru!');
+      // Simpan ke localStorage agar PaymentCallbackPage bisa menampilkan detail
+      const matchingTicket = allTickets.find((t) => t.stored.orderId === orderId);
+      if (matchingTicket) {
+        storeOrder(matchingTicket.stored);
+      }
+      showToast.success('Mengarahkan ke halaman pembayaran Xendit...');
+      // Redirect di tab yang sama (bukan window.open) supaya tidak diblokir popup blocker
+      window.location.href = res.invoice_url;
     } catch (error: unknown) {
       showAlert.error(
         'Gagal Membuka Pembayaran',
         getApiErrorMessage(error, 'Tidak dapat membuat invoice pembayaran untuk order ini.')
       );
-    } finally {
       setPayingId(null);
     }
-  }, []);
+  }, [allTickets]);
 
   const activeCount = allTickets.filter((t) => t.order?.status === 'PAID').length;
   const pendingCount = allTickets.filter(
