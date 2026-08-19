@@ -60,7 +60,7 @@ export function EventCard({ event, ticketTypes }: EventCardProps) {
 
   return (
     <div
-      onClick={() => navigate(`/checkout/${event.id}`)}
+      onClick={() => navigate(`/events/${event.id}`)}
       className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col h-full border border-gray-100/60 relative"
     >
       {/* Cover Image / Gradient */}
@@ -155,7 +155,7 @@ export function EventCard({ event, ticketTypes }: EventCardProps) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`/checkout/${event.id}`);
+              navigate(`/events/${event.id}`);
             }}
             className="bg-[#FF6100] hover:bg-[#E55500] text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-md shadow-orange-500/20 group-hover:shadow-lg transition-all cursor-pointer"
           >
