@@ -204,13 +204,26 @@ export function AdminMetricsTab({
 
             return (
               <div className="flex flex-col gap-4 flex-1 justify-center">
-                <div>
-                  <p className="text-base font-black text-gray-900 line-clamp-2 leading-tight">
-                    {highest.evt.name}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-                    {highest.evt.location} • {formatDate(highest.evt.date)}
-                  </p>
+                <div className="flex items-center gap-4">
+                  {highest.evt.image_url ? (
+                    <img 
+                      src={highest.evt.image_url} 
+                      alt={highest.evt.name} 
+                      className="w-16 h-16 rounded-xl object-cover bg-gray-100 border border-gray-200 shrink-0"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                      <Calendar className="w-6 h-6 text-gray-300" />
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-base font-black text-gray-900 line-clamp-2 leading-tight">
+                      {highest.evt.name}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                      {highest.evt.location} • {formatDate(highest.evt.date)}
+                    </p>
+                  </div>
                 </div>
                 
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 space-y-3">
