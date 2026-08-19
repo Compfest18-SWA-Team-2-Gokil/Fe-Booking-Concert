@@ -4,6 +4,7 @@ import { OrganizerEventMetricsModal } from '../components/OrganizerEventMetricsM
 import { OrganizerWorkspaceHeader } from '../components/events/OrganizerWorkspaceHeader';
 import { OrganizerKpiCards } from '../components/events/OrganizerKpiCards';
 import { OrganizerEventsTable } from '../components/events/OrganizerEventsTable';
+import { OrganizerAnalyticsOverview } from '../components/events/OrganizerAnalyticsOverview';
 
 export function MyOrganizerEventsPage() {
   const navigate = useNavigate();
@@ -31,6 +32,13 @@ export function MyOrganizerEventsPage() {
         <OrganizerKpiCards
           totalEvents={myEvents.length}
           stats={organizerStats}
+        />
+
+        <OrganizerAnalyticsOverview
+          events={myEvents}
+          eventsLoading={isLoading}
+          stats={organizerStats}
+          metricQueries={metricQueries}
         />
 
         <OrganizerEventsTable
