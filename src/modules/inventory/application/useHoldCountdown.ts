@@ -80,9 +80,9 @@ export function useHoldCountdown({
         createdAt: order.created_at,
       });
       setInvoiceUrl(payment.invoice_url);
-      window.open(payment.invoice_url, '_blank');
-      showToast.success('Halaman pembayaran dibuka di tab baru!');
-      setPaymentStep('redirect');
+      showToast.success('Mengarahkan ke halaman pembayaran Xendit...');
+      // Langsung redirect ke Xendit di tab yang sama agar tidak di-block oleh browser popup blocker
+      window.location.href = payment.invoice_url;
     } catch (err: unknown) {
       const msg = getApiErrorMessage(err, 'Terjadi kendala saat menghubungi gateway pembayaran.');
       setErrorMsg(msg);
@@ -90,7 +90,6 @@ export function useHoldCountdown({
       setPaymentStep('error');
     }
   }, [eventId, eventName, holdData.unit_ids, finalPayAmount, discountAmount, queueToken, promoCode]);
-
 
   const minutes = Math.floor(secondsLeft / 60);
   const seconds = secondsLeft % 60;
