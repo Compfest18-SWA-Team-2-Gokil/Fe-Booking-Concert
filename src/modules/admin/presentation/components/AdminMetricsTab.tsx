@@ -114,59 +114,141 @@ export function AdminMetricsTab({
         </div>
       </div>
 
-      {/* Graph and Highest Grossing Event */}
+      {/* Analytics Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col items-center justify-center">
-          <h3 className="text-sm font-bold text-gray-900 self-start mb-4">Total Penjualan vs Total Kuota</h3>
-          <div className="flex flex-col sm:flex-row items-center gap-8 w-full justify-center">
-            <div className="relative w-36 h-36">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 140 140">
-                <circle
-                  cx="70"
-                  cy="70"
-                  r="60"
-                  className="stroke-gray-100"
-                  strokeWidth="12"
-                  fill="transparent"
-                />
-                <circle
-                  cx="70"
-                  cy="70"
-                  r="60"
-                  className="stroke-[#0064D2]"
-                  strokeWidth="12"
-                  fill="transparent"
-                  strokeDasharray={2 * Math.PI * 60}
-                  strokeDashoffset={
-                    2 * Math.PI * 60 - 
-                    ((platformStats.totalQuota > 0 ? (platformStats.sold / platformStats.totalQuota) : 0) * 2 * Math.PI * 60)
-                  }
-                  strokeLinecap="round"
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center flex-col">
-                <span className="text-2xl font-black text-gray-900">
-                  {platformStats.totalQuota > 0
-                    ? Math.round((platformStats.sold / platformStats.totalQuota) * 100)
-                    : 0}%
-                </span>
-                <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Terjual</span>
-              </div>
+        
+        {/* Card 1: Graph & Data */}
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col items-center justify-between">
+          <h3 className="text-sm font-bold text-gray-900 self-start mb-4">Total Penjualan</h3>
+          <div className="relative w-32 h-32 mb-4">
+            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 140 140">
+              <circle cx="70" cy="70" r="60" className="stroke-gray-100" strokeWidth="12" fill="transparent" />
+              <circle
+                cx="70"
+                cy="70"
+                r="60"
+                className="stroke-[#0064D2]"
+                strokeWidth="12"
+                fill="transparent"
+                strokeDasharray={2 * Math.PI * 60}
+                strokeDashoffset={
+                  2 * Math.PI * 60 - 
+                  ((platformStats.totalQuota > 0 ? (platformStats.sold / platformStats.totalQuota) : 0) * 2 * Math.PI * 60)
+                }
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center flex-col">
+              <span className="text-xl font-black text-gray-900">
+                {platformStats.totalQuota > 0 ? Math.round((platformStats.sold / platformStats.totalQuota) * 100) : 0}%
+              </span>
             </div>
-            
-            <div className="flex flex-col gap-4">
-              <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Total Kuota Platform</p>
-                <p className="text-2xl font-black text-slate-800">{platformStats.totalQuota.toLocaleString('id-ID')}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Tiket Terjual</p>
-                <p className="text-2xl font-black text-[#0064D2]">{platformStats.sold.toLocaleString('id-ID')}</p>
-              </div>
-            </div>
+          </div>
+          <div className="w-full flex justify-between items-center text-center">
+             <div>
+                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Kuota Platform</p>
+                <p className="text-lg font-black text-slate-800">{platformStats.totalQuota.toLocaleString('id-ID')}</p>
+             </div>
+             <div>
+                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Tiket Terjual</p>
+                <p className="text-lg font-black text-[#0064D2]">{platformStats.sold.toLocaleString('id-ID')}</p>
+             </div>
           </div>
         </div>
 
+        {/* Card 2: Current Event & Gate Data */}
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col">
+          <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <Zap className="w-4 h-4 text-amber-500" />
+            Live Gate Check-in
+          </h3>
+          
+          {(() => {
+            if (eventsLoading) return <div className="text-sm text-gray-400 my-auto text-center">Loading...</div>;
+            if (!events || events.length === 0) return <div className="text-sm text-gray-400 my-auto text-center">Belum ada event</div>;
+            
+            const now = new Date();
+
+            const eventsWithMetrics = events.map((evt, idx) => {
+              const metrics = metricQueries[idx]?.data?.metrics ?? [];
+              const totals = metrics.reduce(
+                (acc, m) => ({
+                  total: acc.total + (m.total || 0),
+                  sold: acc.sold + (m.sold || 0),
+                  admitted: acc.admitted + (m.admitted || 0),
+                }),
+                { total: 0, sold: 0, admitted: 0 }
+              );
+              return { evt, totals };
+            });
+
+            const currentEvent = eventsWithMetrics.length > 0
+              ? eventsWithMetrics.reduce((prev, current) => {
+                  const prevDiff = Math.abs(new Date(prev.evt.date).getTime() - now.getTime());
+                  const currDiff = Math.abs(new Date(current.evt.date).getTime() - now.getTime());
+                  return currDiff < prevDiff ? current : prev;
+                })
+              : null;
+
+            if (!currentEvent) return <div className="text-sm text-gray-400 my-auto text-center">Belum ada event</div>;
+
+            const admitPercentage = currentEvent.totals.sold > 0
+              ? Math.min(100, Math.round((currentEvent.totals.admitted / currentEvent.totals.sold) * 100))
+              : 0;
+
+            return (
+              <div className="flex flex-col gap-4 flex-1 justify-center">
+                <div className="flex items-center gap-4">
+                  {currentEvent.evt.image_url ? (
+                    <img 
+                      src={currentEvent.evt.image_url} 
+                      alt={currentEvent.evt.name} 
+                      className="w-12 h-12 rounded-xl object-cover bg-gray-100 border border-gray-200 shrink-0"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                      <Calendar className="w-5 h-5 text-gray-300" />
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm font-black text-gray-900 line-clamp-2 leading-tight">
+                      {currentEvent.evt.name}
+                    </p>
+                    <p className="text-[11px] text-gray-500 mt-1 line-clamp-1">
+                      {formatDate(currentEvent.evt.date)}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 space-y-3 mt-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500 font-medium">Gate Admitted</span>
+                    <span className="text-sm font-black text-purple-600">{currentEvent.totals.admitted.toLocaleString('id-ID')}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500 font-medium">Expected (Terjual)</span>
+                    <span className="text-sm font-black text-gray-700">{currentEvent.totals.sold.toLocaleString('id-ID')}</span>
+                  </div>
+                  
+                  <div className="pt-2">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Check-in Progress</span>
+                      <span className="text-xs font-bold text-gray-700">{admitPercentage}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="bg-purple-600 h-full rounded-full transition-all"
+                        style={{ width: `${admitPercentage}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* Card 3: Highest Grossing Event */}
         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col">
           <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-emerald-500" />
@@ -174,9 +256,10 @@ export function AdminMetricsTab({
           </h3>
           
           {(() => {
-            if (eventsLoading) return <div className="text-sm text-gray-400">Loading...</div>;
+            if (eventsLoading) return <div className="text-sm text-gray-400 my-auto text-center">Loading...</div>;
+            if (!events || events.length === 0) return <div className="text-sm text-gray-400 my-auto text-center">Belum ada event</div>;
             
-            const eventsWithMetrics = (events ?? []).map((evt, idx) => {
+            const eventsWithMetrics = events.map((evt, idx) => {
               const metrics = metricQueries[idx]?.data?.metrics ?? [];
               const totals = metrics.reduce(
                 (acc, m) => ({
@@ -209,24 +292,24 @@ export function AdminMetricsTab({
                     <img 
                       src={highest.evt.image_url} 
                       alt={highest.evt.name} 
-                      className="w-16 h-16 rounded-xl object-cover bg-gray-100 border border-gray-200 shrink-0"
+                      className="w-12 h-12 rounded-xl object-cover bg-gray-100 border border-gray-200 shrink-0"
                     />
                   ) : (
-                    <div className="w-16 h-16 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
-                      <Calendar className="w-6 h-6 text-gray-300" />
+                    <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                      <Calendar className="w-5 h-5 text-gray-300" />
                     </div>
                   )}
                   <div>
-                    <p className="text-base font-black text-gray-900 line-clamp-2 leading-tight">
+                    <p className="text-sm font-black text-gray-900 line-clamp-2 leading-tight">
                       {highest.evt.name}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-                      {highest.evt.location} • {formatDate(highest.evt.date)}
+                    <p className="text-[11px] text-gray-500 mt-1 line-clamp-1">
+                      {formatDate(highest.evt.date)}
                     </p>
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 space-y-3">
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 space-y-3 mt-1">
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-gray-500 font-medium">Terjual</span>
                     <span className="text-sm font-black text-[#0064D2]">{highest.totals.sold.toLocaleString('id-ID')}</span>
