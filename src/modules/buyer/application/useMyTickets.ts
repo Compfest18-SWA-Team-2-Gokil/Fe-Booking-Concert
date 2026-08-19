@@ -190,9 +190,11 @@ export function useMyTickets() {
   }, [allTickets]);
 
   const activeCount = allTickets.filter((t) => t.order?.status === 'PAID').length;
-  const pendingCount = allTickets.filter(
-    (t) => t.order?.status === 'PENDING' || t.order?.status === 'PAYMENT_PENDING'
-  ).length;
+  const pendingCount = allTickets.filter((t) => {
+    const st = t.order?.status;
+    const ageMs = Date.now() - new Date(t.stored.createdAt).getTime();
+    return (st === 'PENDING' || st === 'PAYMENT_PENDING') && ageMs <= 5 * 60 * 1000;
+  }).length;
 
   return {
     storedOrders: localOrders,

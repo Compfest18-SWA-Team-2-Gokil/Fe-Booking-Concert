@@ -87,10 +87,18 @@ export function TicketCard({
   const { stored, order, isLoading } = ticket;
   const status = order?.status ?? 'PENDING';
   const isAdmitted = (order?.admitted_count ?? 0) > 0;
-  const effectiveStatus = isRefunded ? 'REFUND_REQUESTED' : status;
-  const effectiveSt = getStatusConfig(effectiveStatus, isAdmitted);
 
-  const isExpiredOrCancelled = status === 'CANCELLED';
+  const isPending = status === 'PENDING' || status === 'PAYMENT_PENDING';
+  const orderAgeMs = Date.now() - new Date(stored.createdAt).getTime();
+  const isTimeExpired = isPending && orderAgeMs > 5 * 60 * 1000;
+  const isExpiredOrCancelled = status === 'CANCELLED' || isTimeExpired;
+
+  const effectiveStatus = isRefunded
+    ? 'REFUND_REQUESTED'
+    : isTimeExpired
+    ? 'CANCELLED'
+    : status;
+  const effectiveSt = getStatusConfig(effectiveStatus, isAdmitted);
 
   return (
     <div
@@ -156,7 +164,7 @@ export function TicketCard({
                 </button>
               )}
 
-              {(status === 'PENDING' || status === 'PAYMENT_PENDING') && (
+              {(status === 'PENDING' || status === 'PAYMENT_PENDING') && !isTimeExpired && (
                 <>
                   <button
                     onClick={() => onPay(stored.orderId)}
