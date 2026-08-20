@@ -12,7 +12,7 @@ export function useCameraScanner({ onScanSuccess }: UseCameraScannerOptions) {
   const [isStartingCamera, setIsStartingCamera] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [availableCameras, setAvailableCameras] = useState<CameraDevice[]>([]);
-  const [selectedCameraIndex, setSelectedCameraIndex] = useState(0);
+  const [currentFacingMode, setCurrentFacingMode] = useState<'environment' | 'user'>('environment');
 
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const onScanSuccessRef = useRef(onScanSuccess);
@@ -31,7 +31,7 @@ export function useCameraScanner({ onScanSuccess }: UseCameraScannerOptions) {
         }
         await html5QrCodeRef.current.clear();
       } catch {
-        // Abaikan error stop
+        // Abaikan error saat stop
       }
       html5QrCodeRef.current = null;
     }
@@ -40,29 +40,47 @@ export function useCameraScanner({ onScanSuccess }: UseCameraScannerOptions) {
   }, []);
 
   const startCamera = useCallback(
-    async (cameraIdx = selectedCameraIndex) => {
+    async (targetFacing: 'environment' | 'user' = 'environment', targetDeviceId?: string) => {
       setCameraError(null);
       setIsStartingCamera(true);
 
       try {
         await stopCamera();
 
-        const devices = await Html5Qrcode.getCameras();
-        if (!devices || devices.length === 0) {
-          setCameraError('Tidak ditemukan kamera pada perangkat ini.');
-          setIsStartingCamera(false);
-          return;
+        // Cari kamera yang tersedia
+        let devices: CameraDevice[] = [];
+        try {
+          devices = await Html5Qrcode.getCameras();
+          if (devices && devices.length > 0) {
+            setAvailableCameras(devices);
+          }
+        } catch {
+          // Abaikan jika browser membatasi getCameras sebelum izin
         }
 
-        setAvailableCameras(devices);
-        const validIdx = cameraIdx >= 0 && cameraIdx < devices.length ? cameraIdx : 0;
-        setSelectedCameraIndex(validIdx);
-        const selectedDevice = devices[validIdx];
+        // Tentukan konfigurasi kamera:
+        // Utamakan targetDeviceId jika diberikan, atau cari device id yang sesuai targetFacing,
+        // atau gunakan constraint { facingMode: targetFacing } (standar kamera HP)
+        let cameraConfig: string | { facingMode: string } = { facingMode: targetFacing };
 
-        // Berikan waktu DOM mounting
+        if (targetDeviceId) {
+          cameraConfig = targetDeviceId;
+        } else if (devices && devices.length > 0) {
+          const isBack = targetFacing === 'environment';
+          const matched = devices.find((d) => {
+            const lbl = (d.label || '').toLowerCase();
+            return isBack
+              ? lbl.includes('back') || lbl.includes('rear') || lbl.includes('belakang') || lbl.includes('environment')
+              : lbl.includes('front') || lbl.includes('user') || lbl.includes('depan') || lbl.includes('selfie');
+          });
+          if (matched) {
+            cameraConfig = matched.id;
+          }
+        }
+
+        // Berikan waktu render DOM
         await new Promise((resolve) => setTimeout(resolve, 150));
 
-        // Inisialisasi scanner dengan format fokus QR_CODE dan akselerasi BarcodeDetector API browser
         const html5QrCode = new Html5Qrcode(QR_READER_ELEMENT_ID, {
           formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
           verbose: false,
@@ -74,13 +92,11 @@ export function useCameraScanner({ onScanSuccess }: UseCameraScannerOptions) {
 
         lastScanRef.current = { text: '', ts: 0 };
 
-        // Konfigurasi scan area responsif & framerate tinggi
         await html5QrCode.start(
-          selectedDevice.id,
+          cameraConfig,
           {
-            fps: 20, // 20 FPS untuk respons cepat
+            fps: 20, // FPS responsif
             qrbox: (viewfinderWidth: number, viewfinderHeight: number) => {
-              // Area scan mencakup 85% area kamera agar user tidak harus mengepaskan di kotak sempit
               const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
               const qrboxSize = Math.floor(minEdge * 0.85);
               return {
@@ -94,7 +110,7 @@ export function useCameraScanner({ onScanSuccess }: UseCameraScannerOptions) {
             const now = Date.now();
             const last = lastScanRef.current;
 
-            // Cegah duplicate scan string yang sama dalam 2.5 detik
+            // Cegah scan ganda dalam 2.5 detik
             if (decodedText === last.text && now - last.ts < 2500) {
               return;
             }
@@ -103,13 +119,32 @@ export function useCameraScanner({ onScanSuccess }: UseCameraScannerOptions) {
             onScanSuccessRef.current(decodedText);
           },
           () => {
-            // Abaikan frame decode miss
+            // Frame miss
           }
         );
 
+        setCurrentFacingMode(targetFacing);
         setIsCameraActive(true);
         setIsStartingCamera(false);
       } catch (err: unknown) {
+        // Fallback jika deviceId spesifik gagal, coba fallback langsung ke facingMode
+        try {
+          if (html5QrCodeRef.current && !html5QrCodeRef.current.isScanning) {
+            await html5QrCodeRef.current.start(
+              { facingMode: targetFacing },
+              { fps: 20 },
+              (decodedText) => onScanSuccessRef.current(decodedText),
+              () => {}
+            );
+            setCurrentFacingMode(targetFacing);
+            setIsCameraActive(true);
+            setIsStartingCamera(false);
+            return;
+          }
+        } catch {
+          // Fallback gagal
+        }
+
         const errorMsg =
           err instanceof Error
             ? err.message
@@ -119,15 +154,30 @@ export function useCameraScanner({ onScanSuccess }: UseCameraScannerOptions) {
         setIsStartingCamera(false);
       }
     },
-    [selectedCameraIndex, stopCamera]
+    [stopCamera]
   );
 
-  const switchCamera = useCallback(() => {
-    if (availableCameras.length <= 1) return;
-    const nextIdx = (selectedCameraIndex + 1) % availableCameras.length;
-    setSelectedCameraIndex(nextIdx);
-    startCamera(nextIdx);
-  }, [availableCameras, selectedCameraIndex, startCamera]);
+  const switchCamera = useCallback(async () => {
+    const nextFacing = currentFacingMode === 'environment' ? 'user' : 'environment';
+    setCurrentFacingMode(nextFacing);
+
+    // Cari device id untuk facing mode berikutnya jika ada
+    let targetDeviceId: string | undefined = undefined;
+    if (availableCameras.length > 1) {
+      const isBack = nextFacing === 'environment';
+      const matched = availableCameras.find((d) => {
+        const lbl = (d.label || '').toLowerCase();
+        return isBack
+          ? lbl.includes('back') || lbl.includes('rear') || lbl.includes('belakang')
+          : lbl.includes('front') || lbl.includes('user') || lbl.includes('depan') || lbl.includes('selfie');
+      });
+      if (matched) {
+        targetDeviceId = matched.id;
+      }
+    }
+
+    await startCamera(nextFacing, targetDeviceId);
+  }, [availableCameras, currentFacingMode, startCamera]);
 
   useEffect(() => {
     return () => {
@@ -140,7 +190,8 @@ export function useCameraScanner({ onScanSuccess }: UseCameraScannerOptions) {
     isStartingCamera,
     cameraError,
     availableCameras,
-    startCamera,
+    currentFacingMode,
+    startCamera: () => startCamera('environment'),
     stopCamera,
     switchCamera,
   };

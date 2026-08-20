@@ -71,7 +71,7 @@ export function PromoBanners({ onNavigate }: PromoBannersProps) {
             <Flame className="w-6 h-6 text-orange-500 fill-orange-500" />
           </h2>
           <p className="text-gray-500 text-sm mt-1">
-            Gunakan kode voucher resmi dari admin untuk potongan harga tiket ekstra saat checkout
+            Gunakan kode voucher untuk potongan harga tiket ekstra saat checkout
           </p>
         </div>
       </div>

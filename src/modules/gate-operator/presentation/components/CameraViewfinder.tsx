@@ -6,7 +6,7 @@ interface CameraViewfinderProps {
   isCameraActive: boolean;
   isStartingCamera: boolean;
   cameraError: string | null;
-  availableCameras: CameraDevice[];
+  availableCameras?: CameraDevice[];
   onStartCamera: () => void;
   onStopCamera: () => void;
   onSwitchCamera: () => void;
@@ -16,7 +16,6 @@ export function CameraViewfinder({
   isCameraActive,
   isStartingCamera,
   cameraError,
-  availableCameras,
   onStartCamera,
   onStopCamera,
   onSwitchCamera,
@@ -118,16 +117,14 @@ export function CameraViewfinder({
             Matikan Kamera
           </button>
 
-          {availableCameras.length > 1 && (
-            <button
-              onClick={onSwitchCamera}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border border-gray-200"
-              title="Ganti Kamera Depan/Belakang"
-            >
-              <SwitchCamera className="w-4 h-4" />
-              <span>Ganti Kamera</span>
-            </button>
-          )}
+          <button
+            onClick={onSwitchCamera}
+            className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border border-gray-200"
+            title="Ganti Kamera Depan/Belakang"
+          >
+            <SwitchCamera className="w-4 h-4" />
+            <span>Ganti Kamera</span>
+          </button>
 
           <button
             onClick={onStartCamera}
