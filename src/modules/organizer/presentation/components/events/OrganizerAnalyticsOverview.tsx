@@ -1,10 +1,9 @@
-import React from 'react';
 import { Calendar, Zap } from 'lucide-react';
 import type { Event } from '../../../../events/domain/models/Event';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { EventMetricsResponse } from '../../../application/useOrganizerEvents';
 import { Skeleton } from '../../../../../shared/components/ui/Skeleton';
-import { formatDate } from '../../../../../shared/utils/dateUtils';
+import { formatDate } from '../../../../../core/utils/formatDate';
 
 interface OrganizerStats {
   totalQuota: number;
