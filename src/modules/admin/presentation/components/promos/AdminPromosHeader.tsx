@@ -26,7 +26,7 @@ export function AdminPromosHeader({
           <Tag className="w-5 h-5 text-[#0064D2]" /> Manajemen Voucher & Promo Event
         </h2>
         <p className="text-xs text-gray-500 mt-0.5">
-          Buat voucher global atau diskon khusus konser event tertentu untuk meningkatkan antusiasme pembeli.
+          Buat voucher atau diskon khusus konser event tertentu untuk meningkatkan antusiasme pembeli.
         </p>
       </div>
 

@@ -44,7 +44,7 @@ export function AdminPromosTable({
             ) : promos.length === 0 ? (
               <tr>
                 <td colSpan={8} className="py-12 text-center text-gray-400">
-                  Belum ada data {filterType === 'ALL' ? 'voucher atau promo' : filterType === 'VOUCHER' ? 'voucher global' : 'promo event'}.
+                  Belum ada data {filterType === 'ALL' ? 'voucher atau promo' : filterType === 'VOUCHER' ? 'voucher' : 'promo event'}.
                 </td>
               </tr>
             ) : (
@@ -64,7 +64,7 @@ export function AdminPromosTable({
                               : 'bg-blue-100 text-[#0064D2] border border-blue-200'
                           }`}
                         >
-                          {isPromoEvent ? 'Promo Event' : 'Voucher Global'}
+                          {isPromoEvent ? 'Promo Event' : 'Voucher'}
                         </span>
                         <span className="font-mono font-black text-xs text-gray-900 bg-gray-100 px-2 py-0.5 rounded">
                           {p.code}
@@ -90,7 +90,7 @@ export function AdminPromosTable({
                       ) : (
                         <span className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
                           <Globe className="w-3 h-3 text-blue-600" />
-                          <span>Semua Konser (Global)</span>
+                          <span>Semua Konser</span>
                         </span>
                       )}
                     </td>

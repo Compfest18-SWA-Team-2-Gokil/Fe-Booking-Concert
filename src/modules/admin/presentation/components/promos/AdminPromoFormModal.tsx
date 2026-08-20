@@ -104,7 +104,7 @@ export function AdminPromoFormModal({
             </div>
             <div>
               <h3 className="text-lg font-black">
-                {editingPromo ? `Edit ${isPromo ? 'Promo Event' : 'Voucher Global'}` : isPromo ? 'Buat Promo Khusus Konser' : 'Buat Voucher Global'}
+                {editingPromo ? `Edit ${isPromo ? 'Promo Event' : 'Voucher'}` : isPromo ? 'Buat Promo Khusus Konser' : 'Buat Voucher'}
               </h3>
               <p className="text-xs text-white/80 mt-0.5">
                 {isPromo ? 'Berlaku hanya untuk konser yang dipilih' : 'Berlaku untuk semua konser'}

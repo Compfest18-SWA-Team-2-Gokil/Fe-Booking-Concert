@@ -39,7 +39,7 @@ export function BuyerPromoHeader({ totalPromos, filter, onFilterChange }: BuyerP
           }`}
         >
           <Globe className="w-3.5 h-3.5" />
-          <span>Voucher Global (Semua Event)</span>
+          <span>Voucher</span>
         </button>
         <button
           onClick={() => onFilterChange('PROMO')}

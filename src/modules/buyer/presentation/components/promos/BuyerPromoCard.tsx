@@ -32,7 +32,7 @@ export function BuyerPromoCard({ promo, onCopy, onUsePromo }: BuyerPromoCardProp
                 : 'bg-blue-50 text-[#0064D2] border border-blue-200'
             }`}
           >
-            {isPromoEvent ? '🔥 Promo Event' : '🌐 Voucher Global'}
+            {isPromoEvent ? 'Promo Event' : 'Voucher'}
           </span>
           <span className="font-extrabold text-emerald-600 text-sm">{discountTitle}</span>
         </div>
