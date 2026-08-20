@@ -82,7 +82,7 @@ export function AdminPromoFormModal({
       event_id: formType === 'PROMO' ? eventId : null,
       discount_type: discountType,
       discount_value: Number(discountValue),
-      min_order_amount: Number(minOrderAmount) || 0,
+      min_order_amount: isPromo ? 0 : (Number(minOrderAmount) || 0),
       max_discount_amount: Number(maxDiscountAmount) || 0,
       max_usage: Number(maxUsage) || 0,
       start_date: startDate ? new Date(startDate).toISOString() : null,
@@ -196,14 +196,26 @@ export function AdminPromoFormModal({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Min. Belanja (Rp)</label>
+              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
+                Min. Belanja (Rp) {isPromo && <span className="text-[10px] font-normal text-gray-400 lowercase">(khusus voucher)</span>}
+              </label>
               <input
                 type="number"
                 min={0}
-                value={minOrderAmount}
+                value={isPromo ? 0 : minOrderAmount}
+                disabled={isPromo}
                 onChange={(e) => setMinOrderAmount(Number(e.target.value))}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#0064D2]"
+                className={`w-full border rounded-xl px-4 py-2.5 text-sm ${
+                  isPromo
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200'
+                    : 'bg-white text-gray-900 border-gray-200 focus:ring-2 focus:ring-[#0064D2]'
+                }`}
               />
+              {isPromo && (
+                <p className="mt-1 text-[11px] text-gray-400 leading-tight">
+                  Promo event berlaku langsung per tiket (tanpa syarat min. belanja).
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Maks. Kuota</label>
