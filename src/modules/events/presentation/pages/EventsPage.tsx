@@ -12,7 +12,8 @@ import { formatDate } from '../../../../core/utils/formatDate';
 import { CATEGORY_LABELS } from '../../domain/models/Event';
 import type { EventCategory } from '../../domain/models/Event';
 import type { Event } from '../../domain/models/Event';
-const drawkit10 = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786852214/draw10.webp';
+import { Lottie } from 'lottie-react';
+import noDataAnimation from '../../../../assets/lottie/no-data-found.json';
 
 function EventListItem({ event }: { event: Event }) {
   const categoryLabel = event.category ? CATEGORY_LABELS[event.category] ?? event.category : 'Event';
@@ -125,15 +126,13 @@ export function EventsPage() {
         )}
 
         {!isLoading && !error && filteredEvents && filteredEvents.length === 0 && (
-          <div className="text-center py-16 px-6 bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
-            <img src={drawkit10} alt="Tidak ada event" className="w-56 sm:w-64 max-h-60 object-contain mb-4 drop-shadow-sm" />
-            <h4 className="text-xl font-bold text-gray-900 mb-1">Belum ada event yang sesuai</h4>
-            <p className="text-gray-500 text-sm max-w-sm mb-6">
-              Coba ubah kategori atau reset filter untuk melihat semua event.
-            </p>
+          <div className="text-center py-12 px-6 bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
+            <div className="w-64 sm:w-80 max-w-full">
+              <Lottie src={noDataAnimation} loop={true} autoplay={true} />
+            </div>
             <button
               onClick={handleReset}
-              className="bg-[#0064D2] hover:bg-[#0052B0] text-white text-sm font-bold px-6 py-2.5 rounded-xl shadow-md transition-colors cursor-pointer"
+              className="mt-4 bg-[#0064D2] hover:bg-[#0052B0] text-white text-sm font-bold px-6 py-2.5 rounded-xl shadow-md transition-colors cursor-pointer"
             >
               Reset Filter
             </button>

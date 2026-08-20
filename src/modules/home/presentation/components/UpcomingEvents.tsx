@@ -5,7 +5,8 @@ import { EventCard } from '../../../events/presentation/components/EventCard';
 import { useTicketTypes } from '../../../events/application/useTicketTypes';
 import { useAuth } from '../../../auth/application/useAuth';
 import { Skeleton } from '../../../../shared/components/ui/Skeleton';
-const drawkit10 = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786852214/draw10.webp';
+import { Lottie } from 'lottie-react';
+import noDataAnimation from '../../../../assets/lottie/no-data-found.json';
 
 function EventCardFetched({ eventId, ...rest }: { eventId: string } & Parameters<typeof EventCard>[0]) {
   const { data: ticketTypes } = useTicketTypes(eventId);
@@ -72,19 +73,11 @@ export function UpcomingEvents({ events, isLoading, onResetFilter, onNavigateToE
         </div>
       ) : (
         /* State saat hasil pencarian/filter kosong atau belum ada event */
-        <div className="text-center py-14 px-6 bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
-          <img
-            src={drawkit10}
-            alt="Tidak ada event"
-            className="w-52 sm:w-64 max-h-56 object-contain mb-4 drop-shadow-sm"
-          />
-          <h4 className="text-xl font-bold text-gray-900 mb-1">
-            Belum ada event konser yang tersedia
-          </h4>
-          <p className="text-gray-500 text-sm max-w-sm mb-6">
-            Coba ubah kata kunci pencarian atau masuk ke akun untuk melihat jadwal konser terbaru.
-          </p>
-          <div className="flex gap-3">
+        <div className="text-center py-10 px-6 bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
+          <div className="w-64 sm:w-80 max-w-full">
+            <Lottie src={noDataAnimation} loop={true} autoplay={true} />
+          </div>
+          <div className="flex gap-3 mt-4">
             <button
               onClick={onResetFilter}
               className="bg-[#0064D2] hover:bg-[#0052B0] text-white text-sm font-bold px-6 py-2.5 rounded-xl shadow-md transition-colors cursor-pointer"

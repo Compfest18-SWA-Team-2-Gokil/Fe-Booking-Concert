@@ -1,8 +1,35 @@
+import { useState, useEffect } from 'react';
 import { MapPin, Search as SearchIcon, Tag } from 'lucide-react';
 import type { EventCategory } from '../../../events/domain/models/Event';
 import { CATEGORY_LABELS } from '../../../events/domain/models/Event';
 
-const landingBg = 'https://res.cloudinary.com/vesdiabb/image/upload/v1786851248/landing.webp';
+import landingBg from '../../../../assets/landing.jpg';
+import concertBg from '../../../../assets/concert.jpg';
+import artBg from '../../../../assets/art.jpg';
+import sportBg from '../../../../assets/sport.jpg';
+
+const HERO_SLIDES = [
+  {
+    id: 'landing',
+    name: 'Landing',
+    image: landingBg,
+  },
+  {
+    id: 'concert',
+    name: 'Concert',
+    image: concertBg,
+  },
+  {
+    id: 'art',
+    name: 'Art',
+    image: artBg,
+  },
+  {
+    id: 'sport',
+    name: 'Sport',
+    image: sportBg,
+  },
+];
 
 interface HeroSectionProps {
   searchQuery: string;
@@ -23,15 +50,31 @@ export function HeroSection({
   onCategoryChange,
   onSearch,
 }: HeroSectionProps) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, [currentSlide]);
+
   return (
     <section className="relative min-h-150 lg:min-h-165 flex items-center justify-center overflow-hidden bg-slate-900">
-      <div
-        className="absolute inset-0 bg-cover bg-center transform scale-105 filter brightness-95"
-        style={{ backgroundImage: `url(${landingBg})` }}
-      />
+      {/* Background Slides Carousel with Smooth Crossfade */}
+      {HERO_SLIDES.map((slide, index) => (
+        <div
+          key={slide.id}
+          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out transform scale-105 filter brightness-95 ${
+            index === currentSlide ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+          style={{ backgroundImage: `url(${slide.image})` }}
+        />
+      ))}
       <div className="absolute inset-0 bg-linear-to-b from-slate-950/50 via-slate-900/40 to-slate-950/70" />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 text-center flex flex-col items-center justify-center">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-16 text-center flex flex-col items-center justify-center">
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight mb-4 max-w-4xl mx-auto leading-tight drop-shadow-lg text-center" style={{ color: '#ffffff' }}>
           Temukan Events Impian Favoritmu
         </h1>
@@ -121,6 +164,27 @@ export function HeroSection({
               </button>
             </div>
           </form>
+        </div>
+
+        {/* Carousel Indicator Dots (Concert, Art, Sport) */}
+        <div className="flex items-center justify-center gap-3 mt-8">
+          {HERO_SLIDES.map((slide, index) => (
+            <button
+              key={slide.id}
+              type="button"
+              onClick={() => setCurrentSlide(index)}
+              aria-label={`Lihat banner ${slide.name}`}
+              className={`group relative flex items-center justify-center h-4 p-1 cursor-pointer transition-all duration-300`}
+            >
+              <span
+                className={`block h-2.5 rounded-full transition-all duration-500 ${
+                  index === currentSlide
+                    ? 'w-8 bg-white shadow-lg shadow-white/60 ring-2 ring-white/40'
+                    : 'w-2.5 bg-white/50 hover:bg-white/80'
+                }`}
+              />
+            </button>
+          ))}
         </div>
       </div>
     </section>
