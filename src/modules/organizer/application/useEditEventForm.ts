@@ -92,6 +92,15 @@ export function useEditEventForm() {
     }
   }
 
+  const handleClearImage = () => {
+    setImageFile(null);
+    setCurrentImageUrl('');
+  };
+
+  const handleImageChange = (file: File | null) => {
+    setImageFile(file);
+  };
+
   const previewSrc = imageFile ? URL.createObjectURL(imageFile) : (currentImageUrl || undefined);
 
   return {
@@ -110,7 +119,8 @@ export function useEditEventForm() {
     setTime,
     location,
     setLocation,
-    setImageFile,
+    setImageFile: handleImageChange,
+    onRemoveImage: handleClearImage,
     previewSrc,
     handleSubmit,
     isSaving,

@@ -119,12 +119,36 @@ export function CreateEventForm({
       <div>
         <label className="block text-sm font-bold text-gray-900 mb-1.5">Poster Event *</label>
         {previewSrc ? (
-          <div className="relative rounded-2xl overflow-hidden border border-gray-200 mb-3">
-            <img src={previewSrc} alt="Preview Poster" className="w-full h-48 object-cover" />
+          <div className="relative rounded-2xl overflow-hidden border border-gray-200 mb-3 group">
+            <img src={previewSrc} alt="Preview Poster" className="w-full h-52 object-cover" />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+              <label className="bg-white/90 hover:bg-white text-gray-900 text-xs font-bold px-4 py-2 rounded-xl cursor-pointer transition-all shadow-md flex items-center gap-1.5">
+                <Upload className="w-4 h-4 text-[#0064D2]" />
+                <span>Ganti Poster</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) setImageFile(file);
+                  }}
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() => setImageFile(null)}
+                className="bg-red-600/90 hover:bg-red-600 text-white text-xs font-bold px-3.5 py-2 rounded-xl cursor-pointer transition-all shadow-md flex items-center gap-1"
+              >
+                <X className="w-4 h-4" />
+                <span>Hapus</span>
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => setImageFile(null)}
-              className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-full cursor-pointer transition-colors"
+              title="Hapus Poster"
+              className="sm:hidden absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-full cursor-pointer transition-colors"
             >
               <X className="w-4 h-4" />
             </button>

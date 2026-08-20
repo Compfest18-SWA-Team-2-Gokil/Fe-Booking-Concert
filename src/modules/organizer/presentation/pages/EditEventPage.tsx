@@ -21,6 +21,7 @@ export function EditEventPage() {
     location,
     setLocation,
     setImageFile,
+    onRemoveImage,
     previewSrc,
     handleSubmit,
     isSaving,
@@ -85,6 +86,7 @@ export function EditEventPage() {
             location={location}
             setLocation={setLocation}
             setImageFile={setImageFile}
+            onRemoveImage={onRemoveImage}
             previewSrc={previewSrc}
             onSubmit={handleSubmit}
             isSaving={isSaving}
