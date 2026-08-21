@@ -11,9 +11,10 @@ interface UseCheckoutLogicProps {
   eventId: string;
   ticketTypes?: TicketType[];
   activePromos: Promo[];
+  queueToken?: string | null;
 }
 
-export function useCheckoutLogic({ eventId, ticketTypes, activePromos }: UseCheckoutLogicProps) {
+export function useCheckoutLogic({ eventId, ticketTypes, activePromos, queueToken }: UseCheckoutLogicProps) {
   const holdTicket = useHoldTicket();
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [holdData, setHoldData] = useState<HoldResponse | null>(null);
@@ -83,17 +84,20 @@ export function useCheckoutLogic({ eventId, ticketTypes, activePromos }: UseChec
       .filter(([, qty]) => qty > 0)
       .map(([ticket_type_id, quantity]) => ({ ticket_type_id, quantity }));
 
-    holdTicket.mutate(items, {
-      onSuccess: (data) => setHoldData(data),
-      onError: (err: unknown) => {
-        const isQuotaConflict = axios.isAxiosError(err) && err.response?.status === 409;
-        if (isQuotaConflict) {
-          showAlert.error('Kuota Habis', 'Maaf, kuota tiket untuk kategori yang kamu pilih sudah habis atau sedang dipesan orang lain.');
-        } else {
-          showAlert.error('Gagal Mereservasi Tiket', getApiErrorMessage(err, 'Terjadi kesalahan saat memproses reservasi tiketmu.'));
-        }
+    holdTicket.mutate(
+      { eventId, items, queueToken },
+      {
+        onSuccess: (data) => setHoldData(data),
+        onError: (err: unknown) => {
+          const isQuotaConflict = axios.isAxiosError(err) && err.response?.status === 409;
+          if (isQuotaConflict) {
+            showAlert.error('Kuota Habis', 'Maaf, kuota tiket untuk kategori yang kamu pilih sudah habis atau sedang dipesan orang lain.');
+          } else {
+            showAlert.error('Gagal Mereservasi Tiket', getApiErrorMessage(err, 'Terjadi kesalahan saat memproses reservasi tiketmu.'));
+          }
+        },
       },
-    });
+    );
   }
 
   return {

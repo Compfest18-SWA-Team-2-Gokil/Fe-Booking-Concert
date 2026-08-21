@@ -49,7 +49,7 @@ export function CheckoutPage() {
     handleRemoveVoucher,
     handleHold,
     isHolding,
-  } = useCheckoutLogic({ eventId: id ?? '', ticketTypes, activePromos });
+  } = useCheckoutLogic({ eventId: id ?? '', ticketTypes, activePromos, queueToken });
 
   if (isLoading) {
     return (

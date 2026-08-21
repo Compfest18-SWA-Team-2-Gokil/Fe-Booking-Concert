@@ -13,8 +13,17 @@ interface QueueStatusResponse {
 }
 
 export const ticketApi = {
-  holdTickets: (items: HoldItem[]) =>
-    axiosInstance.post<HoldResponse>('/api/v1/tickets/hold', { items }),
+  holdTickets: (eventId: string, items: HoldItem[], queueToken?: string | null) => {
+    const headers: Record<string, string> = {};
+    if (queueToken) {
+      headers['X-Queue-Token'] = queueToken;
+    }
+    return axiosInstance.post<HoldResponse>(
+      '/api/v1/tickets/hold',
+      { event_id: eventId, items },
+      { headers },
+    );
+  },
 
   joinQueue: (eventId: string, userId: string) =>
     axiosInstance.post<QueueJoinResponse>(

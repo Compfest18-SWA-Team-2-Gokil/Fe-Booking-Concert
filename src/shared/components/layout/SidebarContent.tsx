@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import {
   X, LogOut, Ticket, Plus, QrCode,
   Music, Calendar, RotateCcw, Tag,
-  Layers, AlertOctagon, FileText,
+  Layers, AlertOctagon, FileText, User,
 } from 'lucide-react';
 import { useAuth } from '../../../modules/auth/application/useAuth';
 import { useActivePromos } from '../../../modules/admin/application/useAdminPromos';
@@ -120,6 +120,13 @@ export function SidebarContent({ onClose }: { onClose?: () => void }) {
           icon={Music}
           label="Semua Events"
           isActive={location.pathname === '/events'}
+          onClick={onClose}
+        />
+        <NavItem
+          to="/me"
+          icon={User}
+          label="Profil Saya"
+          isActive={location.pathname === '/me'}
           onClick={onClose}
         />
 

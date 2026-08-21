@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ticket, ShoppingBag, Shield, QrCode, RotateCcw } from 'lucide-react';
+import { Ticket, ShoppingBag, Shield, QrCode, RotateCcw, User } from 'lucide-react';
 
 export const ROLE_LABEL: Record<string, string> = {
   BUYER: 'Pembeli',
@@ -51,14 +51,18 @@ export function getNavLinks(role?: string): NavLink[] {
 export type DropdownItem = { to: string; label: string; icon: React.ElementType };
 
 export function getDropdownItems(role?: string): DropdownItem[] {
+  const profileItem: DropdownItem = { to: '/me', label: 'Profil Saya', icon: User };
+
   switch (role) {
     case 'BUYER':
       return [
+        profileItem,
         { to: '/events', label: 'Semua Events', icon: ShoppingBag },
         { to: '/my-tickets', label: 'Tiket Saya', icon: Ticket },
       ];
     case 'ORGANIZER':
       return [
+        profileItem,
         { to: '/events', label: 'Semua Events', icon: ShoppingBag },
         { to: '/organizer/my-events', label: 'Event Saya', icon: ShoppingBag },
         { to: '/organizer/refunds', label: 'Persetujuan Refund', icon: RotateCcw },
@@ -66,11 +70,13 @@ export function getDropdownItems(role?: string): DropdownItem[] {
       ];
     case 'ADMIN':
       return [
+        profileItem,
         { to: '/events', label: 'Semua Events', icon: ShoppingBag },
         { to: '/admin/dashboard', label: 'Admin Panel', icon: Shield },
       ];
     case 'GATE_OPERATOR':
       return [
+        profileItem,
         { to: '/events', label: 'Semua Events', icon: ShoppingBag },
         { to: '/gate/scan', label: 'Scanner QR', icon: QrCode },
       ];

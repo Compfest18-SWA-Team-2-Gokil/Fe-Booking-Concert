@@ -28,6 +28,7 @@ import { OrganizerRefundsPage } from '../../modules/organizer/presentation/pages
 import { AdminDashboardPage } from '../../modules/admin/presentation/pages/AdminDashboardPage';
 // Gate Operator
 import { ScanQRPage } from '../../modules/gate-operator/presentation/pages/ScanQRPage';
+import { ProfilePage } from '../../modules/profile/presentation/pages/ProfilePage';
 
 /** Global Error Boundary untuk menangani error tak terduga */
 class RouteErrorBoundary extends Component<{ children?: ReactNode }, { hasError: boolean }> {
@@ -178,6 +179,9 @@ export const router = createBrowserRouter([
       {
         element: <SidebarLayout />,
         children: [
+          // All authenticated roles
+          { path: '/me', element: <ProfilePage /> },
+
           // BUYER only
           {
             element: <RequireRole roles={['BUYER']} />,
