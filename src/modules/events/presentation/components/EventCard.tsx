@@ -87,12 +87,14 @@ export function EventCard({ event, ticketTypes }: EventCardProps) {
 
         {/* Promo Event Discount Badge - HANYA MUNCUL JIKA ADA PROMO EVENT */}
         {eventPromo && (
-          <div className="absolute top-3 left-3 bg-[#FF385C] text-white text-xs font-black px-2.5 py-1 rounded-xl shadow-lg flex items-center gap-1 z-10 animate-pulse">
-            <Percent className="w-3.5 h-3.5" />
-            <span>
+          <div className="absolute top-0 left-0 bg-gradient-to-br from-[#FF385C] to-[#E00B35] text-white px-3 py-2 rounded-br-2xl shadow-lg flex flex-col items-center justify-center z-10">
+            <span className="text-[9px] font-extrabold uppercase tracking-widest opacity-90 mb-0.5">
+              Discount
+            </span>
+            <span className="text-xl font-black leading-none">
               {eventPromo.discount_type === 'PERCENTAGE'
-                ? `Diskon ${eventPromo.discount_value}%`
-                : `Hemat ${formatCurrency(eventPromo.discount_value)}`}
+                ? `${eventPromo.discount_value}%`
+                : formatCurrency(eventPromo.discount_value).replace('Rp', '').trim()}
             </span>
           </div>
         )}
