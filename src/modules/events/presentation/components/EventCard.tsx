@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Calendar, MapPin, Percent } from 'lucide-react';
+import { Calendar, MapPin } from 'lucide-react';
 import type { Event } from '../../domain/models/Event';
 import { CATEGORY_LABELS } from '../../domain/models/Event';
 import type { TicketType } from '../../../inventory/domain/Ticket';
