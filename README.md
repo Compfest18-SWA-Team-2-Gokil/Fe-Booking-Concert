@@ -7,6 +7,7 @@ Frontend aplikasi reservasi tiket event berkapasitas terbatas untuk studi kasus 
 ## Daftar isi
 
 - [Latar belakang](#latar-belakang)
+- [Preview dan demo](#preview-dan-demo)
 - [Fitur](#fitur)
 - [Peran pengguna](#peran-pengguna)
 - [Teknologi](#teknologi)
@@ -36,6 +37,12 @@ Paid → QR validated at gate → Admitted
 ```
 
 Antarmuka bukan sumber kebenaran inventori. Setiap hold, pembuatan order, pembayaran, refund, dan scan QR dikonfirmasi API agar keputusan bisnis tetap atomik di backend.
+
+## Preview dan demo
+
+![Prototype TiketinAja](public/prototype.png)
+
+Tonton video demo : [YouTube — TiketinAja](https://youtu.be/j1kvmB2Sdc4).
 
 ## Fitur
 
