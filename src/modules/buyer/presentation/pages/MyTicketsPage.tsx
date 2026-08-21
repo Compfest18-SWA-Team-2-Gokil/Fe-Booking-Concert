@@ -14,6 +14,7 @@ export function MyTicketsPage() {
     tickets,
     filteredTickets,
     totalMatchingCount,
+    totalOrders,
     search,
     setSearch,
     pagination,
@@ -116,7 +117,7 @@ export function MyTicketsPage() {
         <div className="mb-6">
           {HeaderSection}
           <TicketStatsHeader
-            totalOrders={tickets.length}
+            totalOrders={totalOrders}
             activeCount={activeCount}
             pendingCount={pendingCount}
           />

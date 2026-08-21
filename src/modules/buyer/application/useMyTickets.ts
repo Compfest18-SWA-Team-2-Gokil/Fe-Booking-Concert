@@ -51,8 +51,21 @@ export function useMyTickets() {
     refetchOnWindowFocus: true,
   });
 
+  //  query global pesanan aktif
+  const { data: allOrdersStatsResponse } = useQuery({
+    queryKey: ['my-orders-all-stats'],
+    queryFn: () => getMyOrders(1, 1000),
+    enabled: !!token,
+    staleTime: 10_000,
+    refetchOnWindowFocus: true,
+  });
+
   const serverOrders = useMemo(() => serverResponse?.orders ?? [], [serverResponse?.orders]);
   const serverPagination = serverResponse?.pagination;
+  const allOrdersList = useMemo(
+    () => allOrdersStatsResponse?.orders ?? serverOrders,
+    [allOrdersStatsResponse?.orders, serverOrders]
+  );
 
   // Fallback cache di localStorage jika ada
   const localOrders = getStoredOrders();
@@ -189,18 +202,28 @@ export function useMyTickets() {
     }
   }, [allTickets]);
 
-  const activeCount = allTickets.filter((t) => t.order?.status === 'PAID').length;
-  const pendingCount = allTickets.filter((t) => {
-    const st = t.order?.status;
-    const ageMs = Date.now() - new Date(t.stored.createdAt).getTime();
-    return (st === 'PENDING' || st === 'PAYMENT_PENDING') && ageMs <= 5 * 60 * 1000;
-  }).length;
+  const totalOrders = useMemo(() => {
+    return serverPagination?.total_items ?? allOrdersStatsResponse?.pagination?.total_items ?? allOrdersList.length;
+  }, [serverPagination?.total_items, allOrdersStatsResponse?.pagination?.total_items, allOrdersList.length]);
+
+  const activeCount = useMemo(() => {
+    return allOrdersList.filter((o) => o.status === 'PAID').length;
+  }, [allOrdersList]);
+
+  const pendingCount = useMemo(() => {
+    return allOrdersList.filter((o) => {
+      const st = o.status;
+      const ageMs = Date.now() - new Date(o.created_at).getTime();
+      return (st === 'PENDING' || st === 'PAYMENT_PENDING') && ageMs <= 5 * 60 * 1000;
+    }).length;
+  }, [allOrdersList]);
 
   return {
     storedOrders: localOrders,
     tickets: allTickets,
     filteredTickets: paginatedTickets,
     totalMatchingCount: allMatchingTickets.length,
+    totalOrders,
     search,
     setSearch,
     pagination,
