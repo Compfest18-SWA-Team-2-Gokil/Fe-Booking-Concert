@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import {
   X, LogOut, Ticket, Plus, QrCode,
   Music, Calendar, RotateCcw, Tag,
-  Layers, AlertOctagon, FileText, User,
+  Layers, AlertOctagon, FileText, User, CalendarCheck,
 } from 'lucide-react';
 import { useAuth } from '../../../modules/auth/application/useAuth';
 import { useActivePromos } from '../../../modules/admin/application/useAdminPromos';
@@ -176,13 +176,22 @@ export function SidebarContent({ onClose }: { onClose?: () => void }) {
         )}
 
         {user?.role === 'GATE_OPERATOR' && (
-          <NavItem
-            to="/gate/scan"
-            icon={QrCode}
-            label="Scan QR Tiket"
-            isActive={location.pathname.startsWith('/gate')}
-            onClick={onClose}
-          />
+          <>
+            <NavItem
+              to="/gate/my-events"
+              icon={CalendarCheck}
+              label="Tugas Saya"
+              isActive={location.pathname.startsWith('/gate/my-events')}
+              onClick={onClose}
+            />
+            <NavItem
+              to="/gate/scan"
+              icon={QrCode}
+              label="Scan QR Tiket"
+              isActive={location.pathname === '/gate/scan'}
+              onClick={onClose}
+            />
+          </>
         )}
 
         {user?.role === 'ADMIN' && (

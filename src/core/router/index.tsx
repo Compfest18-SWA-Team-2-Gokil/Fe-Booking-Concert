@@ -28,6 +28,7 @@ import { OrganizerRefundsPage } from '../../modules/organizer/presentation/pages
 import { AdminDashboardPage } from '../../modules/admin/presentation/pages/AdminDashboardPage';
 // Gate Operator
 import { ScanQRPage } from '../../modules/gate-operator/presentation/pages/ScanQRPage';
+import { GateMyEventsPage } from '../../modules/gate-operator/presentation/pages/GateMyEventsPage';
 import { ProfilePage } from '../../modules/profile/presentation/pages/ProfilePage';
 
 /** Global Error Boundary untuk menangani error tak terduga */
@@ -77,7 +78,7 @@ function roleHome(role?: string): string {
     case 'ADMIN':
       return '/admin/dashboard';
     case 'GATE_OPERATOR':
-      return '/gate/scan';
+      return '/gate/my-events';
     default:
       return '/events';
   }
@@ -219,6 +220,7 @@ export const router = createBrowserRouter([
           {
             element: <RequireRole roles={['GATE_OPERATOR']} />,
             children: [
+              { path: '/gate/my-events', element: <GateMyEventsPage /> },
               { path: '/gate/scan', element: <ScanQRPage /> },
             ],
           },
