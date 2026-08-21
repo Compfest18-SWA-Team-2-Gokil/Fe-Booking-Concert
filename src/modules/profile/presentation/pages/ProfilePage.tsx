@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, User, AlertTriangle } from 'lucide-react';
 import { useProfile } from '../../application/useProfile';
 import { useEditUsername } from '../../application/useEditUsername';
 import { useChangePassword } from '../../application/useChangePassword';
